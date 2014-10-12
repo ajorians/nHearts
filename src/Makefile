@@ -16,10 +16,13 @@ all:	prepare $(EXE)
 prepare:
 	mkdir -p include
 	mkdir -p include/ArchiveLib
+	mkdir -p include/CardLib
 	mkdir -p include/HeartsLib
 	mkdir -p lib
 	ln -s ../../ArchiveLib/include/ArchiveLib.h include/ArchiveLib/ArchiveLib.h
 	ln -s ../ArchiveLib/libArchive.a lib/libArchive.a
+	ln -s ../../CardLib/include/CardLib.h include/CardLib/CardLib.h
+	ln -s ../CardLib/libCards.a lib/libCards.a
 	ln -s ../../HeartsLib/include/HeartsLib.h include/HeartsLib/HeartsLib.h
 	ln -s ../HeartsLib/libHearts.a lib/libHearts.a
 
