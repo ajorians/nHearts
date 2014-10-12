@@ -10,6 +10,14 @@ typedef void* HeartsLib;
 #define HEARTSLIB_OUT_OF_MEMORY		(-2)
 #define HEARTSLIB_CARD_FAILURE		(-3)
 
+typedef enum
+{
+   PassLeft,
+   PassRight,
+   PassAcross,
+   NoPass
+} Pass_Direction_t;
+
 //////////////////////////////////////////////
 //Initalization/Error checking/Mode functions
 //////////////////////////////////////////////
@@ -23,5 +31,7 @@ void ClearHeartsLibError(HeartsLib api);
 //HeartsLib related functions
 //////////////////////////////////////////////
 int GetHeartsPlayerScore(HeartsLib api, int nPlayerIndex);
+Pass_Direction_t GetHeartsPassDirection(HeartsLib api);
+int GetHeartsGameOver(HeartsLib api);
 
 #endif
