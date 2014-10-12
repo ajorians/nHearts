@@ -10,17 +10,55 @@
 struct HeartsPlayer
 {
    CardLib m_cardsHand;
-   CardLib m_cardCardTook;
+   CardLib m_cardsTaken;
    int m_nScore;
 };
 
 struct Hearts
 {
    int m_nLastError;
-   CardLib m_Deck;
    struct HeartsPlayer m_Players[NUMBER_OF_HEARTS_PLAYERS];
    int m_nScoreLimit;
+   Pass_Direction_t m_ePassDirection;
 };
+
+int DealHands(HeartsLib api)
+{
+   struct Hearts* pH = (struct Hearts*)api;
+
+   int nPlayerIndex;
+   for(nPlayerIndex = 0; nPlayerIndex < NUMBER_OF_HEARTS_PLAYERS; nPlayerIndex++) {
+      RemoveAllCards(pH->m_Players[nPlayerIndex].m_cardsHand, 1/*Free card*/);
+   }
+
+   CardLib cardDeck;
+   if( CARDLIB_OK != CardLibCreate(&cardDeck) ) {
+      return HEARTSLIB_OUT_OF_MEMORY;//Assuming
+   }
+
+   if( CARDLIB_OK != AddStandardCards(cardDeck, HEARTS_NUMBER_OF_JOKERS) ) {
+      CardLibFree(&cardDeck);
+      return HEARTSLIB_OUT_OF_MEMORY;
+   }
+
+   if( CARDLIB_OK != Shuffle(cardDeck) ) {
+      CardLibFree(&cardDeck);
+      return HEARTSLIB_CARD_FAILURE;
+   }
+
+   int nNumCards = GetNumberOfCards(cardDeck);//Better be 52 :)
+   int nCard;
+   for(nCard = 0; nCard < nNumCards; nCard++) {
+      Card c;
+      TakeNextCard(cardDeck, &c);
+      nPlayerIndex = nCard % NUMBER_OF_HEARTS_PLAYERS;
+      AddCard(pH->m_Players[nPlayerIndex].m_cardsHand, c);
+   }
+
+   CardLibFree(&cardDeck);
+
+   return HEARTSLIB_OK;
+}
 
 int HeartsLibCreate(HeartsLib* api)
 {
@@ -31,26 +69,25 @@ int HeartsLibCreate(HeartsLib* api)
       return HEARTSLIB_OUT_OF_MEMORY;
    }
 
-   if( CARDLIB_OK != CardLibCreate(&pH->m_Deck) ) {
-      free(pH);
-      return HEARTSLIB_OUT_OF_MEMORY;//Assuming
-   }
-
-   if( CARDLIB_OK != AddStandardCards(pH->m_Deck, HEARTS_NUMBER_OF_JOKERS) ) {
-      CardLibFree(&pH->m_Deck);
-      free(pH);
-      return HEARTSLIB_OUT_OF_MEMORY;
-   }
-
-   if( CARDLIB_OK != Shuffle(pH->m_Deck) ) {
-      CardLibFree(&pH->m_Deck);
-      free(pH);
-      return HEARTSLIB_CARD_FAILURE;
+   int nPlayerIndex;
+   for(nPlayerIndex = 0; nPlayerIndex < NUMBER_OF_HEARTS_PLAYERS; nPlayerIndex++) {
+      if( CARDLIB_OK != CardLibCreate(&pH->m_Players[nPlayerIndex].m_cardsHand) ) {
+         return HEARTSLIB_OUT_OF_MEMORY;//Assuming
+      }
+      if( CARDLIB_OK != CardLibCreate(&pH->m_Players[nPlayerIndex].m_cardsTaken) ) {
+         return HEARTSLIB_OUT_OF_MEMORY;//Assuming
+      }
    }
 
    pH->m_nLastError = HEARTSLIB_OK;
 
-   *api = pH; 
+   *api = pH;
+
+   int nDealHands = DealHands(*api);
+   if( HEARTSLIB_OK != nDealHands ) {
+      free(pH);
+      return nDealHands;
+   }
 
    return HEARTSLIB_OK;
 }
@@ -61,7 +98,11 @@ int HeartsLibFree(HeartsLib* api)
 
    struct Hearts* pH = *api;
 
-   CardLibFree(&pH->m_Deck);
+   int nPlayerIndex;
+   for(nPlayerIndex = 0; nPlayerIndex < NUMBER_OF_HEARTS_PLAYERS; nPlayerIndex++) {
+      CardLibFree(&pH->m_Players[nPlayerIndex].m_cardsHand);
+      CardLibFree(&pH->m_Players[nPlayerIndex].m_cardsTaken);
+   }
 
    free(pH);
    *api = NULL;
@@ -94,5 +135,18 @@ int GetHeartsPlayerScore(HeartsLib api, int nPlayerIndex)
 
    struct Hearts* pH = (struct Hearts*)api;
    return pH->m_Players[nPlayerIndex].m_nScore;
+}
+
+Pass_Direction_t GetHeartsPassDirection(HeartsLib api)
+{
+   DEBUG_FUNC_NAME;
+
+   struct Hearts* pH = (struct Hearts*)api;
+   return pH->m_ePassDirection;
+}
+
+int GetHeartsGameOver(HeartsLib api)
+{
+   return 0;
 }
 
