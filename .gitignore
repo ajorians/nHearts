@@ -173,3 +173,11 @@ UpgradeLog*.htm
 # Microsoft Fakes
 FakesAssemblies/
 
+# GCC Files
+*.a
+*.o
+
+# NSpire files
+*.tns
+*.elf
+

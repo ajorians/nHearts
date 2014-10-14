@@ -29,6 +29,20 @@ void Puz_itoa(int n, char buffer[], int nBufferSize)//Very quickly thrown togeth
         buffer[nBufferSize-1] = '\0';
 }
 
+Uint16 get_pixel16( SDL_Surface *surface, int x, int y )
+{
+   int bpp = surface->format->BytesPerPixel;
+   Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp; //Get the requested pixel 
+   return *(Uint16 *)p;
+}
+
+void put_pixel16( SDL_Surface *surface, int x, int y, Uint16 pixel )
+{
+   int bpp = surface->format->BytesPerPixel;
+   Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+   *(Uint16 *)p = pixel;
+}
+
 void draw_rectangle(SDL_Surface* Surface, Uint32 color, Uint16 x, Uint16 y, Uint16 width, Uint16 height, Uint8 lnpx )
 {
         SDL_Rect DestRect;

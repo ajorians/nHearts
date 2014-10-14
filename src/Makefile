@@ -1,7 +1,7 @@
 GCC = nspire-g++
 LD = nspire-ld
 GCCFLAGS = -Os -Wall -W -marm -Wno-unused-parameter -I include
-LDFLAGS = -L lib -lndls -lHearts -lArchive
+LDFLAGS = -L lib -lndls -lHearts -lCards -lArchive
 OBJCOPY := "$(shell which arm-elf-objcopy 2>/dev/null)"
 ifeq (${OBJCOPY},"")
 	OBJCOPY := arm-none-eabi-objcopy

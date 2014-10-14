@@ -61,7 +61,7 @@ int RemoveAllCards(CardLib api, int nFreeCard);
 int CreateCard(Card* pCard, int nSuit, int nValue);
 int DestroyCard(Card* pCard);
 int GetSuit(Card c);
-int GetValue(Card c);
+int GetCardValue(Card c);
 int SetCardExtraData(Card c, void* pExtraData);
 void* GetCardExtraData(Card c);
 

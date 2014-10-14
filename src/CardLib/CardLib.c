@@ -303,7 +303,7 @@ int GetSuit(Card c)
    return pNode->m_nSuit;
 }
 
-int GetValue(Card c)
+int GetCardValue(Card c)
 {
    DEBUG_FUNC_NAME;
 
