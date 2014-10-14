@@ -6,7 +6,8 @@ extern "C"
 }
 
 #include "Menu.h"
-//#include "Game.h"
+#include "Game.h"
+#include "CardImages.h"
 #include "Config.h"
 #include "Options.h"
 #include "Help.h"
@@ -44,8 +45,7 @@ int main(int argc, char *argv[])
 		/* Hides the cursor */
 		SDL_ShowCursor(SDL_DISABLE);
 
-		int nLevelNumber = -1;
-		char strLevelData[2048];//Big enough for a 18x18 puzzle with solution
+		CardImages cardImages;
 
 		while(true)
 		{
@@ -76,6 +76,9 @@ int main(int argc, char *argv[])
 			else
 			{
 				bool bPlay = true;
+				Game game(pScreen, &cardImages);
+				while(game.Loop()){}
+				break;
 			}
 		}
 	}

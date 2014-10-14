@@ -145,6 +145,33 @@ Pass_Direction_t GetHeartsPassDirection(HeartsLib api)
    return pH->m_ePassDirection;
 }
 
+int GetNumberOfCardsInHand(HeartsLib api, int nPlayerIndex)
+{
+   DEBUG_FUNC_NAME;
+
+   if( nPlayerIndex < 0 || nPlayerIndex >= NUMBER_OF_HEARTS_PLAYERS )
+      return HEARTSLIB_BADARGUMENT;
+
+   struct Hearts* pH = (struct Hearts*)api;
+   return GetNumberOfCards(pH->m_Players[nPlayerIndex].m_cardsHand);
+}
+
+int GetCardInHand(HeartsLib api, Card* pCard, int nPlayerIndex, int nCard)
+{
+   DEBUG_FUNC_NAME;
+
+   if( nPlayerIndex < 0 || nPlayerIndex >= NUMBER_OF_HEARTS_PLAYERS )
+      return HEARTSLIB_BADARGUMENT;
+
+   if( nCard < 0 || nCard > GetNumberOfCardsInHand(api, nPlayerIndex) )
+      return HEARTSLIB_BADARGUMENT;
+
+   struct Hearts* pH = (struct Hearts*)api;
+
+   GetCard(pH->m_Players[nPlayerIndex].m_cardsHand, pCard, nCard);
+   return HEARTSLIB_OK;
+}
+
 int GetHeartsGameOver(HeartsLib api)
 {
    return 0;

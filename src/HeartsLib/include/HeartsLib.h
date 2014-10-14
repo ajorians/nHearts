@@ -32,6 +32,8 @@ void ClearHeartsLibError(HeartsLib api);
 //////////////////////////////////////////////
 int GetHeartsPlayerScore(HeartsLib api, int nPlayerIndex);
 Pass_Direction_t GetHeartsPassDirection(HeartsLib api);
+int GetNumberOfCardsInHand(HeartsLib api, int nPlayerIndex);
+int GetCardInHand(HeartsLib api, Card* pCard, int nPlayerIndex, int nCard);
 int GetHeartsGameOver(HeartsLib api);
 
 #endif
