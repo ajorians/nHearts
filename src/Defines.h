@@ -14,6 +14,9 @@ extern "C"
 #define CARD_WIDTH      (42)
 #define CARD_HEIGHT     (62)
 
+#define DISPCARD_WIDTH	(21)
+#define DISPCARD_HEIGHT	(31)
+
 #define GAME_BACKGROUND_R       (153)
 #define GAME_BACKGROUND_G       (153)
 #define GAME_BACKGROUND_B       (102)

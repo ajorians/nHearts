@@ -10,6 +10,9 @@ extern "C"
 
 #include "Defines.h"
 #include "CardImages.h"
+#include "Metrics.h"
+#include "Selector.h"
+#include "Direction.h"
 
 class Game
 {
@@ -22,12 +25,15 @@ public:
 protected:
 	bool PollEvents();
 	void UpdateDisplay();
+	void Move(Direction eDirection);
 
 protected:
 	SDL_Surface	*m_pScreen;//Does not own
 	nSDL_Font *m_pFont;
 	CardImages* m_pCardImages;
 	HeartsLib m_Hearts;
+	Metrics		m_Metrics;
+	Selector	m_Selector;
 };
 
 #endif
