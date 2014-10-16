@@ -22,6 +22,82 @@ struct Hearts
    Pass_Direction_t m_ePassDirection;
 };
 
+void SortCards(CardLib cards)
+{
+   //First let's sort by suit
+   int nMadeChange = 1;
+   while( nMadeChange == 1 ) {
+      int nNumCards = GetNumberOfCards(cards);
+      DEBUG_MSG("NumCards: %d\n", nNumCards);
+      nMadeChange = 0;
+      int i;
+      for(i=1; i<nNumCards; i++) {
+         Card c, cPrevious;
+         GetCard(cards, &cPrevious, i-1);
+         GetCard(cards, &c, i);
+
+         int nSuit = GetSuit(c), nSuitPrevious = GetSuit(cPrevious);
+         DEBUG_MSG("Suit1: %d; Suit2: %d\n", nSuit, nSuitPrevious);
+
+         int nSwap = 0;
+         if( nSuit != nSuitPrevious ) {
+            //Order: Clubs(3) Diamonds(1) Spades(2) Hearts(0)
+            if( nSuit == CLUBS ) {
+               nSwap = 1;
+            }
+            else if ( nSuit == DIAMONDS && (nSuitPrevious == SPADES || nSuitPrevious == HEARTS) ) {
+               nSwap = 1;
+            }
+            else if( nSuit == SPADES && nSuitPrevious == HEARTS ){
+               nSwap = 1;
+            }
+
+         }
+
+         if( nSwap == 1 ) {
+            DEBUG_MSG("Swapping 2 cards\n");
+            SwapCardValues(c, cPrevious);
+            nMadeChange = 1;
+         }
+      }
+   }
+
+   nMadeChange = 1;
+   while( nMadeChange == 1 ) {
+      int nNumCards = GetNumberOfCards(cards);
+      DEBUG_MSG("NumCards: %d\n", nNumCards);
+      nMadeChange = 0;
+      int i;
+      for(i=1; i<nNumCards; i++) {
+         Card c, cPrevious;
+         GetCard(cards, &cPrevious, i-1);
+         GetCard(cards, &c, i);
+
+         int nSuit = GetSuit(c), nSuitPrevious = GetSuit(cPrevious);
+         DEBUG_MSG("Suit1: %d; Suit2: %d\n", nSuit, nSuitPrevious);
+
+         int nSwap = 0;
+         if( nSuit == nSuitPrevious ) {
+            //Order: 2-10, J,K,Q,A
+            int nValue = GetCardValue(c), nPreviousValue = GetCardValue(cPrevious);
+            if( nPreviousValue == ACE ) {
+               nSwap = 1;
+            }
+            else if ( nPreviousValue != ACE && nValue != ACE && nPreviousValue > nValue ) {
+               nSwap = 1;
+            }
+
+         }
+
+         if( nSwap == 1 ) {
+            DEBUG_MSG("Swapping 2 cards\n");
+            SwapCardValues(c, cPrevious);
+            nMadeChange = 1;
+         }
+      }
+   }
+}
+
 int DealHands(HeartsLib api)
 {
    struct Hearts* pH = (struct Hearts*)api;
@@ -53,6 +129,10 @@ int DealHands(HeartsLib api)
       TakeNextCard(cardDeck, &c);
       nPlayerIndex = nCard % NUMBER_OF_HEARTS_PLAYERS;
       AddCard(pH->m_Players[nPlayerIndex].m_cardsHand, c);
+   }
+
+   for(nPlayerIndex = 0; nPlayerIndex < NUMBER_OF_HEARTS_PLAYERS; nPlayerIndex++) {
+      SortCards(pH->m_Players[nPlayerIndex].m_cardsHand);
    }
 
    CardLibFree(&cardDeck);

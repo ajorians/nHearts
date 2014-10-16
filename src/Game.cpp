@@ -1,11 +1,18 @@
 #include "Game.h"
 
+extern "C"
+{
+#include "SDL/SDL_gfxPrimitives.h"
+}
+
 Game::Game(SDL_Surface* pScreen, CardImages* pCardImages)
-: m_pScreen(pScreen), m_pCardImages(pCardImages)
+: m_pScreen(pScreen), m_pCardImages(pCardImages), m_Selector(pScreen, &m_Metrics)
 {
 	HeartsLibCreate(&m_Hearts);
 
 	m_pFont = nSDL_LoadFont(NSDL_FONT_THIN, 0/*R*/, 0/*G*/, 0/*B*/);
+
+	m_Metrics.SetCardDimensions(DISPCARD_WIDTH, DISPCARD_HEIGHT);
 }
 
 Game::~Game()
@@ -54,11 +61,14 @@ bool Game::PollEvents()
 					
 					case SDLK_RIGHT:
 					case SDLK_6:
+						Move(Right);
 					break;
 					
 					case SDLK_LEFT:
 					case SDLK_4:
+						Move(Left);
 					break;
+
 					default:
 						break;
 				}
@@ -84,25 +94,33 @@ void Game::UpdateDisplay()
 	SDL_FillRect(m_pScreen, NULL, SDL_MapRGB(m_pScreen->format, GAME_BACKGROUND_R, GAME_BACKGROUND_G, GAME_BACKGROUND_B));
 	
 	//Draw score stuff
-	//nSDL_DrawString(m_pScreen, m_pFont, 0, SCREEN_HEIGHT-20, "Bonus:         %d", GetBonus() );
 	int nNumCards = GetNumberOfCardsInHand(m_Hearts, 0);
+	int nLeft = (SCREEN_WIDTH - nNumCards*DISPCARD_WIDTH)/2;
 	for(int i=0; i<nNumCards; i++) {
 		Card c;
 		GetCardInHand(m_Hearts, &c, 0, i);
-		SDL_Surface* pSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, CARD_WIDTH, CARD_HEIGHT, 16, 0, 0, 0, 0);
-		m_pCardImages->GetImageForCard(pSurface, c);
+		SDL_Surface* pSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, m_Metrics.GetCardWidth(), m_Metrics.GetCardHeight(), 16, 0, 0, 0, 0);
+		m_pCardImages->GetImageForCard(pSurface, c, DISPCARD_WIDTH, DISPCARD_HEIGHT);
 
 		SDL_Rect rectDest;
-	        rectDest.x = i*(CARD_WIDTH*2/3);
-	        rectDest.y = SCREEN_HEIGHT-CARD_HEIGHT;
-	        rectDest.w = CARD_WIDTH;
-	        rectDest.h = CARD_HEIGHT;
+	        rectDest.x = m_Metrics.GetXPos(i);
+	        rectDest.y = SCREEN_HEIGHT-35;
+	        rectDest.w = m_Metrics.GetCardWidth();
+	        rectDest.h = m_Metrics.GetCardHeight();;
 
 		SDL_BlitSurface(pSurface, NULL, m_pScreen, &rectDest);
 		SDL_FreeSurface(pSurface);
 	}
 
+	m_Selector.DrawSelector();
+//	boxRGBA(m_pScreen, m_Metrics.GetLeft(), m_Metrics.GetTop(), m_Metrics.GetLeft()+m_Metrics.GetCardWidth(), m_Metrics.GetTop()+m_Metrics.GetCardHeight(),  GAME_BACKGROUND_R, GAME_BACKGROUND_G, GAME_BACKGROUND_B, 230);
+
+	nSDL_DrawString(m_pScreen, m_pFont, 0, SCREEN_HEIGHT-20, "Some text here!" );
+
 	SDL_UpdateRect(m_pScreen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
-
+void Game::Move(Direction eDirection)
+{
+   m_Selector.Move(eDirection);
+}
