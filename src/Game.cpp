@@ -130,15 +130,20 @@ void Game::Move(Direction eDirection)
 
 void Game::SelectCard()
 {
-   ToggleSelectedCard(m_Hearts, 0, m_Selector.GetCurrentX());
-   if( GetNumberSelectedCards(m_Hearts, 0) == 3 ) {
-      PassSelectedCards(m_Hearts, 0);
+   if( HasPassedCards(m_Hearts) == HEARTSLIB_NOT_PASSED_CARDS ) {
+      ToggleSelectedCard(m_Hearts, 0, m_Selector.GetCurrentX());
+      if( GetNumberSelectedCards(m_Hearts, 0) == 3 ) {
+         PassSelectedCards(m_Hearts, 0);
 
-      for(int i=1; i<4; i++) {
-         while(GetNumberSelectedCards(m_Hearts, i) != 3 ) {
-            ToggleSelectedCard(m_Hearts, i, rand() % 13);
+         for(int i=1; i<4; i++) {
+            while(GetNumberSelectedCards(m_Hearts, i) != 3 ) {
+                ToggleSelectedCard(m_Hearts, i, rand() % 13);
+            }
+            PassSelectedCards(m_Hearts, i);
          }
-         PassSelectedCards(m_Hearts, i);
       }
+   }
+   else {
+      
    }
 }
