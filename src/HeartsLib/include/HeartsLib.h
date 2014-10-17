@@ -13,6 +13,9 @@ typedef void* HeartsLib;
 #define HEARTSLIB_CARD_SELECTED		(1)
 #define HEARTSLIB_CARD_NOT_SELECTED	(0)
 
+#define HEARTSLIB_PASSED_CARDS		(1)
+#define HEARTSLIB_NOT_PASSED_CARDS	(0)
+
 typedef enum
 {
    PassLeft,
@@ -42,5 +45,8 @@ int ToggleSelectedCard(HeartsLib api, int nPlayerIndex, int nCard);
 int IsCardSelected(HeartsLib api, int nPlayerIndex, int nCardIndex);
 int GetNumberSelectedCards(HeartsLib api, int nPlayerIndex);
 int PassSelectedCards(HeartsLib api, int nPlayerIndex);
+int HasPassedCards(HeartsLib api);
+int GetPlayersTurn(HeartsLib api);
+int PlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex);
 
 #endif
