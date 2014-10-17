@@ -54,6 +54,7 @@ int AddCardToBeginning(CardLib api, Card c);
 int Shuffle(CardLib api);
 int TakeNextCard(CardLib api, Card* pCard);//Need to Destroy pCard when done
 int RemoveAllCards(CardLib api, int nFreeCard);
+int RemoveCard(CardLib api, int nIndex, int nFreeCard);
 int SwapCards(CardLib api, int nIndex1, int nIndex2);
 
 //////////////////////////////////////////////

@@ -13,7 +13,6 @@ public:
    bool SetCardDimensions(int nWidth, int nHeight);
    int GetNumItems() const;
    int GetXPos(int nBoardX) const;
-   int GetYPos(int nBoardY) const;
    int GetCardWidth() const;
    int GetCardHeight() const;
    int GetLeft() const;

@@ -57,6 +57,7 @@ bool Game::PollEvents()
 					case SDLK_RETURN:
 					case SDLK_LCTRL:
 					case SDLK_RCTRL:
+						SelectCard();
 					break;
 					
 					case SDLK_RIGHT:
@@ -104,7 +105,9 @@ void Game::UpdateDisplay()
 
 		SDL_Rect rectDest;
 	        rectDest.x = m_Metrics.GetXPos(i);
-	        rectDest.y = SCREEN_HEIGHT-35;
+	        rectDest.y = m_Metrics.GetTop();
+		if( IsCardSelected(m_Hearts, 0, i) == HEARTSLIB_CARD_SELECTED )
+			rectDest.y -= 10;
 	        rectDest.w = m_Metrics.GetCardWidth();
 	        rectDest.h = m_Metrics.GetCardHeight();;
 
@@ -123,4 +126,19 @@ void Game::UpdateDisplay()
 void Game::Move(Direction eDirection)
 {
    m_Selector.Move(eDirection);
+}
+
+void Game::SelectCard()
+{
+   ToggleSelectedCard(m_Hearts, 0, m_Selector.GetCurrentX());
+   if( GetNumberSelectedCards(m_Hearts, 0) == 3 ) {
+      PassSelectedCards(m_Hearts, 0);
+
+      for(int i=1; i<4; i++) {
+         while(GetNumberSelectedCards(m_Hearts, i) != 3 ) {
+            ToggleSelectedCard(m_Hearts, i, rand() % 13);
+         }
+         PassSelectedCards(m_Hearts, i);
+      }
+   }
 }

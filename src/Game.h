@@ -26,6 +26,7 @@ protected:
 	bool PollEvents();
 	void UpdateDisplay();
 	void Move(Direction eDirection);
+	void SelectCard();
 
 protected:
 	SDL_Surface	*m_pScreen;//Does not own

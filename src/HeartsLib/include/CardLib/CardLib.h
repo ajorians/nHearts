@@ -54,6 +54,7 @@ int AddCardToBeginning(CardLib api, Card c);
 int Shuffle(CardLib api);
 int TakeNextCard(CardLib api, Card* pCard);//Need to Destroy pCard when done
 int RemoveAllCards(CardLib api, int nFreeCard);
+int RemoveCard(CardLib api, int nIndex, int nFreeCard);
 int SwapCards(CardLib api, int nIndex1, int nIndex2);
 
 //////////////////////////////////////////////
@@ -65,6 +66,8 @@ int GetSuit(Card c);
 int GetCardValue(Card c);
 int SetCardExtraData(Card c, void* pExtraData);
 void* GetCardExtraData(Card c);
+int SetSuit(Card c, int nSuit);
+int SetCardValue(Card c, int nValue);
 int SwapCardValues(Card c1, Card c2);
 
 #endif //CARDLIB_H_INCLUDED

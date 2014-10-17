@@ -264,6 +264,40 @@ int RemoveAllCards(CardLib api, int nFreeCard)
    return CARDLIB_OK;
 }
 
+int RemoveCard(CardLib api, int nIndex, int nFreeCard)
+{
+   DEBUG_FUNC_NAME;
+
+   struct CardDeck* pCD = (struct CardDeck*)api;
+
+   struct CardNode* pCurrent = pCD->m_pCards;
+
+   struct CardNode* pLastNode = NULL;
+   int i=0;
+   while(pCurrent != NULL) {
+      if( i == nIndex ) {
+         if( pLastNode ) {
+            pLastNode->m_pNext = pCurrent->m_pNext;
+         }
+         else {
+            pCD->m_pCards = pCurrent->m_pNext;
+         }
+
+         pCurrent->m_pNext = NULL;
+         Card card = (Card*)pCurrent;
+         if( nFreeCard == CARDLIB_FREE_CARD )
+            DestroyCard(&card);
+         return CARDLIB_OK;
+      }
+
+      i++;
+      pLastNode = pCurrent;
+      pCurrent = pCurrent->m_pNext;
+   }
+   
+   return CARDLIB_INDEX_NOT_EXIST;
+}
+
 int SwapCards(CardLib api, int nIndex1, int nIndex2)
 {
    DEBUG_FUNC_NAME;
