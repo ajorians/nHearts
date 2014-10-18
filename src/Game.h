@@ -27,6 +27,7 @@ protected:
 	void UpdateDisplay();
 	void Move(Direction eDirection);
 	void SelectCard();
+	void DoGamePlay();
 
 protected:
 	SDL_Surface	*m_pScreen;//Does not own

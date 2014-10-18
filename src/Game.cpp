@@ -28,6 +28,8 @@ bool Game::Loop()
 	
 	//Update screen
 	UpdateDisplay();
+
+	DoGamePlay();
 	
 	//SDL_Delay(5);
 	
@@ -109,7 +111,7 @@ void Game::UpdateDisplay()
 		if( IsCardSelected(m_Hearts, 0, i) == HEARTSLIB_CARD_SELECTED )
 			rectDest.y -= 10;
 	        rectDest.w = m_Metrics.GetCardWidth();
-	        rectDest.h = m_Metrics.GetCardHeight();;
+	        rectDest.h = m_Metrics.GetCardHeight();
 
 		SDL_BlitSurface(pSurface, NULL, m_pScreen, &rectDest);
 		SDL_FreeSurface(pSurface);
@@ -118,7 +120,26 @@ void Game::UpdateDisplay()
 	m_Selector.DrawSelector();
 //	boxRGBA(m_pScreen, m_Metrics.GetLeft(), m_Metrics.GetTop(), m_Metrics.GetLeft()+m_Metrics.GetCardWidth(), m_Metrics.GetTop()+m_Metrics.GetCardHeight(),  GAME_BACKGROUND_R, GAME_BACKGROUND_G, GAME_BACKGROUND_B, 230);
 
-	nSDL_DrawString(m_pScreen, m_pFont, 0, SCREEN_HEIGHT-20, "Some text here!" );
+	//Draw cards in middle
+	int nNumCardsInMiddle = GetNumberOfCardsInMiddle(m_Hearts);
+	for(int i=0; i<nNumCardsInMiddle; i++) {
+		Card c;
+		int nPlayer;
+		GetMiddleCard(m_Hearts, &c, i, &nPlayer);
+		SDL_Surface* pSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, m_Metrics.GetCardWidth(), m_Metrics.GetCardHeight(), 16, 0, 0, 0, 0);
+		m_pCardImages->GetImageForCard(pSurface, c, DISPCARD_WIDTH, DISPCARD_HEIGHT);
+
+		SDL_Rect rectDest;
+		rectDest.x = 35 + i*DISPCARD_WIDTH;
+		rectDest.y = 35;
+		rectDest.w = m_Metrics.GetCardWidth();
+                rectDest.h = m_Metrics.GetCardHeight();
+
+		SDL_BlitSurface(pSurface, NULL, m_pScreen, &rectDest);
+                SDL_FreeSurface(pSurface);
+	}
+
+	nSDL_DrawString(m_pScreen, m_pFont, 0, SCREEN_HEIGHT-20, "It is player %d turn", GetPlayersTurn(m_Hearts) );
 
 	SDL_UpdateRect(m_pScreen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
@@ -144,6 +165,18 @@ void Game::SelectCard()
       }
    }
    else {
-      
+      PlayCard(m_Hearts, 0, m_Selector.GetCurrentX());
+   }
+}
+
+void Game::DoGamePlay()
+{
+   if( HasPassedCards(m_Hearts) == HEARTSLIB_PASSED_CARDS ) {
+      int nPlayersTurn = GetPlayersTurn(m_Hearts);
+      if( nPlayersTurn != 0 ) {
+         int nCardsInHand = GetNumberOfCardsInHand(m_Hearts, nPlayersTurn);
+         int nCardPossibleToPlay = rand() % nCardsInHand;
+         PlayCard(m_Hearts, nPlayersTurn, nCardPossibleToPlay);
+      }
    }
 }
