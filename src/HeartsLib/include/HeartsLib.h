@@ -55,5 +55,7 @@ int CanPlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex);
 int PlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex);
 int GetNumberOfCardsInMiddle(HeartsLib api);
 int GetMiddleCard(HeartsLib api, Card* pCard, int nCardIndex, int* pPlayerIndex);
+int ScoreOfCardsTaken(HeartsLib api, int nPlayerIndex);
+int GetPlayerScore(HeartsLib api, int nPlayerIndex);
 
 #endif
