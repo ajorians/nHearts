@@ -147,6 +147,9 @@ int DealHands(HeartsLib api)
 
    CardLibFree(&cardDeck);
 
+   if( pH->m_ePassDirection == NoPass )
+     pH->m_bPassedCards = 1;
+
    return HEARTSLIB_OK;
 }
 
@@ -175,6 +178,9 @@ int HeartsLibCreate(HeartsLib* api)
 
    if( CARDLIB_OK != CardLibCreate(&pH->m_cardsMiddle) )
       return HEARTSLIB_OUT_OF_MEMORY;//Assuming
+
+   pH->m_ePassDirection = PassLeft;
+   pH->m_nScoreLimit = 100;
 
    pH->m_nLastError = HEARTSLIB_OK;
 
@@ -271,7 +277,17 @@ int GetCardInHand(HeartsLib api, Card* pCard, int nPlayerIndex, int nCard)
 
 int GetHeartsGameOver(HeartsLib api)
 {
-   return 0;
+   DEBUG_FUNC_NAME;
+
+   struct Hearts* pH = (struct Hearts*)api;
+
+   int nPlayerIndex;
+   for(nPlayerIndex=0; nPlayerIndex < NUMBER_OF_HEARTS_PLAYERS; nPlayerIndex++) {
+      if( GetHeartsPlayerScore(api, nPlayerIndex) >= pH->m_nScoreLimit )
+         return HEARTSLIB_GAME_OVER;
+   }
+
+   return HEARTSLIB_STILL_PLAYING;
 }
 
 int ToggleSelectedCard(HeartsLib api, int nPlayerIndex, int nCard)
@@ -497,9 +513,10 @@ int CanPlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
 
    Card c;
    GetCard(pH->m_Players[nPlayerIndex].m_cardsHand, &c, nCardIndex);
+   int nSuit = GetSuit(c);
+   int nValue = GetCardValue(c);
 
    if( pH->m_nLastTrumpPlayer == -1 ) {//Can only be passing the 2 of clubs
-      int nSuit = GetSuit(c);
       if( nSuit != CLUBS ) {
          printf("Need to play 2club and this isn't a club\n");
          return HEARTSLIB_CANNOT_PLAY_CARD;
@@ -515,7 +532,6 @@ int CanPlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
       return HEARTSLIB_CAN_PLAY_CARD;
    }
    else {
-      int nSuit = GetSuit(c);
       if( GetNumberOfCards(pH->m_cardsMiddle) == 0 ) {//Can play "any" suit
          //Can't start a heart unless that is all you have or hearts have been broken
          if( nSuit == HEARTS && pH->m_bHeartsBroken != 1 ) {
@@ -535,10 +551,12 @@ int CanPlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
          }
       }
       else {//Has to match suit unless don't have that suit.
+         //That is unless it is the first turn; then can't play hearts/Queen of Spades
          Card cardFirst;
          GetCard(pH->m_cardsMiddle, &cardFirst, 0);
          int nCurrentSuit = GetSuit(cardFirst);
          if( nSuit != nCurrentSuit ) {
+            int n2ClubsHand = (GetCardValue(cardFirst) == 2 && nCurrentSuit == CLUBS) ? 1 : 0;
             //Player can only do this if they don't have any of that suit
             int nNumCards = GetNumberOfCards(pH->m_Players[nPlayerIndex].m_cardsHand);
             int nCard;
@@ -549,6 +567,21 @@ int CanPlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
                if( nSuitInHand == nCurrentSuit ) {
                   printf("Cards were played and you are not matching suit and you can\n");
                   return HEARTSLIB_CANNOT_PLAY_CARD;
+               }
+            }
+            if( n2ClubsHand == 1 ) {
+               if( nSuit == HEARTS || (nSuit == SPADES && nValue == QUEEN) ) {
+                  //If you have any card that is not a heart or Queen of spades then you need to play that
+                  int nNumCards = GetNumberOfCards(pH->m_Players[nPlayerIndex].m_cardsHand);
+                  int nCard;
+                  for(nCard = 0; nCard < nNumCards; nCard++) {
+                     Card cardInHand;
+                     GetCard(pH->m_Players[nPlayerIndex].m_cardsHand, &cardInHand, nCard);
+                     int nSuitInHand = GetSuit(cardInHand);
+                     int nValueInHand = GetCardValue(cardInHand);
+                     if( nSuitInHand != HEARTS && ! (nSuitInHand != SPADES && nValueInHand != QUEEN) )
+                        return HEARTSLIB_CANNOT_PLAY_CARD;
+                  }
                }
             }
          }
@@ -570,6 +603,16 @@ int PlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
       if( nRet == HEARTSLIB_CANNOT_PLAY_CARD )
          return HEARTSLIB_FAIL_PLAY_CARD;
       return nRet;
+   }
+
+   //Remove the selected-ness of cards in hand
+   int nNumCards = GetNumberOfCardsInHand(api, nPlayerIndex);
+   int i;
+   for(i=0; i<nNumCards; i++) {
+      Card c;
+      GetCard(pH->m_Players[nPlayerIndex].m_cardsHand, &c, i);
+      if( GetCardExtraData(c) != NULL )
+         SetCardExtraData(c, NULL);
    }
 
    printf("Can play card player: %d, cardindex: %d\n", nPlayerIndex, nCardIndex);

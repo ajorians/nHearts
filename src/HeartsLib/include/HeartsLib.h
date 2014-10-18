@@ -20,6 +20,9 @@ typedef void* HeartsLib;
 #define HEARTSLIB_CAN_PLAY_CARD		(1)
 #define HEARTSLIB_CANNOT_PLAY_CARD	(0)
 
+#define HEARTSLIB_GAME_OVER		(1)
+#define HEARTSLIB_STILL_PLAYING		(0)
+
 typedef enum
 {
    PassLeft,
