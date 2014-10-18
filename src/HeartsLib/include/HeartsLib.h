@@ -23,6 +23,9 @@ typedef void* HeartsLib;
 #define HEARTSLIB_GAME_OVER		(1)
 #define HEARTSLIB_STILL_PLAYING		(0)
 
+#define HEARTSLIB_PLAYERS_PLAYED_CARDS	(1)
+#define HEARTSLIB_TURN_IN_PLAY		(0)
+
 typedef enum
 {
    PassLeft,
@@ -56,7 +59,11 @@ int HasPassedCards(HeartsLib api);
 int GetPlayersTurn(HeartsLib api);
 int CanPlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex);
 int PlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex);
+int HasEverybodyPlayedTheirCard(HeartsLib api);
+int GiveTrickToPlayer(HeartsLib api);
 int GetNumberOfCardsInMiddle(HeartsLib api);
+int FigureOutWhoTakesTrick(HeartsLib api, int* pPlayerIndex);
+int DoHeartsNextHand(HeartsLib api);
 int GetMiddleCard(HeartsLib api, Card* pCard, int nCardIndex, int* pPlayerIndex);
 int ScoreOfCardsTaken(HeartsLib api, int nPlayerIndex);
 int GetPlayerScore(HeartsLib api, int nPlayerIndex);

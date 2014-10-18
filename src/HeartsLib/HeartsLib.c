@@ -107,11 +107,13 @@ int DealHands(HeartsLib api)
 {
    struct Hearts* pH = (struct Hearts*)api;
 
+   printf("Removing cards if any\n");
    int nPlayerIndex;
    for(nPlayerIndex = 0; nPlayerIndex < NUMBER_OF_HEARTS_PLAYERS; nPlayerIndex++) {
       RemoveAllCards(pH->m_Players[nPlayerIndex].m_cardsHand, CARDLIB_FREE_CARD);
       RemoveAllCards(pH->m_Players[nPlayerIndex].m_cardsTaken, CARDLIB_FREE_CARD);
    }
+   printf("Just removed cards\n");
 
    pH->m_bPassedCards = 0;
    pH->m_bHeartsBroken = 0;
@@ -121,6 +123,7 @@ int DealHands(HeartsLib api)
    if( CARDLIB_OK != CardLibCreate(&cardDeck) ) {
       return HEARTSLIB_OUT_OF_MEMORY;//Assuming
    }
+   printf("Just created a deck\n");
 
    if( CARDLIB_OK != AddStandardCards(cardDeck, HEARTS_NUMBER_OF_JOKERS) ) {
       CardLibFree(&cardDeck);
@@ -132,6 +135,7 @@ int DealHands(HeartsLib api)
       return HEARTSLIB_CARD_FAILURE;
    }
 
+    printf("Just shuffled\n");
    int nNumCards = GetNumberOfCards(cardDeck);//Better be 52 :)
    int nCard;
    for(nCard = 0; nCard < nNumCards; nCard++) {
@@ -141,10 +145,12 @@ int DealHands(HeartsLib api)
       AddCard(pH->m_Players[nPlayerIndex].m_cardsHand, c);
    }
 
+   printf("About to sort each players cards\n");
    for(nPlayerIndex = 0; nPlayerIndex < NUMBER_OF_HEARTS_PLAYERS; nPlayerIndex++) {
       SortCards(pH->m_Players[nPlayerIndex].m_cardsHand);
    }
 
+   printf("Sorted each players cards\n");
    CardLibFree(&cardDeck);
 
    if( pH->m_ePassDirection == NoPass )
@@ -466,6 +472,7 @@ int GetPlayersTurn(HeartsLib api)
    struct Hearts* pH = (struct Hearts*)api;
 
    if( pH->m_nLastTrumpPlayer == -1 ) {//Whomever has the 2 of Clubs
+      printf("GetPlayersTurn::m_nLastTrumpPlayer =-1\n");
       int nPlayerIndex;
       for(nPlayerIndex = 0; nPlayerIndex < NUMBER_OF_HEARTS_PLAYERS; nPlayerIndex++) {
          int nNumCards = GetNumberOfCards(pH->m_Players[nPlayerIndex].m_cardsHand);
@@ -518,24 +525,20 @@ int CanPlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
 
    if( pH->m_nLastTrumpPlayer == -1 ) {//Can only be passing the 2 of clubs
       if( nSuit != CLUBS ) {
-         printf("Need to play 2club and this isn't a club\n");
          return HEARTSLIB_CANNOT_PLAY_CARD;
       }
 
       int nValue = GetCardValue(c);
       if( nValue != 2 ) {
-         printf("Need to play 2club and this isn't a 2\n");
          return HEARTSLIB_CANNOT_PLAY_CARD;
       }
 
-      printf("2club is ok card to play\n");
       return HEARTSLIB_CAN_PLAY_CARD;
    }
    else {
       if( GetNumberOfCards(pH->m_cardsMiddle) == 0 ) {//Can play "any" suit
          //Can't start a heart unless that is all you have or hearts have been broken
          if( nSuit == HEARTS && pH->m_bHeartsBroken != 1 ) {
-            printf("Trying to play a heart\n");
             //Check player only have Hearts
             int nNumCards = GetNumberOfCards(pH->m_Players[nPlayerIndex].m_cardsHand);
             int nCard;
@@ -544,7 +547,6 @@ int CanPlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
                GetCard(pH->m_Players[nPlayerIndex].m_cardsHand, &cardInHand, nCard);
                int nSuitInHand = GetSuit(cardInHand);
                if( nSuitInHand != HEARTS ) {
-                  printf("You have other cards and hearts hasn't been broken\n");
                   return HEARTSLIB_CANNOT_PLAY_CARD;
                }
             }
@@ -565,7 +567,6 @@ int CanPlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
                GetCard(pH->m_Players[nPlayerIndex].m_cardsHand, &cardInHand, nCard);
                int nSuitInHand = GetSuit(cardInHand);
                if( nSuitInHand == nCurrentSuit ) {
-                  printf("Cards were played and you are not matching suit and you can\n");
                   return HEARTSLIB_CANNOT_PLAY_CARD;
                }
             }
@@ -588,7 +589,6 @@ int CanPlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
       }
    }
 
-   printf("Seems fine to play this card\n");
    return HEARTSLIB_CAN_PLAY_CARD;
 }
 
@@ -615,10 +615,7 @@ int PlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
          SetCardExtraData(c, NULL);
    }
 
-   printf("Can play card player: %d, cardindex: %d\n", nPlayerIndex, nCardIndex);
-
    int nPlayersTurn = GetPlayersTurn(api);
-   printf("Players turn: %d\n", nPlayersTurn);
 
    Card c;
    GetCard(pH->m_Players[nPlayerIndex].m_cardsHand, &c, nCardIndex);
@@ -632,82 +629,141 @@ int PlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
 
    RemoveCard(pH->m_Players[nPlayerIndex].m_cardsHand, nCardIndex, CARDLIB_REMOVE_CARD_ONLY);
    AddCard(pH->m_cardsMiddle, c);
-   printf("Put card in middle\n");
 
-   //After all players have played their cards
-   if( GetNumberOfCards(pH->m_cardsMiddle) == NUMBER_OF_HEARTS_PLAYERS ) {
-      printf("All players have played their cards\n");
-      //Figure out who had the highest
-      Card cardFirst;
-      GetCard(pH->m_cardsMiddle, &cardFirst, 0);
-      int nCurrentSuit = GetSuit(cardFirst);
-      int nCurrentValue = GetCardValue(cardFirst);
-      printf("First played card is suit: %d, value %d\n", nCurrentSuit, nCurrentValue);
+   return HEARTSLIB_OK;
+}
 
-      //So the player who just went was the last to go lets set nPlayersTurn to the first to play
-      nPlayersTurn = (nPlayersTurn+1) % NUMBER_OF_HEARTS_PLAYERS;
-      printf("First card play by player: %d\n", nPlayersTurn);
-      int nHighest = nPlayersTurn;
-      int nCard;
-      for(nCard = 1; nCard < NUMBER_OF_HEARTS_PLAYERS; nCard++) {
-         Card cardPlayed;
-         GetCard(pH->m_cardsMiddle, &cardPlayed, nCard);
-         int nSuit = GetSuit(cardPlayed);
-         if( nSuit != nCurrentSuit )
-            continue;
+int GiveTrickToPlayer(HeartsLib api)
+{
+   DEBUG_MSG;
 
-         int nValue = GetCardValue(cardPlayed);
-         if( nCurrentValue == ACE ){}
-         else if( nValue == ACE ) {
-            nCurrentValue = nValue;
-            nHighest = (nPlayersTurn + nCard) % NUMBER_OF_HEARTS_PLAYERS;
-         }
-         else if( nValue > nCurrentValue ) {
-            nCurrentValue = nValue;
-            nHighest = (nPlayersTurn + nCard) % NUMBER_OF_HEARTS_PLAYERS;
-         }
+   if( !HasEverybodyPlayedTheirCard(api) )
+      return HEARTSLIB_BADARGUMENT;
+
+   struct Hearts* pH = (struct Hearts*)api;
+
+   int nPlayerTakesTrick = -1;
+   FigureOutWhoTakesTrick(api, &nPlayerTakesTrick);
+
+   //Give the cards to the player
+   pH->m_nLastTrumpPlayer = nPlayerTakesTrick;
+   int nCard;
+   for(nCard = 0; nCard < NUMBER_OF_HEARTS_PLAYERS; nCard++) {
+      Card cardPlayed;
+      TakeNextCard(pH->m_cardsMiddle, &cardPlayed);
+      AddCard(pH->m_Players[nPlayerTakesTrick].m_cardsTaken, cardPlayed);
+   }
+
+   int nPlayer;
+   for(nPlayer = 0; nPlayer < NUMBER_OF_HEARTS_PLAYERS; nPlayer++) {
+      if( GetNumberOfCardsInHand(api, nPlayer) != 0 )
+      return HEARTSLIB_OK;
+   }
+
+   //If here means all players have no cards so update score
+   printf("Updating scores!\n");
+   //Update scores
+   for(nPlayer = 0; nPlayer < NUMBER_OF_HEARTS_PLAYERS; nPlayer++) {
+      int nScore = ScoreOfCardsTaken(api, nPlayer);
+      if( nScore == 26 ) {//TODO:
       }
-
-      printf("Player with highest card was: %d\n", nHighest);
-
-      //Give the cards to the player
-      pH->m_nLastTrumpPlayer = nHighest;
-      for(nCard = 0; nCard < NUMBER_OF_HEARTS_PLAYERS; nCard++) {
-         printf("Taking card and giving it to player\n");
-         Card cardPlayed;
-         TakeNextCard(pH->m_cardsMiddle, &cardPlayed);
-         AddCard(pH->m_Players[nHighest].m_cardsTaken, cardPlayed);
-      }
-      printf("All set giving cards to player\n");
-
-      //If just played last card
-      if( GetNumberOfCardsInHand(api, 0) == 0 ) {
-         //Update scores
-         int nPlayer;
-         for(nPlayer = 0; nPlayer < NUMBER_OF_HEARTS_PLAYERS; nPlayer++) {
-            int nScore = ScoreOfCardsTaken(api, nPlayer);
-            if( nScore == 26 ) {//TODO:
-            }
-            else {
-               pH->m_Players[nPlayer].m_nScore += nScore;
-            }
-         }
-
-         //Reset things
-         if( pH->m_ePassDirection == PassLeft )
-            pH->m_ePassDirection = PassRight;
-         else if( pH->m_ePassDirection == PassRight )
-            pH->m_ePassDirection = PassAcross;
-         else if( pH->m_ePassDirection == PassAcross )
-            pH->m_ePassDirection = NoPass;
-         else
-            pH->m_ePassDirection = PassLeft;
-
-         DealHands(api);
+      else {
+        pH->m_Players[nPlayer].m_nScore += nScore;
       }
    }
 
    return HEARTSLIB_OK;
+}
+
+int DoHeartsNextHand(HeartsLib api)
+{
+   DEBUG_MSG;
+
+   //The middle can be empty if called GiveTrickToPlayer
+   printf("DoHeartsNextHand: Every has played their card\n");
+
+   int nPlayer;
+   for(nPlayer = 0; nPlayer < NUMBER_OF_HEARTS_PLAYERS; nPlayer++) {
+      if( GetNumberOfCardsInHand(api, nPlayer) != 0 )
+      return HEARTSLIB_BADARGUMENT;
+   }
+   printf("Player 0 has no cards in hand\n");
+
+   struct Hearts* pH = (struct Hearts*)api;
+
+   //If have cards in middle then haven't Given Trick to player
+   if( GetNumberOfCards(pH->m_cardsMiddle) != 0 )
+      GiveTrickToPlayer(api);
+
+   //Reset things
+   if( pH->m_ePassDirection == PassLeft )
+      pH->m_ePassDirection = PassRight;
+   else if( pH->m_ePassDirection == PassRight )
+      pH->m_ePassDirection = PassAcross;
+   else if( pH->m_ePassDirection == PassAcross )
+      pH->m_ePassDirection = NoPass;
+   else
+      pH->m_ePassDirection = PassLeft;
+
+   printf("About to deal hands\n");
+   DealHands(api);
+   printf("Dealt hands\n");
+
+   return HEARTSLIB_OK;
+}
+
+int FigureOutWhoTakesTrick(HeartsLib api, int* pPlayerIndex)
+{
+   DEBUG_MSG;
+
+   if( HasEverybodyPlayedTheirCard(api) != HEARTSLIB_PLAYERS_PLAYED_CARDS )
+      return HEARTSLIB_BADARGUMENT;
+
+   struct Hearts* pH = (struct Hearts*)api;
+
+   //Figure out who had the highest
+   Card cardFirst;
+   GetCard(pH->m_cardsMiddle, &cardFirst, 0);
+   int nCurrentSuit = GetSuit(cardFirst);
+   int nCurrentValue = GetCardValue(cardFirst);
+   printf("First played card is suit: %d, value %d\n", nCurrentSuit, nCurrentValue);
+
+   //So the player who just went was the last to go lets set nPlayersTurn to the first to play
+   int nPlayersTurn = GetPlayersTurn(api);
+   printf("First card play by player: %d\n", nPlayersTurn);
+   int nHighest = nPlayersTurn;
+   int nCard;
+   for(nCard = 1; nCard < NUMBER_OF_HEARTS_PLAYERS; nCard++) {
+      Card cardPlayed;
+      GetCard(pH->m_cardsMiddle, &cardPlayed, nCard);
+      int nSuit = GetSuit(cardPlayed);
+      if( nSuit != nCurrentSuit )
+         continue;
+
+      int nValue = GetCardValue(cardPlayed);
+      if( nCurrentValue == ACE ){}
+      else if( nValue == ACE ) {
+         nCurrentValue = nValue;
+         nHighest = (nPlayersTurn + nCard) % NUMBER_OF_HEARTS_PLAYERS;
+      }
+      else if( nValue > nCurrentValue ) {
+         nCurrentValue = nValue;
+         nHighest = (nPlayersTurn + nCard) % NUMBER_OF_HEARTS_PLAYERS;
+      }
+   }
+   if( pPlayerIndex != NULL )
+      *pPlayerIndex = nHighest;
+
+   printf("Player with highest card was: %d\n", nHighest);
+}
+
+int HasEverybodyPlayedTheirCard(HeartsLib api)
+{
+   DEBUG_MSG;
+
+   struct Hearts* pH = (struct Hearts*)api;
+
+   return (GetNumberOfCards(pH->m_cardsMiddle) == NUMBER_OF_HEARTS_PLAYERS) ? HEARTSLIB_PLAYERS_PLAYED_CARDS : HEARTSLIB_TURN_IN_PLAY;
 }
 
 int GetNumberOfCardsInMiddle(HeartsLib api)

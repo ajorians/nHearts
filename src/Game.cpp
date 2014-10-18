@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "ScoreReview.h"
 
 extern "C"
 {
@@ -198,15 +199,29 @@ void Game::DoGamePlay()
       return;
 
    if( HasPassedCards(m_Hearts) == HEARTSLIB_PASSED_CARDS ) {
-      int nPlayersTurn = GetPlayersTurn(m_Hearts);
-      if( nPlayersTurn != 0 ) {
-         while(true) {
-            int nCardsInHand = GetNumberOfCardsInHand(m_Hearts, nPlayersTurn);
-            int nCardPossibleToPlay = rand() % nCardsInHand;
-            if( CanPlayCard(m_Hearts, nPlayersTurn, nCardPossibleToPlay) == HEARTSLIB_CAN_PLAY_CARD ) {
-            	PlayCard(m_Hearts, nPlayersTurn, nCardPossibleToPlay);
-		m_uLastAction = SDL_GetTicks();
-                break;
+      if( HasEverybodyPlayedTheirCard(m_Hearts ) ) {
+         printf("Everybody played their card\n");
+         GiveTrickToPlayer(m_Hearts);
+         
+         if( GetNumberOfCardsInHand(m_Hearts, 0) == 0 ) {
+            ScoreReview r(m_pScreen, &m_Hearts);
+            while( r.Loop() ){}
+            printf("DoHeartsNextHand\n");
+            DoHeartsNextHand(m_Hearts);
+            printf("After DoHeartsNextHand\n");
+         }
+      }
+      else {
+        int nPlayersTurn = GetPlayersTurn(m_Hearts);
+         if( nPlayersTurn != 0 ) {
+            while(true) {
+               int nCardsInHand = GetNumberOfCardsInHand(m_Hearts, nPlayersTurn);
+               int nCardPossibleToPlay = rand() % nCardsInHand;
+               if( CanPlayCard(m_Hearts, nPlayersTurn, nCardPossibleToPlay) == HEARTSLIB_CAN_PLAY_CARD ) {
+                  PlayCard(m_Hearts, nPlayersTurn, nCardPossibleToPlay);
+                  m_uLastAction = SDL_GetTicks();
+                  break;
+               }
             }
          }
       }
