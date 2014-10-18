@@ -109,10 +109,13 @@ int DealHands(HeartsLib api)
 
    int nPlayerIndex;
    for(nPlayerIndex = 0; nPlayerIndex < NUMBER_OF_HEARTS_PLAYERS; nPlayerIndex++) {
-      RemoveAllCards(pH->m_Players[nPlayerIndex].m_cardsHand, 1/*Free card*/);
+      RemoveAllCards(pH->m_Players[nPlayerIndex].m_cardsHand, CARDLIB_FREE_CARD);
+      RemoveAllCards(pH->m_Players[nPlayerIndex].m_cardsTaken, CARDLIB_FREE_CARD);
    }
 
    pH->m_bPassedCards = 0;
+   pH->m_bHeartsBroken = 0;
+   pH->m_nLastTrumpPlayer = -1;
 
    CardLib cardDeck;
    if( CARDLIB_OK != CardLibCreate(&cardDeck) ) {
@@ -169,8 +172,6 @@ int HeartsLibCreate(HeartsLib* api)
       }
    }
 
-   pH->m_bHeartsBroken = 0;
-   pH->m_nLastTrumpPlayer = -1;
    if( CARDLIB_OK != CardLibCreate(&pH->m_cardsMiddle) )
       return HEARTSLIB_OUT_OF_MEMORY;//Assuming
 
@@ -631,6 +632,32 @@ int PlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
          AddCard(pH->m_Players[nHighest].m_cardsTaken, cardPlayed);
       }
       printf("All set giving cards to player\n");
+
+      //If just played last card
+      if( GetNumberOfCardsInHand(api, 0) == 0 ) {
+         //Update scores
+         int nPlayer;
+         for(nPlayer = 0; nPlayer < NUMBER_OF_HEARTS_PLAYERS; nPlayer++) {
+            int nScore = ScoreOfCardsTaken(api, nPlayer);
+            if( nScore == 26 ) {//TODO:
+            }
+            else {
+               pH->m_Players[nPlayer].m_nScore += nScore;
+            }
+         }
+
+         //Reset things
+         if( pH->m_ePassDirection == PassLeft )
+            pH->m_ePassDirection = PassRight;
+         else if( pH->m_ePassDirection == PassRight )
+            pH->m_ePassDirection = PassAcross;
+         else if( pH->m_ePassDirection == PassAcross )
+            pH->m_ePassDirection = NoPass;
+         else
+            pH->m_ePassDirection = PassLeft;
+
+         DealHands(api);
+      }
    }
 
    return HEARTSLIB_OK;
@@ -664,5 +691,39 @@ int GetMiddleCard(HeartsLib api, Card* pCard, int nCardIndex, int* pPlayerIndex)
    return HEARTSLIB_OK;
 }
 
+int ScoreOfCardsTaken(HeartsLib api, int nPlayerIndex)
+{
+   DEBUG_MSG;
 
+   struct Hearts* pH = (struct Hearts*)api;
+
+   int nNumCards = GetNumberOfCards(pH->m_Players[nPlayerIndex].m_cardsTaken);
+
+   int nSum = 0;
+   int i;
+   for(i=0; i<nNumCards; i++) {
+      Card c;
+      GetCard(pH->m_Players[nPlayerIndex].m_cardsTaken, &c, i);
+      int nSuit = GetSuit(c);
+      if( nSuit == HEARTS ) {
+         nSum++;
+      }
+      else if( nSuit == SPADES ) {
+         int nValue = GetCardValue(c);
+         if( nValue == QUEEN )
+            nSum += 13;
+      }
+   }
+
+   return nSum;
+}
+
+int GetPlayerScore(HeartsLib api, int nPlayerIndex)
+{
+   DEBUG_MSG;
+
+   struct Hearts* pH = (struct Hearts*)api;
+
+   return pH->m_Players[nPlayerIndex].m_nScore;
+}
 
