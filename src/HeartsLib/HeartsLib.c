@@ -170,6 +170,7 @@ int HeartsLibCreate(HeartsLib* api)
       if( CARDLIB_OK != CardLibCreate(&pH->m_Players[nPlayerIndex].m_cardsQueued) ) {
          return HEARTSLIB_OUT_OF_MEMORY;//Assuming
       }
+      pH->m_Players[nPlayerIndex].m_nScore = 0;
    }
 
    if( CARDLIB_OK != CardLibCreate(&pH->m_cardsMiddle) )
@@ -579,9 +580,12 @@ int PlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
    Card c;
    GetCard(pH->m_Players[nPlayerIndex].m_cardsHand, &c, nCardIndex);
 
-   if( pH->m_nLastTrumpPlayer == -1 ) {//Can only be passing the 2 of clubs
+   if( pH->m_nLastTrumpPlayer == -1 ) {//Can only be the 2 of clubs
       pH->m_nLastTrumpPlayer = nPlayersTurn;
    }
+
+   if( GetSuit(c) == HEARTS )
+      pH->m_bHeartsBroken = 1;
 
    RemoveCard(pH->m_Players[nPlayerIndex].m_cardsHand, nCardIndex, CARDLIB_REMOVE_CARD_ONLY);
    AddCard(pH->m_cardsMiddle, c);

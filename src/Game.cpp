@@ -13,6 +13,8 @@ Game::Game(SDL_Surface* pScreen, CardImages* pCardImages)
 	m_pFont = nSDL_LoadFont(NSDL_FONT_THIN, 0/*R*/, 0/*G*/, 0/*B*/);
 
 	m_Metrics.SetCardDimensions(DISPCARD_WIDTH, DISPCARD_HEIGHT);
+
+	m_uLastAction = SDL_GetTicks();
 }
 
 Game::~Game()
@@ -98,6 +100,7 @@ void Game::UpdateDisplay()
 	
 	//Draw score stuff
 	int nNumCards = GetNumberOfCardsInHand(m_Hearts, 0);
+	m_Metrics.SetNumCards(nNumCards);
 	int nLeft = (SCREEN_WIDTH - nNumCards*DISPCARD_WIDTH)/2;
 	for(int i=0; i<nNumCards; i++) {
 		Card c;
@@ -117,8 +120,8 @@ void Game::UpdateDisplay()
 		SDL_FreeSurface(pSurface);
 	}
 
-	m_Selector.DrawSelector();
-//	boxRGBA(m_pScreen, m_Metrics.GetLeft(), m_Metrics.GetTop(), m_Metrics.GetLeft()+m_Metrics.GetCardWidth(), m_Metrics.GetTop()+m_Metrics.GetCardHeight(),  GAME_BACKGROUND_R, GAME_BACKGROUND_G, GAME_BACKGROUND_B, 230);
+	if( HasPassedCards(m_Hearts) == HEARTSLIB_NOT_PASSED_CARDS || GetPlayersTurn(m_Hearts) == 0 )
+		m_Selector.DrawSelector();
 
 	//Draw cards in middle
 	int nNumCardsInMiddle = GetNumberOfCardsInMiddle(m_Hearts);
@@ -130,14 +133,34 @@ void Game::UpdateDisplay()
 		m_pCardImages->GetImageForCard(pSurface, c, DISPCARD_WIDTH, DISPCARD_HEIGHT);
 
 		SDL_Rect rectDest;
-		rectDest.x = 35 + i*DISPCARD_WIDTH;
-		rectDest.y = 35;
+		if( nPlayer == 0 ) {
+			rectDest.x = SCREEN_WIDTH/2 - DISPCARD_WIDTH/2;
+	                rectDest.y = 35+DISPCARD_HEIGHT;
+		}
+		else if( nPlayer == 1 ) {
+			rectDest.x = SCREEN_WIDTH/2 - 3*DISPCARD_WIDTH/2;
+                        rectDest.y = 35+DISPCARD_HEIGHT/2;
+		}
+		else if( nPlayer == 2 ) {
+			rectDest.x = SCREEN_WIDTH/2 - DISPCARD_WIDTH/2;
+                        rectDest.y = 35;
+		}
+		else {
+			rectDest.x = SCREEN_WIDTH/2 + DISPCARD_WIDTH/2;
+                        rectDest.y = 35+DISPCARD_HEIGHT/2;
+		}
 		rectDest.w = m_Metrics.GetCardWidth();
                 rectDest.h = m_Metrics.GetCardHeight();
 
 		SDL_BlitSurface(pSurface, NULL, m_pScreen, &rectDest);
                 SDL_FreeSurface(pSurface);
 	}
+
+	//Display scores
+	nSDL_DrawString(m_pScreen, m_pFont, SCREEN_WIDTH-30, SCREEN_HEIGHT-20, "%d|%d", ScoreOfCardsTaken(m_Hearts, 0), GetPlayerScore(m_Hearts, 0) );
+	nSDL_DrawString(m_pScreen, m_pFont, 0, SCREEN_HEIGHT/2, "%d|%d", ScoreOfCardsTaken(m_Hearts, 1), GetPlayerScore(m_Hearts, 1) );
+	nSDL_DrawString(m_pScreen, m_pFont, SCREEN_WIDTH/2, 0, "%d|%d", ScoreOfCardsTaken(m_Hearts, 2), GetPlayerScore(m_Hearts, 2) );
+	nSDL_DrawString(m_pScreen, m_pFont, SCREEN_WIDTH-30, SCREEN_HEIGHT/2, "%d|%d", ScoreOfCardsTaken(m_Hearts, 3), GetPlayerScore(m_Hearts, 3) );
 
 	nSDL_DrawString(m_pScreen, m_pFont, 0, SCREEN_HEIGHT-20, "It is player %d turn", GetPlayersTurn(m_Hearts) );
 
@@ -171,12 +194,21 @@ void Game::SelectCard()
 
 void Game::DoGamePlay()
 {
+   if( SDL_GetTicks() - m_uLastAction < 1000 )
+      return;
+
    if( HasPassedCards(m_Hearts) == HEARTSLIB_PASSED_CARDS ) {
       int nPlayersTurn = GetPlayersTurn(m_Hearts);
       if( nPlayersTurn != 0 ) {
-         int nCardsInHand = GetNumberOfCardsInHand(m_Hearts, nPlayersTurn);
-         int nCardPossibleToPlay = rand() % nCardsInHand;
-         PlayCard(m_Hearts, nPlayersTurn, nCardPossibleToPlay);
+         while(true) {
+            int nCardsInHand = GetNumberOfCardsInHand(m_Hearts, nPlayersTurn);
+            int nCardPossibleToPlay = rand() % nCardsInHand;
+            if( CanPlayCard(m_Hearts, nPlayersTurn, nCardPossibleToPlay) == HEARTSLIB_CAN_PLAY_CARD ) {
+            	PlayCard(m_Hearts, nPlayersTurn, nCardPossibleToPlay);
+		m_uLastAction = SDL_GetTicks();
+                break;
+            }
+         }
       }
    }
 }
