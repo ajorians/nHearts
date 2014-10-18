@@ -36,6 +36,7 @@ protected:
 	HeartsLib m_Hearts;
 	Metrics		m_Metrics;
 	Selector	m_Selector;
+	Uint32		m_uLastAction;
 };
 
 #endif

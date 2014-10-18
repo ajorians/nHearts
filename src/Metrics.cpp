@@ -10,19 +10,23 @@ bool Metrics::SetCardDimensions(int nWidth, int nHeight)
    m_nCardHeight = nHeight;
 
    m_nTop = SCREEN_HEIGHT - nHeight - 35;
-   m_nLeft = 45;//TODO: Fix
 
    return true;
 }
 
-int Metrics::GetNumItems() const
+void Metrics::SetNumCards(int nNumCards)
 {
-   return 13;
+   m_nNumCards = nNumCards;
+}
+
+int Metrics::GetNumCards() const
+{
+   return m_nNumCards;
 }
 
 int Metrics::GetXPos(int nCardX) const
 {
-   return m_nLeft + nCardX*m_nCardWidth;
+   return GetLeft() + nCardX*m_nCardWidth;
 }
 
 int Metrics::GetCardWidth() const
@@ -37,7 +41,8 @@ int Metrics::GetCardHeight() const
 
 int Metrics::GetLeft() const
 {
-   return m_nLeft;
+   int nWidthRemaining = SCREEN_WIDTH - m_nCardWidth*m_nNumCards;
+   return nWidthRemaining/2;
 }
 
 int Metrics::GetTop() const

@@ -11,7 +11,8 @@ class Metrics
 public:
    Metrics();
    bool SetCardDimensions(int nWidth, int nHeight);
-   int GetNumItems() const;
+   void SetNumCards(int nNumCards);
+   int GetNumCards() const;
    int GetXPos(int nBoardX) const;
    int GetCardWidth() const;
    int GetCardHeight() const;
@@ -19,10 +20,9 @@ public:
    int GetTop() const;
 
 protected:
-   int m_nNumItems;
+   int m_nNumCards;
    int m_nCardWidth;
    int m_nCardHeight;
-   int m_nLeft;
    int m_nTop;
 };
 

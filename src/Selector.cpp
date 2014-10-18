@@ -87,9 +87,9 @@ void Selector::Move(Direction eDirection)
 #endif
    }
    else if( eDirection == Right ) {
-      if( m_nCurrentX < (m_pMetrics->GetNumItems()-1) ) m_nCurrentX++;
+      if( m_nCurrentX < (m_pMetrics->GetNumCards()-1) ) m_nCurrentX++;
 #ifdef MOVEMENT_WRAPS
-      else if( m_nCurrentX == (m_pMetrics->GetNumItems()-1) ) m_nCurrentX = 0;
+      else if( m_nCurrentX == (m_pMetrics->GetNumCards()-1) ) m_nCurrentX = 0;
 #endif
    }
 }
