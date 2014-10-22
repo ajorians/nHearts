@@ -13,7 +13,16 @@ public:
    bool SetCardDimensions(int nWidth, int nHeight);
    void SetNumCards(int nNumCards);
    int GetNumCards() const;
-   int GetXPos(int nBoardX) const;
+   int GetXPos(int nPlayerIndex, int nCardIndex) const;
+   int GetYPos(int nPlayerIndex, int nCardIndex) const;
+   int GetSelectedXPos(int nSelectedIndex) const;
+   int GetSelectedTop() const;
+   int GetPlayerSideX(int nPlayerIndex) const;
+   int GetPlayerSideY(int nPlayerIndex) const;
+
+   int GetMiddleCardX(int nPlayerIndex) const;
+   int GetMiddleCardY(int nPlayerIndex) const;
+
    int GetCardWidth() const;
    int GetCardHeight() const;
    int GetLeft() const;

@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
-				bool bPlay = true;
+				//bool bPlay = true;
 				Game game(pScreen, &cardImages);
 				while(game.Loop()){}
 				break;

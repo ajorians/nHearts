@@ -18,6 +18,8 @@ struct CardDeck
    struct CardNode* m_pCards;
 };
 
+void SwapCardNodes(struct CardNode **head, struct CardNode **a, struct CardNode **b);
+
 int CardLibCreate(CardLib* api)
 {
    DEBUG_FUNC_NAME;
@@ -191,29 +193,17 @@ int Shuffle(CardLib api)
 
    int nNumberOfCards = GetNumberOfCards(api);
 
-   struct CardNode* pCurrent = pCD->m_pCards;
-
-   while(pCurrent != NULL) {
+   int nCard;
+   for(nCard = 0; nCard<nNumberOfCards; nCard++) {
+      Card a, b;
+      GetCard(api, &a, nCard);
       int nSwapWith = rand() % nNumberOfCards;
-      struct CardNode* pNodeSwappingDataWith = pCurrent;
-      int n;
-      for(n=0; n<nSwapWith; n++) {
-         pNodeSwappingDataWith = pNodeSwappingDataWith->m_pNext;
-         if( pNodeSwappingDataWith == NULL ) { //End; so go to beginning
-            pNodeSwappingDataWith = pCD->m_pCards;
-         }
-      }
+      GetCard(api, &b, nSwapWith);
 
-     int nValue = pCurrent->m_nValue;
-     int nSuit = pCurrent->m_nSuit;
+      struct CardNode* pA = (struct CardNode*)a;
+      struct CardNode* pB = (struct CardNode*)b;
 
-     pCurrent->m_nValue = pNodeSwappingDataWith->m_nValue;
-     pCurrent->m_nSuit = pNodeSwappingDataWith->m_nSuit;
-     
-     pNodeSwappingDataWith->m_nValue = nValue;
-     pNodeSwappingDataWith->m_nSuit = nSuit;
-
-      pCurrent = pCurrent->m_pNext;
+      SwapCardNodes(&(pCD->m_pCards), &pA, &pB);
    }
 
    return CARDLIB_OK;
@@ -298,14 +288,61 @@ int RemoveCard(CardLib api, int nIndex, int nFreeCard)
    return CARDLIB_INDEX_NOT_EXIST;
 }
 
+struct CardNode* get_prevnd(struct CardNode* head, struct CardNode* a){
+   if(head == a){
+      // node[a] is first node 
+      printf("Is first node\n");
+      return NULL;
+   }
+   struct CardNode* temp = head; // temp is current node
+   struct CardNode* pre_a = NULL; 
+	
+   while(temp && temp!=a){ //seach while not reach to end or 
+      pre_a = temp;          // find previous node   
+      temp = temp->m_pNext;
+   }
+   if( temp != a ) {
+      printf("Couldn't find before node a!\n");
+      return NULL;
+   }
+   return pre_a;	
+}
+
+void SwapCardNodes(struct CardNode **head, struct CardNode **a, struct CardNode **b)
+{
+   if( (*head) == NULL ||               // Empty list         
+      (*a) == NULL || (*b) == NULL){     // one node is null  
+      // Nothing to swap, just return 
+      printf("\n Nothing to swap, just return \n");
+      return;
+   }
+
+   struct CardNode* pre_a = get_prevnd(*head, *a);
+   struct CardNode* pre_b = get_prevnd(*head, *b);
+		
+   //Now swap previous node's next
+   if(pre_a) { pre_a->m_pNext = (*b); } // a's previous become b's previous, and 
+   if(pre_b) { pre_b->m_pNext = (*a); } // b's previous become a's previous
+ 
+   //Now swap next fields of candidate nodes 	
+   struct CardNode* temp = NULL;  
+   temp = (*a)->m_pNext;
+   (*a)->m_pNext = (*b)->m_pNext;
+   (*b)->m_pNext = temp;
+  
+   //change head: if any node was a head 
+   if((*head)==(*a)) { *head = *b; }
+   else if((*head)==(*b)) { *head = *a; }
+}
+
 int SwapCards(CardLib api, int nIndex1, int nIndex2)
 {
    DEBUG_FUNC_NAME;
 
    struct CardDeck* pCD = (struct CardDeck*)api;
 
-   if( nIndex1 > nIndex2 )
-      return SwapCards(api, nIndex2, nIndex1);
+   if( nIndex1 == nIndex2 )
+      CARDLIB_OK;
 
    int n = 0;
    struct CardNode* pCurrent = pCD->m_pCards;
@@ -317,17 +354,17 @@ int SwapCards(CardLib api, int nIndex1, int nIndex2)
          pFirst = pCurrent;
       if( n == nIndex2 ) {
          pSecond = pCurrent;
-         break;
       }
+      if( pFirst != NULL && pSecond != NULL )
+         break;
 
       pCurrent = pCurrent->m_pNext;
       n++;
    }
 
-   if( pFirst && pSecond ) {
-      Card c1 = (Card*)pFirst;
-      Card c2 = (Card*)pSecond;
-      return SwapCardValues(c1, c2);
+   if( pFirst != NULL && pSecond != NULL ) {
+      SwapCardNodes(&(pCD->m_pCards), &pFirst, &pSecond);
+      return CARDLIB_OK;
    }
 
    return CARDLIB_INDEX_NOT_EXIST;

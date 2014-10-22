@@ -16,8 +16,6 @@ bool CardImages::GetImageForCard(SDL_Surface* pSurface, Card c, int nWidth /*= C
 {
    int nSuit = GetSuit(c);
    int nValue = GetCardValue(c);
-   /*printf("Suit is %d\n", nSuit);
-   printf("Value is %d\n", nValue);*/
 
    int nImgPos = 0;
    if( nValue == ACE ){
@@ -95,10 +93,11 @@ bool CardImages::GetImageForDeckStyle(SDL_Surface* pSurface)
    SDL_Rect rectDst;
    rectDst.x = 0;
    rectDst.y = 0;
-   rectDst.w = CARD_WIDTH;
-   rectDst.h = CARD_HEIGHT;
+   rectDst.w = DISPCARD_WIDTH;
+   rectDst.h = DISPCARD_HEIGHT;
 
-   SDL_BlitSurface(m_pCards, &rectSrc, pSurface, &rectDst);
+   SDL_SoftStretch(m_pCards, &rectSrc, pSurface, &rectDst);
+   //SDL_BlitSurface(m_pCards, &rectSrc, pSurface, &rectDst);
 
    SDL_SetColorKey(pSurface, SDL_SRCCOLORKEY, SDL_MapRGB(pSurface->format, 0, 255, 0));
 

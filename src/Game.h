@@ -11,7 +11,7 @@ extern "C"
 #include "Defines.h"
 #include "CardImages.h"
 #include "Metrics.h"
-#include "Selector.h"
+#include "Piece.h"
 #include "Direction.h"
 
 class Game
@@ -34,8 +34,9 @@ protected:
 	nSDL_Font *m_pFont;
 	CardImages* m_pCardImages;
 	HeartsLib m_Hearts;
+	PieceControl	m_Pieces;
 	Metrics		m_Metrics;
-	Selector	m_Selector;
+	int		m_nCurrentCard;
 	Uint32		m_uLastAction;
 };
 
