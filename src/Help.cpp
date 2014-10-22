@@ -73,7 +73,7 @@ void HeartsHelp::UpdateDisplay()
 Try to get the least amount\n\
 of points as possible.");
 
-	int nLeft = 55;
+	//int nLeft = 55;
 
 	SDL_UpdateRect(m_pScreen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 }

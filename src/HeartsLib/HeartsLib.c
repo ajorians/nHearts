@@ -61,7 +61,7 @@ void SortCards(CardLib cards)
 
          if( nSwap == 1 ) {
             DEBUG_MSG("Swapping 2 cards\n");
-            SwapCardValues(c, cPrevious);
+            SwapCards(cards, i-1, i);
             nMadeChange = 1;
          }
       }
@@ -96,7 +96,7 @@ void SortCards(CardLib cards)
 
          if( nSwap == 1 ) {
             DEBUG_MSG("Swapping 2 cards\n");
-            SwapCardValues(c, cPrevious);
+            SwapCards(cards, i-1, i);
             nMadeChange = 1;
          }
       }
@@ -107,13 +107,11 @@ int DealHands(HeartsLib api)
 {
    struct Hearts* pH = (struct Hearts*)api;
 
-   printf("Removing cards if any\n");
    int nPlayerIndex;
    for(nPlayerIndex = 0; nPlayerIndex < NUMBER_OF_HEARTS_PLAYERS; nPlayerIndex++) {
       RemoveAllCards(pH->m_Players[nPlayerIndex].m_cardsHand, CARDLIB_FREE_CARD);
       RemoveAllCards(pH->m_Players[nPlayerIndex].m_cardsTaken, CARDLIB_FREE_CARD);
    }
-   printf("Just removed cards\n");
 
    pH->m_bPassedCards = 0;
    pH->m_bHeartsBroken = 0;
@@ -123,7 +121,6 @@ int DealHands(HeartsLib api)
    if( CARDLIB_OK != CardLibCreate(&cardDeck) ) {
       return HEARTSLIB_OUT_OF_MEMORY;//Assuming
    }
-   printf("Just created a deck\n");
 
    if( CARDLIB_OK != AddStandardCards(cardDeck, HEARTS_NUMBER_OF_JOKERS) ) {
       CardLibFree(&cardDeck);
@@ -135,7 +132,6 @@ int DealHands(HeartsLib api)
       return HEARTSLIB_CARD_FAILURE;
    }
 
-    printf("Just shuffled\n");
    int nNumCards = GetNumberOfCards(cardDeck);//Better be 52 :)
    int nCard;
    for(nCard = 0; nCard < nNumCards; nCard++) {
@@ -145,12 +141,10 @@ int DealHands(HeartsLib api)
       AddCard(pH->m_Players[nPlayerIndex].m_cardsHand, c);
    }
 
-   printf("About to sort each players cards\n");
    for(nPlayerIndex = 0; nPlayerIndex < NUMBER_OF_HEARTS_PLAYERS; nPlayerIndex++) {
       SortCards(pH->m_Players[nPlayerIndex].m_cardsHand);
    }
 
-   printf("Sorted each players cards\n");
    CardLibFree(&cardDeck);
 
    if( pH->m_ePassDirection == NoPass )
@@ -362,7 +356,6 @@ int GetNumberSelectedCards(HeartsLib api, int nPlayerIndex)
          nNumSelected++;
    }
 
-   printf("Number of selected cards: %d\n", nNumSelected);
    return nNumSelected;
 }
 
@@ -420,13 +413,11 @@ int PassSelectedCards(HeartsLib api, int nPlayerIndex)
       return HEARTSLIB_CARD_FAILURE;
 
    int nNumCards = GetNumberOfCardsInHand(api, nPlayerIndex);
-   printf("NumCardsInHand: %d\n", nNumCards);
    int i;
    for(i=nNumCards; i-->0;) {
       Card c;
       GetCard(pH->m_Players[nPlayerIndex].m_cardsHand, &c, i);
       if( GetCardExtraData(c) != NULL ) {
-         printf("Passing card index: %d\n", i);
          int nPassToPlayerIndex = GetPlayerIndexPassingTo(api, nPlayerIndex);
          RemoveCard(pH->m_Players[nPlayerIndex].m_cardsHand, i, CARDLIB_REMOVE_CARD_ONLY);
          //SetCardExtraData(c, NULL);So I know who sent what card
@@ -472,7 +463,6 @@ int GetPlayersTurn(HeartsLib api)
    struct Hearts* pH = (struct Hearts*)api;
 
    if( pH->m_nLastTrumpPlayer == -1 ) {//Whomever has the 2 of Clubs
-      printf("GetPlayersTurn::m_nLastTrumpPlayer =-1\n");
       int nPlayerIndex;
       for(nPlayerIndex = 0; nPlayerIndex < NUMBER_OF_HEARTS_PLAYERS; nPlayerIndex++) {
          int nNumCards = GetNumberOfCards(pH->m_Players[nPlayerIndex].m_cardsHand);
@@ -680,14 +670,12 @@ int DoHeartsNextHand(HeartsLib api)
    DEBUG_MSG;
 
    //The middle can be empty if called GiveTrickToPlayer
-   printf("DoHeartsNextHand: Every has played their card\n");
 
    int nPlayer;
    for(nPlayer = 0; nPlayer < NUMBER_OF_HEARTS_PLAYERS; nPlayer++) {
       if( GetNumberOfCardsInHand(api, nPlayer) != 0 )
       return HEARTSLIB_BADARGUMENT;
    }
-   printf("Player 0 has no cards in hand\n");
 
    struct Hearts* pH = (struct Hearts*)api;
 
@@ -705,9 +693,7 @@ int DoHeartsNextHand(HeartsLib api)
    else
       pH->m_ePassDirection = PassLeft;
 
-   printf("About to deal hands\n");
    DealHands(api);
-   printf("Dealt hands\n");
 
    return HEARTSLIB_OK;
 }
@@ -726,11 +712,9 @@ int FigureOutWhoTakesTrick(HeartsLib api, int* pPlayerIndex)
    GetCard(pH->m_cardsMiddle, &cardFirst, 0);
    int nCurrentSuit = GetSuit(cardFirst);
    int nCurrentValue = GetCardValue(cardFirst);
-   printf("First played card is suit: %d, value %d\n", nCurrentSuit, nCurrentValue);
 
    //So the player who just went was the last to go lets set nPlayersTurn to the first to play
    int nPlayersTurn = GetPlayersTurn(api);
-   printf("First card play by player: %d\n", nPlayersTurn);
    int nHighest = nPlayersTurn;
    int nCard;
    for(nCard = 1; nCard < NUMBER_OF_HEARTS_PLAYERS; nCard++) {
@@ -753,8 +737,6 @@ int FigureOutWhoTakesTrick(HeartsLib api, int* pPlayerIndex)
    }
    if( pPlayerIndex != NULL )
       *pPlayerIndex = nHighest;
-
-   printf("Player with highest card was: %d\n", nHighest);
 }
 
 int HasEverybodyPlayedTheirCard(HeartsLib api)
