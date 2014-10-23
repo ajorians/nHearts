@@ -29,6 +29,7 @@ protected:
 	void SelectCard();
 	void DoGamePlay();
 	void RemovedSelectedPieces();
+	void RebuildPieces();
 
 protected:
 	SDL_Surface	*m_pScreen;//Does not own

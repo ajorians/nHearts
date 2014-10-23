@@ -17,15 +17,7 @@ Game::Game(SDL_Surface* pScreen, CardImages* pCardImages)
 
 	m_uLastAction = SDL_GetTicks();
 
-	for(int nPlayerIndex=0; nPlayerIndex<4; nPlayerIndex++) {
-		int nNumCards = GetNumberOfCardsInHand(m_Hearts, nPlayerIndex);
-		m_Metrics.SetNumCards(nNumCards);
-	        for(int i=0; i<nNumCards; i++) {
-	                Card c;
-	                GetCardInHand(m_Hearts, &c, nPlayerIndex, i);
-			m_Pieces.CreateCard(c, nPlayerIndex, i, nPlayerIndex == 1 || nPlayerIndex == 3);
-		}
-	}
+	RebuildPieces();
 }
 
 Game::~Game()
@@ -158,12 +150,28 @@ void Game::UpdateDisplay()
 	SDL_FillRect(m_pScreen, NULL, SDL_MapRGB(m_pScreen->format, GAME_BACKGROUND_R, GAME_BACKGROUND_G, GAME_BACKGROUND_B));
 	
 	//Display scores
-	nSDL_DrawString(m_pScreen, m_pFont, SCREEN_WIDTH-30, SCREEN_HEIGHT-20, "%d|%d", ScoreOfCardsTaken(m_Hearts, 0), GetPlayerScore(m_Hearts, 0) );
+	/*nSDL_DrawString(m_pScreen, m_pFont, SCREEN_WIDTH-30, SCREEN_HEIGHT-20, "%d|%d", ScoreOfCardsTaken(m_Hearts, 0), GetPlayerScore(m_Hearts, 0) );
 	nSDL_DrawString(m_pScreen, m_pFont, 0, SCREEN_HEIGHT/2, "%d|%d", ScoreOfCardsTaken(m_Hearts, 1), GetPlayerScore(m_Hearts, 1) );
 	nSDL_DrawString(m_pScreen, m_pFont, SCREEN_WIDTH/2, 0, "%d|%d", ScoreOfCardsTaken(m_Hearts, 2), GetPlayerScore(m_Hearts, 2) );
-	nSDL_DrawString(m_pScreen, m_pFont, SCREEN_WIDTH-30, SCREEN_HEIGHT/2, "%d|%d", ScoreOfCardsTaken(m_Hearts, 3), GetPlayerScore(m_Hearts, 3) );
+	nSDL_DrawString(m_pScreen, m_pFont, SCREEN_WIDTH-30, SCREEN_HEIGHT/2, "%d|%d", ScoreOfCardsTaken(m_Hearts, 3), GetPlayerScore(m_Hearts, 3) );*/
 
-	nSDL_DrawString(m_pScreen, m_pFont, 30, SCREEN_HEIGHT-20, "It is player %d turn", GetPlayersTurn(m_Hearts) );
+	if( HasPassedCards(m_Hearts) == HEARTSLIB_NOT_PASSED_CARDS ) {
+		Pass_Direction_t ePass = GetHeartsPassDirection(m_Hearts);
+		if( ePass == PassLeft ) {
+			 nSDL_DrawString(m_pScreen, m_pFont, 30, SCREEN_HEIGHT-20, "Pass cards left");
+		}
+		else if( ePass == PassRight ) {
+                         nSDL_DrawString(m_pScreen, m_pFont, 30, SCREEN_HEIGHT-20, "Pass cards right");
+                }
+		else if( ePass == PassAcross ) {
+                         nSDL_DrawString(m_pScreen, m_pFont, 30, SCREEN_HEIGHT-20, "Pass cards across");
+                }
+	}
+	else {
+		if( GetPlayersTurn(m_Hearts) == 0 ) {
+			nSDL_DrawString(m_pScreen, m_pFont, 30, SCREEN_HEIGHT-20, "It is your turn");
+		}
+	}
 }
 
 void Game::Move(Direction eDirection)
@@ -226,6 +234,7 @@ void Game::DoGamePlay()
             while( r.Loop() ){}
             printf("DoHeartsNextHand\n");
             DoHeartsNextHand(m_Hearts);
+            RebuildPieces();
             printf("After DoHeartsNextHand\n");
          }
       }
@@ -253,6 +262,20 @@ void Game::RemovedSelectedPieces()
       for(int i=0; i<nCardsInHand; i++) {
          if( IsCardSelected(m_Hearts, 0, i) == HEARTSLIB_CARD_SELECTED )
             ToggleSelectedCard(m_Hearts, 0, i);
+      }
+   }
+}
+
+void Game::RebuildPieces()
+{
+   m_Pieces.ClearPieces();
+   for(int nPlayerIndex=0; nPlayerIndex<4; nPlayerIndex++) {
+      int nNumCards = GetNumberOfCardsInHand(m_Hearts, nPlayerIndex);
+      m_Metrics.SetNumCards(nNumCards);
+      for(int i=0; i<nNumCards; i++) {
+         Card c;
+         GetCardInHand(m_Hearts, &c, nPlayerIndex, i);
+         m_Pieces.CreateCard(c, nPlayerIndex, i, nPlayerIndex == 1 || nPlayerIndex == 3);
       }
    }
 }
