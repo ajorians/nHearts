@@ -87,6 +87,11 @@ bool Game::PollEvents()
 						Move(Left);
 					break;
 
+					case SDLK_CLEAR:
+					case SDLK_BACKSPACE:
+						RemovedSelectedPieces();
+					break;
+
 					default:
 						break;
 				}
@@ -158,9 +163,7 @@ void Game::UpdateDisplay()
 	nSDL_DrawString(m_pScreen, m_pFont, SCREEN_WIDTH/2, 0, "%d|%d", ScoreOfCardsTaken(m_Hearts, 2), GetPlayerScore(m_Hearts, 2) );
 	nSDL_DrawString(m_pScreen, m_pFont, SCREEN_WIDTH-30, SCREEN_HEIGHT/2, "%d|%d", ScoreOfCardsTaken(m_Hearts, 3), GetPlayerScore(m_Hearts, 3) );
 
-	nSDL_DrawString(m_pScreen, m_pFont, 0, SCREEN_HEIGHT-20, "It is player %d turn", GetPlayersTurn(m_Hearts) );
-
-	//SDL_UpdateRect(m_pScreen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	nSDL_DrawString(m_pScreen, m_pFont, 30, SCREEN_HEIGHT-20, "It is player %d turn", GetPlayersTurn(m_Hearts) );
 }
 
 void Game::Move(Direction eDirection)
@@ -208,7 +211,6 @@ void Game::DoGamePlay()
 
    if( HasPassedCards(m_Hearts) == HEARTSLIB_PASSED_CARDS ) {
       if( HasEverybodyPlayedTheirCard(m_Hearts ) ) {
-         printf("Everybody played their card\n");
          int nPlayerIndex;
          FigureOutWhoTakesTrick(m_Hearts, &nPlayerIndex);
          int nNumCardsInMiddle = GetNumberOfCardsInMiddle(m_Hearts);
@@ -240,6 +242,17 @@ void Game::DoGamePlay()
                }
             }
          }
+      }
+   }
+}
+
+void Game::RemovedSelectedPieces()
+{
+   if( HasPassedCards(m_Hearts) != HEARTSLIB_PASSED_CARDS ) {
+      int nCardsInHand = GetNumberOfCardsInHand(m_Hearts, 0);
+      for(int i=0; i<nCardsInHand; i++) {
+         if( IsCardSelected(m_Hearts, 0, i) == HEARTSLIB_CARD_SELECTED )
+            ToggleSelectedCard(m_Hearts, 0, i);
       }
    }
 }

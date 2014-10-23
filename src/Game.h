@@ -28,6 +28,7 @@ protected:
 	void Move(Direction eDirection);
 	void SelectCard();
 	void DoGamePlay();
+	void RemovedSelectedPieces();
 
 protected:
 	SDL_Surface	*m_pScreen;//Does not own

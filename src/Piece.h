@@ -34,11 +34,13 @@ public:
 
    void ClearPieces();
    bool CreateCard(Card c, int nPlayerIndex, int nCardIndex, bool bHorizontal);
-   bool UpdateCardImage(Card c, bool bCardImage);
    bool MoveCard(Card c, int nX, int nY);
    bool MakeVisible(Card c, bool bVisible);
    bool IsAnimating() const;
    bool Animate();
+
+protected:
+   void ShowPiece(PieceSprite* pSprite);
 
 protected:
    SDL_Surface* m_pScreen;//Does NOT own
@@ -46,6 +48,8 @@ protected:
 //   Config* m_pConfig;//Does NOT own
    CardImages* m_pCardImages;//Does NOT own
    PieceSprite* m_pRoot;
+   SDL_Surface* m_pCardImageNormal;
+   SDL_Surface* m_pCardImageFlipped;
 };
 
 #endif

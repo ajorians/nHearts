@@ -5,11 +5,21 @@
 PieceControl::PieceControl(SDL_Surface* pScreen, Metrics* pMetrics, CardImages* pCardImages)
 : m_pScreen(pScreen), m_pMetrics(pMetrics), m_pCardImages(pCardImages), m_pRoot(NULL)
 {
+   printf("PieceControl::PieceControl %d,%d\n", DISPCARD_WIDTH, DISPCARD_HEIGHT);
+   m_pCardImageNormal = SDL_CreateRGBSurface(SDL_SWSURFACE, DISPCARD_WIDTH, DISPCARD_HEIGHT, 16, 0, 0, 0, 0);
+   m_pCardImages->GetImageForDeckStyle(m_pCardImageNormal, false);
+   printf("About to load flipped\n");
+
+   m_pCardImageFlipped = SDL_CreateRGBSurface(SDL_SWSURFACE, DISPCARD_WIDTH, DISPCARD_HEIGHT, 16, 0, 0, 0, 0);
+   m_pCardImages->GetImageForDeckStyle(m_pCardImageFlipped, true);
+   printf("Loaded flipped\n");
 }
 
 PieceControl::~PieceControl()
 {
    ClearPieces();
+   SDL_FreeSurface(m_pCardImageNormal);
+   SDL_FreeSurface(m_pCardImageFlipped);
 }
 
 void PieceControl::ClearPieces()
@@ -49,42 +59,17 @@ bool PieceControl::CreateCard(Card c, int nPlayerIndex, int nCardIndex, bool bHo
 
    int nCardWidth = m_pMetrics->GetCardWidth(), nCardHeight = m_pMetrics->GetCardHeight();
    pPiece->img = SDL_CreateRGBSurface(SDL_SWSURFACE, nCardWidth, nCardHeight, 16, 0, 0, 0, 0);
+
    if( nPlayerIndex != 0 ) {
       pPiece->visible = false;
-      m_pCardImages->GetImageForDeckStyle(pPiece->img);
    }
    else {
       pPiece->visible = true;
-      m_pCardImages->GetImageForCard(pPiece->img, c, nCardWidth, nCardHeight);
    }
+   m_pCardImages->GetImageForCard(pPiece->img, c, nCardWidth, nCardHeight);
    pPiece->replace = SDL_CreateRGBSurface(SDL_SWSURFACE, nCardWidth, nCardHeight, 16, 0, 0, 0, 0);
 
    return true;
-}
-
-bool PieceControl::UpdateCardImage(Card c, bool bCardImage)
-{
-   PieceSprite* pCurrent = NULL;
-   for(pCurrent = m_pRoot; pCurrent != NULL; pCurrent = pCurrent->next) {
-      if( pCurrent->c == c ) {
-         if( pCurrent->img != NULL ) {
-            SDL_FreeSurface(pCurrent->img);
-            SDL_FreeSurface(pCurrent->replace);
-         }
-         int nCardWidth = m_pMetrics->GetCardWidth(), nCardHeight = m_pMetrics->GetCardHeight();
-         pCurrent->img = SDL_CreateRGBSurface(SDL_SWSURFACE, nCardWidth, nCardHeight, 16, 0, 0, 0, 0);
-         if( bCardImage ) {
-            m_pCardImages->GetImageForCard(pCurrent->img, c, nCardWidth, nCardHeight);
-         }
-         else
-         {
-            m_pCardImages->GetImageForDeckStyle(pCurrent->img);
-         }
-         pCurrent->replace = SDL_CreateRGBSurface(SDL_SWSURFACE, nCardWidth, nCardHeight, 16, 0, 0, 0, 0);
-         return true;
-      }
-   }
-   return false;
 }
 
 bool PieceControl::MoveCard(Card c, int nX, int nY)
@@ -107,11 +92,9 @@ bool PieceControl::MakeVisible(Card c, bool bVisible)
       if( pCurrent->c == c ) {
          if( bVisible && !pCurrent->visible ) {
             pCurrent->visible = bVisible;
-            UpdateCardImage(c, bVisible);
          }
          else if( !bVisible && pCurrent->visible ) {
             pCurrent->visible = bVisible;
-            UpdateCardImage(c, bVisible);
          }
       }
    }
@@ -208,7 +191,7 @@ void Brighten(SDL_Surface* pSurface, int nBrightenAmount)
    }
 }
 
-void ShowPiece(SDL_Surface* pScreen, PieceSprite* pSprite, Metrics* pMetrics)
+void PieceControl::ShowPiece(PieceSprite* pSprite)
 {
    //if( pSprite->visible == false )
       //return;
@@ -216,10 +199,20 @@ void ShowPiece(SDL_Surface* pScreen, PieceSprite* pSprite, Metrics* pMetrics)
    SDL_Rect rect;
    rect.x = pSprite->x;
    rect.y = pSprite->y;
-   rect.w = pSprite->horizontal ? pMetrics->GetCardHeight() : pMetrics->GetCardWidth();
-   rect.h = pSprite->horizontal ? pMetrics->GetCardWidth() : pMetrics->GetCardHeight();
+   rect.w = pSprite->horizontal ? m_pMetrics->GetCardHeight() : m_pMetrics->GetCardWidth();
+   rect.h = pSprite->horizontal ? m_pMetrics->GetCardWidth() : m_pMetrics->GetCardHeight();
 
-   SDL_BlitSurface(pSprite->img, NULL, pScreen, &rect);
+   if( pSprite->visible ) {
+      SDL_BlitSurface(pSprite->img, NULL, m_pScreen, &rect);
+   }
+   else {
+      if( pSprite->horizontal ) {
+         SDL_BlitSurface(m_pCardImageFlipped, NULL, m_pScreen, &rect);
+      }
+      else {
+         SDL_BlitSurface(m_pCardImageNormal, NULL, m_pScreen, &rect);
+      }
+   }
 }
 
 void ResetBackground(SDL_Surface* pScreen, PieceSprite* pSprite, Metrics* pMetrics)
@@ -248,7 +241,7 @@ bool PieceControl::Animate()
 
    pCurrent = m_pRoot;
    while(pCurrent != NULL) {
-      ShowPiece(m_pScreen, pCurrent, m_pMetrics);
+      ShowPiece(pCurrent);
       pCurrent = pCurrent->next;
    }
 
