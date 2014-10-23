@@ -4,6 +4,7 @@
 
 CardImages::CardImages()
 {
+   printf("CardImages::CardImages()\n");
    m_pCards = nSDL_LoadImage(image_carddata);
 }
 
@@ -79,7 +80,44 @@ bool CardImages::GetImageForCard(SDL_Surface* pSurface, Card c, int nWidth /*= C
    return true;
 }
 
-bool CardImages::GetImageForDeckStyle(SDL_Surface* pSurface)
+void RotateSurface(SDL_Surface* pSurface, SDL_Surface* pSurfaceFlipped)
+{
+   //If the surface must be locked 
+   if( SDL_MUSTLOCK( pSurface ) )
+   {
+      //Lock the surface 
+      SDL_LockSurface( pSurface );
+   }
+   if( SDL_MUSTLOCK( pSurfaceFlipped ) )
+   {
+      //Lock the surface 
+      SDL_LockSurface( pSurfaceFlipped );
+   }
+
+   //Go through columns 
+   for( int x = 0; x < pSurface->w; x++ )
+   {
+      //Go through rows 
+      for( int y = 0; y < pSurface->h; y++ )
+      {
+         //Get pixel 
+         Uint16 pixel = get_pixel16( pSurface, x, y );
+         put_pixel16( pSurfaceFlipped, y, x, pixel );
+      }
+   }
+
+   //Unlock surface 
+   if( SDL_MUSTLOCK( pSurface ) )
+   {
+      SDL_UnlockSurface( pSurface );
+   }
+   if( SDL_MUSTLOCK( pSurfaceFlipped ) )
+   {
+      SDL_UnlockSurface( pSurfaceFlipped );
+   }
+}
+
+bool CardImages::GetImageForDeckStyle(SDL_Surface* pSurface, bool bHorizontal)
 {
    int nImgPos = 15;
    int nSuitPos = 0;
@@ -96,8 +134,19 @@ bool CardImages::GetImageForDeckStyle(SDL_Surface* pSurface)
    rectDst.w = DISPCARD_WIDTH;
    rectDst.h = DISPCARD_HEIGHT;
 
-   SDL_SoftStretch(m_pCards, &rectSrc, pSurface, &rectDst);
+   printf("here\n");
+   if( bHorizontal ) {
+       printf("horizontal\n");
+       SDL_Surface* pSurfaceNormal = SDL_CreateRGBSurface(SDL_SWSURFACE, DISPCARD_WIDTH, DISPCARD_HEIGHT, 16, 0, 0, 0, 0);
+       SDL_SoftStretch(m_pCards, &rectSrc, pSurfaceNormal, &rectDst);
+       RotateSurface(pSurfaceNormal, pSurface);
+   }
+   else {
+      printf("Soft stretch\n");
+      SDL_SoftStretch(m_pCards, &rectSrc, pSurface, &rectDst);
    //SDL_BlitSurface(m_pCards, &rectSrc, pSurface, &rectDst);
+   }
+   printf("AFter soft stretch\n");
 
    SDL_SetColorKey(pSurface, SDL_SRCCOLORKEY, SDL_MapRGB(pSurface->format, 0, 255, 0));
 

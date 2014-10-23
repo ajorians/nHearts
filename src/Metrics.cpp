@@ -41,7 +41,7 @@ int Metrics::GetYPos(int nPlayerIndex, int nCardIndex) const
       return GetTop();
    }
    else if( nPlayerIndex == 1 || nPlayerIndex == 3 ) {
-      return 30 + nCardIndex*(m_nCardHeight/2);
+      return 30 + nCardIndex*(m_nCardHeight/3);
    }
    return 0;
 }
@@ -55,7 +55,7 @@ int Metrics::GetSelectedXPos(int nSelectedIndex) const
 
 int Metrics::GetSelectedTop() const
 {
-   return GetTop() - GetCardHeight() - 5;
+   return GetTop() - GetCardHeight() - 10;
 }
 
 int Metrics::GetPlayerSideX(int nPlayerIndex) const
