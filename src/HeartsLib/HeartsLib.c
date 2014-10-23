@@ -111,6 +111,7 @@ int DealHands(HeartsLib api)
    for(nPlayerIndex = 0; nPlayerIndex < NUMBER_OF_HEARTS_PLAYERS; nPlayerIndex++) {
       RemoveAllCards(pH->m_Players[nPlayerIndex].m_cardsHand, CARDLIB_FREE_CARD);
       RemoveAllCards(pH->m_Players[nPlayerIndex].m_cardsTaken, CARDLIB_FREE_CARD);
+      RemoveAllCards(pH->m_Players[nPlayerIndex].m_cardsQueued, CARDLIB_FREE_CARD);
    }
 
    pH->m_bPassedCards = 0;
