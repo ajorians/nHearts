@@ -3,32 +3,6 @@
 int Puz_Min(int a, int b) { return a<b ? a : b; }
 int Puz_Max(int a, int b) { return a>b ? a : b; }
 
-int Puz_NumberOfDigits(int n)//Very quickly thrown together
-{
-        if( n == 0 )
-                return 1;
-        int nDigits = 0;
-        while(n/10 > 0 || n%10 > 0)
-        {
-                nDigits++;
-                n/=10;
-        }
-        return nDigits;
-}
-
-void Puz_itoa(int n, char buffer[], int nBufferSize)//Very quickly thrown together
-{
-        int i=2;
-        nBufferSize = Puz_Min(nBufferSize, Puz_NumberOfDigits(n)+1);
-        for(; i<=nBufferSize; i++)
-        {
-                int nRemainder = n%10;
-                buffer[nBufferSize-i] = '0' + nRemainder;
-                n/=10;
-        }
-        buffer[nBufferSize-1] = '\0';
-}
-
 Uint16 get_pixel16( SDL_Surface *surface, int x, int y )
 {
    int bpp = surface->format->BytesPerPixel;

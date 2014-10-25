@@ -31,8 +31,6 @@ extern "C"
 
 int Puz_Min(int a, int b);
 int Puz_Max(int a, int b);
-int Puz_NumberOfDigits(int n);
-void Puz_itoa(int n, char buffer[], int nBufferSize);
 
 void draw_rectangle(SDL_Surface* Surface, Uint32 color, Uint16 x, Uint16 y, Uint16 width, Uint16 height, Uint8 lnpx );
 

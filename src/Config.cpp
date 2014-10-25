@@ -1,7 +1,8 @@
 #include "Config.h"
 #include "Defines.h"
 
-#define BACKGROUND_MOVES_DEFAULT        (true)
+#define SCORE_LIMIT_DEFAULT        (100)
+#define JACK_DIAMONDS_DEFAULT      (0)
 
 #define STRINGIFY_CONFIG_ITEM(x) #x
 
@@ -19,11 +20,11 @@
    m_##identifier = atoi( GetValue(m_Archive, "Settings", i));\
 }
 
-#define WRITE_INT_CONFIG_VAR(identifier) Puz_itoa(m_##identifier, buffer, 8);\
+#define WRITE_INT_CONFIG_VAR(identifier) sprintf(buffer, "%d", m_##identifier);\
    UpdateArchiveEntry(m_Archive, "Settings", STRINGIFY_CONFIG_ITEM(Use##identifier), buffer, NULL);
 
 Config::Config()
-: m_BackgroundMoves(BACKGROUND_MOVES_DEFAULT)
+: m_ScoreLimit(SCORE_LIMIT_DEFAULT), m_JackDiamondsAmount(JACK_DIAMONDS_DEFAULT)
 {
    ArchiveCreate(&m_Archive);
 
@@ -34,15 +35,17 @@ Config::Config()
    for(int i=0; i<nSettings; i++) {
       strcpy(strName, GetName(m_Archive, "Settings", i));
 
-      READ_BOOL_CONFIG_VAR(BackgroundMoves);
-
+      READ_INT_CONFIG_VAR(ScoreLimit);
+      READ_INT_CONFIG_VAR(JackDiamondsAmount);
    }
 }
 
 Config::~Config()
 {
+   char buffer[8];
    ArchiveSetBatchMode(m_Archive, ARCHIVE_ENABLE_BATCH);
-   WRITE_BOOL_CONFIG_VAR(BackgroundMoves);
+   WRITE_INT_CONFIG_VAR(ScoreLimit);
+   WRITE_INT_CONFIG_VAR(JackDiamondsAmount);
    ArchiveSetBatchMode(m_Archive, ARCHIVE_DISABLE_BATCH);
 
    ArchiveFree(&m_Archive);

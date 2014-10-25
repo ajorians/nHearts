@@ -1,5 +1,5 @@
 #include "Menu.h"
-#include "GravnixGraphic.h"
+#include "HeartsGraphic.h"
 #include "PlayGraphic.h"
 #include "OptionsHelpGraphic.h"
 #include "Defines.h"
@@ -7,7 +7,7 @@
 MainMenu::MainMenu(SDL_Surface* pScreen, Config* pConfig)
 : m_pScreen(pScreen), m_Background(pScreen, pConfig), m_eChoice(Play), m_pConfig(pConfig)
 {
-	m_pTitleGraphic 	= nSDL_LoadImage(image_nGravnix);
+	m_pTitleGraphic 	= nSDL_LoadImage(image_nHeartsText);
 	m_pPlayGraphic		= nSDL_LoadImage(image_Play);
 	m_pOptionsGraphic	= nSDL_LoadImage(image_OptionsAndHelp);
 	SDL_SetColorKey(m_pTitleGraphic, SDL_SRCCOLORKEY, SDL_MapRGB(m_pTitleGraphic->format, 255, 255, 255));
@@ -124,7 +124,7 @@ void MainMenu::UpdateDisplay()
 	//Draw background
 	if( is_classic ) {
 		SDL_FillRect(m_pScreen, NULL, SDL_MapRGB(m_pScreen->format, 255, 255, 255));
-		nSDL_DrawString(m_pScreen, m_pFont, SCREEN_WIDTH/2-30, 15, "nGravnix");
+		nSDL_DrawString(m_pScreen, m_pFont, SCREEN_WIDTH/2-30, 15, "nHearts");
 		nSDL_DrawString(m_pScreen, m_pFont, SCREEN_WIDTH/2-30, 75, "Play");
 		nSDL_DrawString(m_pScreen, m_pFont, SCREEN_WIDTH/2-30, 182, "Options");
 		nSDL_DrawString(m_pScreen, m_pFont, SCREEN_WIDTH/2-30, 205, "Help");
