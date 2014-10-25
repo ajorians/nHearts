@@ -16,10 +16,12 @@ class CardImages;
 struct PieceSprite
 {
    SDL_Surface* img;
+   SDL_Surface* imgDisabled;
    SDL_Surface* replace;
    Card c;
    bool horizontal;
    bool visible;//Probably rename
+   bool enabled;
    int x,y;
    int toX, toY;
    bool toFade;
@@ -35,7 +37,7 @@ public:
    void ClearPieces();
    bool CreateCard(Card c, int nPlayerIndex, int nCardIndex, bool bHorizontal);
    bool MoveCard(Card c, int nX, int nY);
-   bool MakeVisible(Card c, bool bVisible);
+   bool MakeVisible(Card c, bool bVisible, bool bEnabled);
    bool IsAnimating() const;
    bool Animate();
 

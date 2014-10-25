@@ -4,7 +4,6 @@
 
 CardImages::CardImages()
 {
-   printf("CardImages::CardImages()\n");
    m_pCards = nSDL_LoadImage(image_carddata);
 }
 
@@ -13,7 +12,7 @@ CardImages::~CardImages()
    SDL_FreeSurface(m_pCards);
 }
 
-bool CardImages::GetImageForCard(SDL_Surface* pSurface, Card c, int nWidth /*= CARD_WIDTH*/, int nHeight /*= CARD_HEIGHT*/)
+bool CardImages::GetImageForCard(SDL_Surface* pSurface, Card c, bool bEnabled, int nWidth /*= CARD_WIDTH*/, int nHeight /*= CARD_HEIGHT*/)
 {
    int nSuit = GetSuit(c);
    int nValue = GetCardValue(c);
@@ -77,6 +76,9 @@ bool CardImages::GetImageForCard(SDL_Surface* pSurface, Card c, int nWidth /*= C
    
    SDL_SetColorKey(pSurface, SDL_SRCCOLORKEY, SDL_MapRGB(pSurface->format, 0, 255, 0));
 
+   if( !bEnabled )
+      Tint(pSurface, SDL_MapRGB(pSurface->format, 0xC0, 0xC0, 0xC0));
+
    return true;
 }
 
@@ -134,19 +136,15 @@ bool CardImages::GetImageForDeckStyle(SDL_Surface* pSurface, bool bHorizontal)
    rectDst.w = DISPCARD_WIDTH;
    rectDst.h = DISPCARD_HEIGHT;
 
-   printf("here\n");
    if( bHorizontal ) {
-       printf("horizontal\n");
        SDL_Surface* pSurfaceNormal = SDL_CreateRGBSurface(SDL_SWSURFACE, DISPCARD_WIDTH, DISPCARD_HEIGHT, 16, 0, 0, 0, 0);
        SDL_SoftStretch(m_pCards, &rectSrc, pSurfaceNormal, &rectDst);
        RotateSurface(pSurfaceNormal, pSurface);
    }
    else {
-      printf("Soft stretch\n");
       SDL_SoftStretch(m_pCards, &rectSrc, pSurface, &rectDst);
    //SDL_BlitSurface(m_pCards, &rectSrc, pSurface, &rectDst);
    }
-   printf("AFter soft stretch\n");
 
    SDL_SetColorKey(pSurface, SDL_SRCCOLORKEY, SDL_MapRGB(pSurface->format, 0, 255, 0));
 

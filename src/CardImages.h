@@ -16,7 +16,7 @@ public:
    CardImages();
    ~CardImages();
 
-   bool GetImageForCard(SDL_Surface* pSurface, Card c, int nWidth = CARD_WIDTH, int nHeight = CARD_HEIGHT);
+   bool GetImageForCard(SDL_Surface* pSurface, Card c, bool bEnabled, int nWidth = CARD_WIDTH, int nHeight = CARD_HEIGHT);
    bool GetImageForDeckStyle(SDL_Surface* pSurface, bool bHorizontal);
 
 protected:

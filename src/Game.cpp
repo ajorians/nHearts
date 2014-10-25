@@ -7,7 +7,7 @@ extern "C"
 }
 
 Game::Game(SDL_Surface* pScreen, CardImages* pCardImages)
-: m_pScreen(pScreen), m_pCardImages(pCardImages), m_Pieces(pScreen, &m_Metrics, m_pCardImages), m_nCurrentCard(-1)
+: m_pScreen(pScreen), m_pCardImages(pCardImages), m_Pieces(pScreen, &m_Metrics, m_pCardImages)/*, m_ShotMoonMessage(pScreen)*/, m_nCurrentCard(-1)
 {
 	HeartsLibCreate(&m_Hearts);
 
@@ -31,14 +31,14 @@ bool Game::Loop()
 	if( PollEvents() == false )
 		return false;
 
-	m_Pieces.Animate();	
-
 	//Update screen
 	UpdateDisplay();
 
 	DoGamePlay();
 	
-	//SDL_Delay(5);
+	SDL_Delay(30);
+	if( GetHeartsGameOver(m_Hearts) == 1 )
+		return false;
 	
 	return true;
 }
@@ -105,9 +105,19 @@ bool Game::PollEvents()
 
 void Game::UpdateDisplay()
 {
+	m_Pieces.Animate();
+
+	/*if( m_ShotMoonMessage.HasMessage() && ((!m_ShotMoonMessage.IsAnimating() && !m_ShotMoonMessage.IsStayDuration()) || m_ShotMoonMessage.FinishFast()) ) {
+		m_ShotMoonMessage.ClearMessage();
+		return;
+	}
+
+	if( m_ShotMoonMessage.HasMessage() && m_ShotMoonMessage.Animate() ) {
+		 return; }*/
+
 	//Update cards in hand
+	bool bHasPassedCards = HasPassedCards(m_Hearts) == HEARTSLIB_PASSED_CARDS;
 	for(int nPlayerIndex = 0; nPlayerIndex<4; nPlayerIndex++) {
-		bool bHasPassedCards = HasPassedCards(m_Hearts) == HEARTSLIB_PASSED_CARDS;
 		int nNumCards = GetNumberOfCardsInHand(m_Hearts, nPlayerIndex);
 		int nNumSelected = GetNumberSelectedCards(m_Hearts, nPlayerIndex);
 		if( !bHasPassedCards ) {
@@ -122,7 +132,7 @@ void Game::UpdateDisplay()
 			GetCardInHand(m_Hearts, &c, nPlayerIndex, i);
 			if( nPlayerIndex == 0 && !bHasPassedCards && IsCardSelected(m_Hearts, nPlayerIndex, i) == HEARTSLIB_CARD_SELECTED ) {
 				m_Pieces.MoveCard(c, m_Metrics.GetSelectedXPos(nSelectedCard++), m_Metrics.GetSelectedTop());
-			}
+			 }
 			else {
 				int nX = m_Metrics.GetXPos(nPlayerIndex, nNonSelectedCard);
 				int nY = m_Metrics.GetYPos(nPlayerIndex, nNonSelectedCard);
@@ -131,7 +141,16 @@ void Game::UpdateDisplay()
 				m_Pieces.MoveCard(c, nX, nY);
 				nNonSelectedCard++;
 			}
-			m_Pieces.MakeVisible(c, nPlayerIndex == 0);
+
+			bool bCanPlayCard = true;
+			if( bHasPassedCards == false ) {
+				bCanPlayCard = true;
+			}
+			else {
+				if( nPlayerIndex == 0 )
+					bCanPlayCard = CanPlayCard(m_Hearts, nPlayerIndex, i) == HEARTSLIB_CAN_PLAY_CARD;
+			}
+			m_Pieces.MakeVisible(c, nPlayerIndex == 0, bCanPlayCard);
 		}
 	}
 
@@ -142,7 +161,7 @@ void Game::UpdateDisplay()
 		int nPlayerIndex;
 		GetMiddleCard(m_Hearts, &c, i, &nPlayerIndex);
 		m_Pieces.MoveCard(c, m_Metrics.GetMiddleCardX(nPlayerIndex), m_Metrics.GetMiddleCardY(nPlayerIndex));
-		m_Pieces.MakeVisible(c, true);
+		m_Pieces.MakeVisible(c, true, true);
 	}
 
 
@@ -228,15 +247,6 @@ void Game::DoGamePlay()
             m_Pieces.MoveCard(c, m_Metrics.GetPlayerSideX(nPlayerIndex), m_Metrics.GetPlayerSideY(nPlayerIndex));
          }
          GiveTrickToPlayer(m_Hearts);
-         
-         if( GetNumberOfCardsInHand(m_Hearts, 0) == 0 ) {
-            ScoreReview r(m_pScreen, &m_Hearts);
-            while( r.Loop() ){}
-            printf("DoHeartsNextHand\n");
-            DoHeartsNextHand(m_Hearts);
-            RebuildPieces();
-            printf("After DoHeartsNextHand\n");
-         }
       }
       else {
         int nPlayersTurn = GetPlayersTurn(m_Hearts);
@@ -251,6 +261,15 @@ void Game::DoGamePlay()
                }
             }
          }
+      }
+   }
+
+   if( HasPassedCards(m_Hearts) == HEARTSLIB_PASSED_CARDS ) {
+      if( GetNumberOfCardsInHand(m_Hearts, 0) == 0 ) {
+         ScoreReview r(m_pScreen, &m_Hearts);
+         while( r.Loop() ){}
+         DoHeartsNextHand(m_Hearts);
+         RebuildPieces();
       }
    }
 }

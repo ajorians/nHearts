@@ -5,14 +5,11 @@
 PieceControl::PieceControl(SDL_Surface* pScreen, Metrics* pMetrics, CardImages* pCardImages)
 : m_pScreen(pScreen), m_pMetrics(pMetrics), m_pCardImages(pCardImages), m_pRoot(NULL)
 {
-   printf("PieceControl::PieceControl %d,%d\n", DISPCARD_WIDTH, DISPCARD_HEIGHT);
    m_pCardImageNormal = SDL_CreateRGBSurface(SDL_SWSURFACE, DISPCARD_WIDTH, DISPCARD_HEIGHT, 16, 0, 0, 0, 0);
    m_pCardImages->GetImageForDeckStyle(m_pCardImageNormal, false);
-   printf("About to load flipped\n");
 
    m_pCardImageFlipped = SDL_CreateRGBSurface(SDL_SWSURFACE, DISPCARD_WIDTH, DISPCARD_HEIGHT, 16, 0, 0, 0, 0);
    m_pCardImages->GetImageForDeckStyle(m_pCardImageFlipped, true);
-   printf("Loaded flipped\n");
 }
 
 PieceControl::~PieceControl()
@@ -28,6 +25,7 @@ void PieceControl::ClearPieces()
    while(pPiece != NULL) {
       PieceSprite* pTemp = pPiece;
       SDL_FreeSurface(pPiece->img);
+      SDL_FreeSurface(pPiece->imgDisabled);
       SDL_FreeSurface(pPiece->replace);
       pPiece = pPiece->next;
       free(pTemp);
@@ -39,6 +37,7 @@ bool PieceControl::CreateCard(Card c, int nPlayerIndex, int nCardIndex, bool bHo
 {
    struct PieceSprite* pPiece = (PieceSprite*)malloc(sizeof(struct PieceSprite));
    pPiece->img = NULL;
+//   pPiece->imgDisabled = NULL;
    pPiece->replace = NULL;
 
    pPiece->c = c;
@@ -59,6 +58,7 @@ bool PieceControl::CreateCard(Card c, int nPlayerIndex, int nCardIndex, bool bHo
 
    int nCardWidth = m_pMetrics->GetCardWidth(), nCardHeight = m_pMetrics->GetCardHeight();
    pPiece->img = SDL_CreateRGBSurface(SDL_SWSURFACE, nCardWidth, nCardHeight, 16, 0, 0, 0, 0);
+   pPiece->imgDisabled = SDL_CreateRGBSurface(SDL_SWSURFACE, nCardWidth, nCardHeight, 16, 0, 0, 0, 0);
 
    if( nPlayerIndex != 0 ) {
       pPiece->visible = false;
@@ -66,7 +66,9 @@ bool PieceControl::CreateCard(Card c, int nPlayerIndex, int nCardIndex, bool bHo
    else {
       pPiece->visible = true;
    }
-   m_pCardImages->GetImageForCard(pPiece->img, c, nCardWidth, nCardHeight);
+   pPiece->enabled = true;
+   m_pCardImages->GetImageForCard(pPiece->img, c, true, nCardWidth, nCardHeight);
+   m_pCardImages->GetImageForCard(pPiece->imgDisabled, c, false, nCardWidth, nCardHeight);
    pPiece->replace = SDL_CreateRGBSurface(SDL_SWSURFACE, nCardWidth, nCardHeight, 16, 0, 0, 0, 0);
 
    return true;
@@ -85,7 +87,7 @@ bool PieceControl::MoveCard(Card c, int nX, int nY)
    return false;
 }
 
-bool PieceControl::MakeVisible(Card c, bool bVisible)
+bool PieceControl::MakeVisible(Card c, bool bVisible, bool bEnabled)
 {
    PieceSprite* pCurrent = NULL;
    for(pCurrent = m_pRoot; pCurrent != NULL; pCurrent = pCurrent->next) {
@@ -96,6 +98,8 @@ bool PieceControl::MakeVisible(Card c, bool bVisible)
          else if( !bVisible && pCurrent->visible ) {
             pCurrent->visible = bVisible;
          }
+         pCurrent->enabled = bEnabled;
+         return true;
       }
    }
    return false;
@@ -158,39 +162,6 @@ void MovePiece(SDL_Surface* pScreen, PieceSprite* pSprite, Metrics* pMetrics, in
    SetBackground(pScreen, pSprite, pMetrics);
 }
 
-void Brighten(SDL_Surface* pSurface, int nBrightenAmount)
-{
-   //If the surface must be locked 
-   if( SDL_MUSTLOCK( pSurface ) )
-   {
-      //Lock the surface 
-      SDL_LockSurface( pSurface );
-   }
-
-   //Go through columns 
-   for( int x = 0; x < pSurface->w; x++ )
-   {
-      //Go through rows 
-      for( int y = 0; y < pSurface->h; y++ )
-      {
-         Uint32 pixel = nSDL_GetPixel(pSurface, x, y);
-         Uint8 r = 0, g = 0, b = 0;
-         SDL_GetRGB(pixel, pSurface->format, &r, &g, &b);
-         r = Puz_Min(255, r+nBrightenAmount);
-         g = Puz_Min(255, g+nBrightenAmount);
-         b = Puz_Min(255, b+nBrightenAmount);
-
-         nSDL_SetPixel(pSurface, x, y, SDL_MapRGB(pSurface->format, r, g, b));
-      }
-   }
-
-   //Unlock surface 
-   if( SDL_MUSTLOCK( pSurface ) )
-   {
-      SDL_UnlockSurface( pSurface );
-   }
-}
-
 void PieceControl::ShowPiece(PieceSprite* pSprite)
 {
    //if( pSprite->visible == false )
@@ -203,7 +174,12 @@ void PieceControl::ShowPiece(PieceSprite* pSprite)
    rect.h = pSprite->horizontal ? m_pMetrics->GetCardWidth() : m_pMetrics->GetCardHeight();
 
    if( pSprite->visible ) {
-      SDL_BlitSurface(pSprite->img, NULL, m_pScreen, &rect);
+      if( pSprite->enabled ) {
+         SDL_BlitSurface(pSprite->img, NULL, m_pScreen, &rect);
+      }
+      else {
+         SDL_BlitSurface(pSprite->imgDisabled, NULL, m_pScreen, &rect);
+      }
    }
    else {
       if( pSprite->horizontal ) {
@@ -245,7 +221,6 @@ bool PieceControl::Animate()
       pCurrent = pCurrent->next;
    }
 
-   //m_pMovesLabel->DrawLabel();
    SDL_UpdateRect(m_pScreen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
    pCurrent = m_pRoot;

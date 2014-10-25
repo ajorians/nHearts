@@ -291,7 +291,6 @@ int RemoveCard(CardLib api, int nIndex, int nFreeCard)
 struct CardNode* get_prevnd(struct CardNode* head, struct CardNode* a){
    if(head == a){
       // node[a] is first node 
-      printf("Is first node\n");
       return NULL;
    }
    struct CardNode* temp = head; // temp is current node
