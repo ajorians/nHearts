@@ -24,6 +24,7 @@ struct Hearts
    int m_nLastTrumpPlayer;//Last player to take the cards and the character who played the 2 club
    CardLib m_cardsMiddle;//Cards being played
    int m_nScoreLimit;
+   int m_nJackDiamonds;
    Pass_Direction_t m_ePassDirection;
 };
 
@@ -154,7 +155,7 @@ int DealHands(HeartsLib api)
    return HEARTSLIB_OK;
 }
 
-int HeartsLibCreate(HeartsLib* api)
+int HeartsLibCreate(HeartsLib* api, int nScoreLimit, int nJackDiamonds)
 {
    DEBUG_FUNC_NAME;
 
@@ -181,7 +182,13 @@ int HeartsLibCreate(HeartsLib* api)
       return HEARTSLIB_OUT_OF_MEMORY;//Assuming
 
    pH->m_ePassDirection = PassLeft;
-   pH->m_nScoreLimit = 100;
+   if( nScoreLimit <= 0 ) {
+      pH->m_nScoreLimit = 100;
+   }
+   else {
+      pH->m_nScoreLimit = nScoreLimit;
+   }
+   pH->m_nJackDiamonds = nJackDiamonds;
 
    pH->m_nLastError = HEARTSLIB_OK;
 
@@ -668,7 +675,27 @@ int GiveTrickToPlayer(HeartsLib api)
       }
    }
 
-   //TODO: Check to see who took the Jack of Diamonds
+   //Check to see who took the Jack of Diamonds
+   if( pH->m_nJackDiamonds != 0 ) {
+      int nPlayerWithCard = -1;
+      for(nPlayer = 0; nPlayer < NUMBER_OF_HEARTS_PLAYERS; nPlayer++) {
+         if( nPlayerWithCard != -1 )
+            break;
+         int nNumCards = GetNumberOfCards(pH->m_Players[nPlayer].m_cardsTaken);
+         int i;
+         for(i=0; i<nNumCards; i++) {
+            Card c;
+            GetCard(pH->m_Players[nPlayer].m_cardsTaken, &c, i);
+            if( GetSuit(c) == DIAMONDS && GetCardValue(c) == JACK ) {
+               nPlayerWithCard = nPlayer;
+               break;
+            }
+         }
+      }
+      if( nPlayerWithCard != -1 ) {
+         pH->m_Players[nPlayerWithCard].m_nScore += pH->m_nJackDiamonds;//Usually a negative value
+      }
+   }
 
    return HEARTSLIB_OK;
 }

@@ -93,7 +93,7 @@ void ScoreReview::UpdateDisplay()
 {
 	boxRGBA(m_pScreen, 35/*Left*/, 35/*Top*/, 35 + (SCREEN_WIDTH-35*2)/*Right*/, 35 + (SCREEN_HEIGHT-35*2)/*Bottom*/, 100, 149, 237, 70);
 
-	nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, 35 + 10, "This is the score review\n\
+	nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, 35 + 10, "Score Review:\n\
 Player 1: %d\n\
 Player 2: %d\n\
 Player 3: %d\n\
@@ -106,7 +106,7 @@ GetPlayerScore(*m_pHeartsLib, 3));
 	int nTop = 90;
 	int nPlayerShotMoon = -1;
         if( HEARTSLIB_SHOT_THE_MOON == GetPlayerShotMoon(*m_pHeartsLib, &nPlayerShotMoon) ) {
-                nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "Player # shot the moon!");
+                nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "Player %d shot the moon!", nPlayerShotMoon+1/*index to human readable*/);
 		nTop += 25;
         }
 

@@ -1,15 +1,16 @@
 #include "Game.h"
 #include "ScoreReview.h"
+#include "Config.h"
 
 extern "C"
 {
 #include "SDL/SDL_gfxPrimitives.h"
 }
 
-Game::Game(SDL_Surface* pScreen, CardImages* pCardImages)
-: m_pScreen(pScreen), m_pCardImages(pCardImages), m_Pieces(pScreen, &m_Metrics, m_pCardImages)/*, m_ShotMoonMessage(pScreen)*/, m_nCurrentCard(-1)
+Game::Game(SDL_Surface* pScreen, Config* pConfig, CardImages* pCardImages)
+: m_pScreen(pScreen), m_pConfig(pConfig), m_pCardImages(pCardImages), m_Pieces(pScreen, &m_Metrics, m_pCardImages)/*, m_ShotMoonMessage(pScreen)*/, m_nCurrentCard(-1)
 {
-	HeartsLibCreate(&m_Hearts);
+	HeartsLibCreate(&m_Hearts, m_pConfig->GetScoreLimit(), m_pConfig->GetJackDiamondsAmount());
 
 	m_pFont = nSDL_LoadFont(NSDL_FONT_THIN, 0/*R*/, 0/*G*/, 0/*B*/);
 

@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 			{
 				bool bPlay = true;
 				while( bPlay ) {
-					Game game(pScreen, &cardImages);
+					Game game(pScreen, &config, &cardImages);
 					while(game.Loop()){}
 
 					bPlay = false;

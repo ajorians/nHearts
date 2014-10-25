@@ -69,9 +69,25 @@ void HeartsHelp::UpdateDisplay()
 	SDL_FillRect(m_pScreen, NULL, SDL_MapRGB(m_pScreen->format, 153, 153, 255));
 
 	nSDL_DrawString(m_pScreen, m_pFont, 15, 20, 
-"Hearts is a card game.\n\
-Try to get the least amount\n\
-of points as possible.");
+"Hearts is a card game. The object is to\n\
+get the least amount of points as possible.\n\
+\n\
+Each heart is worth 1 point and the Queen\n\
+of Spades is worth 13 points!\n\
+\n\
+You must follow suit if you can.\n\
+The highest card of the played suit in each\n\
+trick takes the trick.\n\
+\n\
+The passing order is pass left, pass right,\n\
+pass across and non passing round.  When\n\
+you pass you can pass any 3 cards.\n\
+\n\
+The 2 of Clubs starts each round.  On that\n\
+first trick you cannot play any Hearts or\n\
+Queen of Spades.\n\
+\n\
+Good luck!");
 
 	//int nLeft = 55;
 

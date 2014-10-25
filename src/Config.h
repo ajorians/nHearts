@@ -20,7 +20,8 @@ public:
    Config();
    ~Config();
 
-   MAKE_CONFIG_ITEM(bool, BackgroundMoves);
+   MAKE_CONFIG_ITEM(int, ScoreLimit);
+   MAKE_CONFIG_ITEM(int, JackDiamondsAmount);
 
 public:
 
