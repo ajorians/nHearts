@@ -14,7 +14,7 @@ int TestConstruction()
 {
    PRINT_FUNC;
    HeartsLib api;
-   if( HEARTSLIB_OK != HeartsLibCreate(&api) )
+   if( HEARTSLIB_OK != HeartsLibCreate(&api, 100, 0) )
       return TEST_FAILED;
 
    if( HEARTSLIB_OK != HeartsLibFree(&api) )
