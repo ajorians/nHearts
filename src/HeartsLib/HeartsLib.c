@@ -497,17 +497,13 @@ int CanPlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
    if( nPlayerIndex < 0 || nPlayerIndex >= NUMBER_OF_HEARTS_PLAYERS )
       return HEARTSLIB_BADARGUMENT;
 
-   if( nCardIndex < 0 || nCardIndex > GetNumberOfCardsInHand(api, nPlayerIndex) )
+   if( nCardIndex < 0 || nCardIndex >= GetNumberOfCardsInHand(api, nPlayerIndex) )
       return HEARTSLIB_BADARGUMENT;
 
    struct Hearts* pH = (struct Hearts*)api;
 
    if( pH->m_bPassedCards == 0 && GetHeartsPassDirection(api) != NoPass )
       return HEARTSLIB_BADARGUMENT;
-
-   int nPlayersTurn = GetPlayersTurn(api);
-   if( nPlayerIndex != nPlayersTurn )
-      return HEARTSLIB_BADARGUMENT;//Not your turn
 
    Card c;
    GetCard(pH->m_Players[nPlayerIndex].m_cardsHand, &c, nCardIndex);
@@ -596,6 +592,10 @@ int PlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
       return nRet;
    }
 
+   int nPlayersTurn = GetPlayersTurn(api);
+   if( nPlayerIndex != nPlayersTurn )
+      return HEARTSLIB_BADARGUMENT;//Not your turn
+
    //Remove the selected-ness of cards in hand
    int nNumCards = GetNumberOfCardsInHand(api, nPlayerIndex);
    int i;
@@ -605,8 +605,6 @@ int PlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
       if( GetCardExtraData(c) != NULL )
          SetCardExtraData(c, NULL);
    }
-
-   int nPlayersTurn = GetPlayersTurn(api);
 
    Card c;
    GetCard(pH->m_Players[nPlayerIndex].m_cardsHand, &c, nCardIndex);
@@ -656,12 +654,21 @@ int GiveTrickToPlayer(HeartsLib api)
    //Update scores
    for(nPlayer = 0; nPlayer < NUMBER_OF_HEARTS_PLAYERS; nPlayer++) {
       int nScore = ScoreOfCardsTaken(api, nPlayer);
-      if( nScore == 26 ) {//TODO:
+      if( nScore == 26 ) {
+         int i;
+         for(i=0; i<NUMBER_OF_HEARTS_PLAYERS; i++) {
+            if( i != nPlayer ) {
+               pH->m_Players[i].m_nScore += 26;
+            }
+         }
+
       }
       else {
         pH->m_Players[nPlayer].m_nScore += nScore;
       }
    }
+
+   //TODO: Check to see who took the Jack of Diamonds
 
    return HEARTSLIB_OK;
 }
@@ -802,6 +809,22 @@ int ScoreOfCardsTaken(HeartsLib api, int nPlayerIndex)
    }
 
    return nSum;
+}
+
+int GetPlayerShotMoon(HeartsLib api, int* pPlayerIndex)
+{
+   DEBUG_MSG;
+
+   struct Hearts* pH = (struct Hearts*)api;
+
+   int nPlayer;
+   for(nPlayer = 0; nPlayer < NUMBER_OF_HEARTS_PLAYERS; nPlayer++) {
+      if( ScoreOfCardsTaken(api, nPlayer) == 26 ) {
+         if( pPlayerIndex ) *pPlayerIndex = nPlayer;
+         return HEARTSLIB_SHOT_THE_MOON;
+      }
+   }
+   return HEARTSLIB_DID_NOT_SHOOT;
 }
 
 int GetPlayerScore(HeartsLib api, int nPlayerIndex)

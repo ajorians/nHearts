@@ -75,10 +75,14 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
-				//bool bPlay = true;
-				Game game(pScreen, &cardImages);
-				while(game.Loop()){}
-				break;
+				bool bPlay = true;
+				while( bPlay ) {
+					Game game(pScreen, &cardImages);
+					while(game.Loop()){}
+
+					bPlay = false;
+					break;
+				}
 			}
 		}
 	}

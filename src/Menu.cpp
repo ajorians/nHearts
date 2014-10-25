@@ -33,6 +33,8 @@ bool MainMenu::Loop()
 	
 	UpdateDisplay();
 
+	rand();
+
 	SDL_Delay(30);
 	
 	return true;

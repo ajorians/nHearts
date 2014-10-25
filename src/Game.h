@@ -12,6 +12,7 @@ extern "C"
 #include "CardImages.h"
 #include "Metrics.h"
 #include "Piece.h"
+#include "Message.h"
 #include "Direction.h"
 
 class Game
@@ -38,6 +39,7 @@ protected:
 	HeartsLib m_Hearts;
 	PieceControl	m_Pieces;
 	Metrics		m_Metrics;
+	//Message		m_ShotMoonMessage;
 	int		m_nCurrentCard;
 	Uint32		m_uLastAction;
 };
