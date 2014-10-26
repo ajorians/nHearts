@@ -13,6 +13,7 @@ extern "C"
 #include "Metrics.h"
 #include "Piece.h"
 #include "Message.h"
+#include "HeartsAI.h"
 #include "Direction.h"
 
 class Config;
@@ -33,6 +34,7 @@ protected:
 	void DoGamePlay();
 	void RemovedSelectedPieces();
 	void RebuildPieces();
+	void ConstructAIs();
 
 protected:
 	SDL_Surface	*m_pScreen;//Does not own
@@ -42,6 +44,7 @@ protected:
 	HeartsLib m_Hearts;
 	PieceControl	m_Pieces;
 	Metrics		m_Metrics;
+	HeartsAI	m_aAIs[3];
 	//Message		m_ShotMoonMessage;
 	int		m_nCurrentCard;
 	Uint32		m_uLastAction;

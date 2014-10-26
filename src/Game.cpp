@@ -19,6 +19,7 @@ Game::Game(SDL_Surface* pScreen, Config* pConfig, CardImages* pCardImages)
 	m_uLastAction = SDL_GetTicks();
 
 	RebuildPieces();
+	ConstructAIs();
 }
 
 Game::~Game()
@@ -220,10 +221,7 @@ void Game::SelectCard()
          PassSelectedCards(m_Hearts, 0);
 
          for(int i=1; i<4; i++) {
-            while(GetNumberSelectedCards(m_Hearts, i) != 3 ) {
-                ToggleSelectedCard(m_Hearts, i, rand() % 13);
-            }
-            PassSelectedCards(m_Hearts, i);
+            m_aAIs[i-1].PassCards();
          }
       }
    }
@@ -252,15 +250,8 @@ void Game::DoGamePlay()
       else {
         int nPlayersTurn = GetPlayersTurn(m_Hearts);
          if( nPlayersTurn != 0 ) {
-            while(true) {
-               int nCardsInHand = GetNumberOfCardsInHand(m_Hearts, nPlayersTurn);
-               int nCardPossibleToPlay = rand() % nCardsInHand;
-               if( CanPlayCard(m_Hearts, nPlayersTurn, nCardPossibleToPlay) == HEARTSLIB_CAN_PLAY_CARD ) {
-                  PlayCard(m_Hearts, nPlayersTurn, nCardPossibleToPlay);
-                  m_uLastAction = SDL_GetTicks();
-                  break;
-               }
-            }
+            m_aAIs[nPlayersTurn-1].PlayACard();
+            m_uLastAction = SDL_GetTicks();
          }
       }
    }
@@ -297,5 +288,12 @@ void Game::RebuildPieces()
          GetCardInHand(m_Hearts, &c, nPlayerIndex, i);
          m_Pieces.CreateCard(c, nPlayerIndex, i, nPlayerIndex == 1 || nPlayerIndex == 3);
       }
+   }
+}
+
+void Game::ConstructAIs()
+{
+   for(int i=0; i<3; i++) {
+      m_aAIs[i].SetHeartsLib(&m_Hearts, i+1);
    }
 }
