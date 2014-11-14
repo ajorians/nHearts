@@ -41,6 +41,7 @@ typedef enum
 //Initalization/Error checking/Mode functions
 //////////////////////////////////////////////
 int HeartsLibCreate(HeartsLib* api, int nScoreLimit, int nJackDiamonds);
+int HeartsLibCopy(HeartsLib* copyapi, HeartsLib orig);
 int HeartsLibFree(HeartsLib* api);
 
 int GetHeartsLibError(HeartsLib api);

@@ -37,6 +37,7 @@ typedef void* Card;
 //Initalization/Error checking/Mode functions
 //////////////////////////////////////////////
 int CardLibCreate(CardLib* api);
+int CardLibCopy(CardLib* copy, CardLib orig);
 int CardLibFree(CardLib* api);
 
 int GetCardLibError(CardLib api);
@@ -61,6 +62,7 @@ int SwapCards(CardLib api, int nIndex1, int nIndex2);
 //Card related functions
 //////////////////////////////////////////////
 int CreateCard(Card* pCard, int nSuit, int nValue);
+int CopyCard(Card* pCard, Card cOrig);
 int DestroyCard(Card* pCard);
 int GetSuit(Card c);
 int GetCardValue(Card c);

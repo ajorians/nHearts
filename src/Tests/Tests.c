@@ -17,6 +17,40 @@ int TestConstruction()
    if( HEARTSLIB_OK != HeartsLibCreate(&api, 100, 0) )
       return TEST_FAILED;
 
+   int i;
+   for(i=0; i<4; i++)
+      if( 13 != GetNumberOfCardsInHand(api, i) )
+         return TEST_FAILED;
+
+   if( HEARTSLIB_OK != HeartsLibFree(&api) )
+      return TEST_FAILED;
+
+   return TEST_SUCCEEDED;
+}
+
+int TestCopy()
+{
+   PRINT_FUNC;
+   HeartsLib api;
+   if( HEARTSLIB_OK != HeartsLibCreate(&api, 100, 0) )
+      return TEST_FAILED;
+
+   int i;
+   for(i=0; i<4; i++)
+      if( 13 != GetNumberOfCardsInHand(api, i) )
+         return TEST_FAILED;
+
+   HeartsLib copy;
+   if( HEARTSLIB_OK != HeartsLibCopy(&copy, api) )
+      return TEST_FAILED;
+
+   for(i=0; i<4; i++)
+      if( 13 != GetNumberOfCardsInHand(copy, i) )
+         return TEST_FAILED;
+
+   if( HEARTSLIB_OK != HeartsLibFree(&copy) )
+      return TEST_FAILED;
+
    if( HEARTSLIB_OK != HeartsLibFree(&api) )
       return TEST_FAILED;
 
@@ -26,7 +60,8 @@ int TestConstruction()
 typedef int (*testfunc)();
    testfunc g_Tests[] =
    {
-      TestConstruction
+      TestConstruction,
+      TestCopy
    };
 
 void RunTests()
