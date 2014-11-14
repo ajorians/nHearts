@@ -203,6 +203,46 @@ int HeartsLibCreate(HeartsLib* api, int nScoreLimit, int nJackDiamonds)
    return HEARTSLIB_OK;
 }
 
+int HeartsLibCopy(HeartsLib* copyapi, HeartsLib orig)
+{
+   DEBUG_FUNC_NAME;
+
+   struct Hearts* pHOrig = (struct Hearts*)orig;
+
+   struct Hearts* pH = malloc(sizeof(struct Hearts));
+   if( pH == NULL ){//Out of memory
+      return HEARTSLIB_OUT_OF_MEMORY;
+   }
+
+   int nPlayerIndex;
+   for(nPlayerIndex = 0; nPlayerIndex < NUMBER_OF_HEARTS_PLAYERS; nPlayerIndex++) {
+      if( CARDLIB_OK != CardLibCopy(&pH->m_Players[nPlayerIndex].m_cardsHand, pHOrig->m_Players[nPlayerIndex].m_cardsHand) ) {
+         return HEARTSLIB_OUT_OF_MEMORY;//Assuming
+      }
+      if( CARDLIB_OK != CardLibCopy(&pH->m_Players[nPlayerIndex].m_cardsTaken, pHOrig->m_Players[nPlayerIndex].m_cardsTaken) ) {
+         return HEARTSLIB_OUT_OF_MEMORY;//Assuming
+      }
+      if( CARDLIB_OK != CardLibCopy(&pH->m_Players[nPlayerIndex].m_cardsQueued, pHOrig->m_Players[nPlayerIndex].m_cardsQueued) ) {
+         return HEARTSLIB_OUT_OF_MEMORY;//Assuming
+      }
+      pH->m_Players[nPlayerIndex].m_nScore = pHOrig->m_Players[nPlayerIndex].m_nScore;
+   }
+
+   if( CARDLIB_OK != CardLibCopy(&pH->m_cardsMiddle, pHOrig->m_cardsMiddle) )
+      return HEARTSLIB_OUT_OF_MEMORY;//Assuming
+
+   pH->m_nLastError = pHOrig->m_nLastError;
+   pH->m_bPassedCards = pHOrig->m_bPassedCards;
+   pH->m_bHeartsBroken = pHOrig->m_bHeartsBroken;
+   pH->m_nLastTrumpPlayer = pHOrig->m_nLastTrumpPlayer;
+   pH->m_nScoreLimit = pHOrig->m_nScoreLimit;
+   pH->m_nJackDiamonds = pHOrig->m_nJackDiamonds;
+   pH->m_ePassDirection = pHOrig->m_ePassDirection;
+
+   *copyapi = pH;
+   return HEARTSLIB_OK;
+}
+
 int HeartsLibFree(HeartsLib* api)
 {
    DEBUG_FUNC_NAME;

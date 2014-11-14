@@ -257,7 +257,7 @@ void Game::DoGamePlay()
    }
 
    if( HasPassedCards(m_Hearts) == HEARTSLIB_PASSED_CARDS ) {
-      if( GetNumberOfCardsInHand(m_Hearts, 0) == 0 ) {
+      if( GetNumberOfCardsInHand(m_Hearts, 0) == 0 && GetNumberOfCardsInHand(m_Hearts, 1) == 0 && GetNumberOfCardsInHand(m_Hearts, 2) == 0 && GetNumberOfCardsInHand(m_Hearts, 3) == 0  ) {
          ScoreReview r(m_pScreen, &m_Hearts);
          while( r.Loop() ){}
          DoHeartsNextHand(m_Hearts);

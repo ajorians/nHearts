@@ -37,6 +37,34 @@ int CardLibCreate(CardLib* api)
    return CARDLIB_OK;
 }
 
+int CardLibCopy(CardLib* copy, CardLib orig)
+{
+   DEBUG_FUNC_NAME;
+
+   struct CardDeck* pOrig = (struct CardDeck*)orig;
+
+   struct CardDeck* pCD = malloc(sizeof(struct CardDeck));
+   if( pCD == NULL ){//Out of memory
+      return CARDLIB_OUT_OF_MEMORY;
+   }
+
+   pCD->m_nLastError = pOrig->m_nLastError;
+   pCD->m_pCards = NULL;
+
+   *copy = pCD;
+
+   int nCards = GetNumberOfCards(orig);
+   for(int i=0; i<nCards; i++) {
+      Card cOrig;
+      GetCard(orig, &cOrig, i);
+      Card cCopy;
+      CopyCard(&cCopy, cOrig);
+      AddCard(*copy, cCopy);
+   }
+
+   return CARDLIB_OK;
+}
+
 int CardLibFree(CardLib* api)
 {
    DEBUG_FUNC_NAME;
@@ -383,6 +411,26 @@ int CreateCard(Card* pCard, int nSuit, int nValue)
    pC->m_nValue = nValue;
    pC->m_pExtraData = NULL;
    pC->m_pNext = NULL;
+
+   *pCard = pC;
+   return CARDLIB_OK;
+}
+
+int CopyCard(Card* pCard, Card cOrig)
+{
+   DEBUG_FUNC_NAME;
+
+   struct CardNode* pOrig = (struct CardNode*)cOrig;
+
+   struct CardNode* pC = malloc(sizeof(struct CardNode));
+   if( pC == NULL ){//Out of memory
+      return CARDLIB_OUT_OF_MEMORY;
+   }
+
+   pC->m_nValue = pOrig->m_nValue;
+   pC->m_nSuit = pOrig->m_nSuit;
+   pC->m_pExtraData = pOrig->m_pExtraData;
+   pC->m_pNext = NULL;//Just copying the card; not the order
 
    *pCard = pC;
    return CARDLIB_OK;

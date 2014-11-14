@@ -47,6 +47,10 @@ void HeartsAI::PassCards()
 
 void HeartsAI::PlayACard()
 {
+   HeartsLib copy;
+   HeartsLibCopy(&copy, *m_pHeartsLib);
+   HeartsLibFree(&copy);
+
    int nCards = GetNumberOfCardsInHand(*m_pHeartsLib, m_nPlayerIndex);
    bool arrCardsCanPlay[13];
    int nCountPlayableCards = 0;
@@ -87,8 +91,57 @@ void HeartsAI::PlayACard()
       }
    }
 
-   //TODO: Determine if pretty much would take card if so don't play that one :)
+   double dWouldTakeIt[13];
+   for(int i=0; i<13; i++) dWouldTakeIt[i] = 1.0;
 
+    for(int nMyCard = 0; nMyCard < nCards; nMyCard++) {
+      if( arrCardsCanPlay[nMyCard] == false )
+         continue;
+
+      Card cardMine;
+      GetCardInHand(*m_pHeartsLib, &cardMine, m_nPlayerIndex, nMyCard);
+      int nCurrentSuit = GetSuit(cardMine);
+      int nCurrentValue = GetCardValue(cardMine);
+
+      int nHigherCards = 0, nTotalCards = 0;
+      for(int i=0; i<4; i++) {
+         if( i == m_nPlayerIndex )
+            continue;
+
+         int nNumCards = GetNumberOfCardsInHand(*m_pHeartsLib, i);
+         for(int nCard = 0; nCard < nNumCards; nCard++) {
+            Card c;
+            GetCardInHand(*m_pHeartsLib, &c, i, nCard);
+            int nSuit = GetSuit(c);
+            int nValue = GetCardValue(c);
+            if( nSuit == nCurrentSuit ) {
+               if( nCurrentValue == ACE || (nValue != ACE && nCurrentValue > nValue) ) {
+                  nHigherCards++;
+               }
+            }
+            nTotalCards++;
+         }
+      }
+
+      if( nTotalCards > 0 )
+         dWouldTakeIt[nMyCard] = ((double)nHigherCards)/nTotalCards;
+   }
+
+   double dLowest = 1.0;
+   int nLowest = -1;
+   for(int i=0; i<13; i++) {
+      if( arrCardsCanPlay[i] == false )
+         continue;
+
+      if( dWouldTakeIt[i] < dLowest ) {
+         dLowest = dWouldTakeIt[i];
+         nLowest = i;
+      }
+   }
+
+   if( nLowest != -1 && arrCardsCanPlay[nLowest] == true )
+      PlayCard(*m_pHeartsLib, m_nPlayerIndex, nLowest);
+   
    while(true) {
       int nCardsInHand = GetNumberOfCardsInHand(*m_pHeartsLib, m_nPlayerIndex);
       int nCardPossibleToPlay = rand() % nCardsInHand;
