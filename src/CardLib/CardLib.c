@@ -1,6 +1,10 @@
 //Public domain :)
-
+#ifdef _TINSPIRE
 #include <os.h>
+#else
+#include <stdio.h>
+#include <stdlib.h>
+#endif
 #include "include/CardLib.h"
 #include "Defines.h"
 
@@ -22,9 +26,10 @@ void SwapCardNodes(struct CardNode **head, struct CardNode **a, struct CardNode 
 
 int CardLibCreate(CardLib* api)
 {
+   struct CardDeck* pCD;
    DEBUG_FUNC_NAME;
 
-   struct CardDeck* pCD = malloc(sizeof(struct CardDeck));
+   pCD = malloc(sizeof(struct CardDeck));
    if( pCD == NULL ){//Out of memory
       return CARDLIB_OUT_OF_MEMORY;
    }
@@ -39,11 +44,16 @@ int CardLibCreate(CardLib* api)
 
 int CardLibCopy(CardLib* copy, CardLib orig)
 {
+   struct CardDeck* pOrig;
+   struct CardDeck* pCD;
+   int nCards;
+   int i;
+
    DEBUG_FUNC_NAME;
 
-   struct CardDeck* pOrig = (struct CardDeck*)orig;
+   pOrig = (struct CardDeck*)orig;
 
-   struct CardDeck* pCD = malloc(sizeof(struct CardDeck));
+   pCD = malloc(sizeof(struct CardDeck));
    if( pCD == NULL ){//Out of memory
       return CARDLIB_OUT_OF_MEMORY;
    }
@@ -53,11 +63,11 @@ int CardLibCopy(CardLib* copy, CardLib orig)
 
    *copy = pCD;
 
-   int nCards = GetNumberOfCards(orig);
-   for(int i=0; i<nCards; i++) {
+   nCards = GetNumberOfCards(orig);
+   for(i=0; i<nCards; i++) {
       Card cOrig;
-      GetCard(orig, &cOrig, i);
       Card cCopy;
+      GetCard(orig, &cOrig, i);
       CopyCard(&cCopy, cOrig);
       AddCard(*copy, cCopy);
    }
@@ -67,10 +77,11 @@ int CardLibCopy(CardLib* copy, CardLib orig)
 
 int CardLibFree(CardLib* api)
 {
+   struct CardDeck* pCD;
    DEBUG_FUNC_NAME;
 
    RemoveAllCards(*api, CARDLIB_FREE_CARD);
-   struct CardDeck* pCD = *api;
+   pCD = *api;
    free(pCD);
    *api = NULL;
    return CARDLIB_OK;
@@ -78,40 +89,48 @@ int CardLibFree(CardLib* api)
 
 int GetCardError(CardLib api)
 {
+   struct CardDeck* pCD;
    DEBUG_FUNC_NAME;
 
-   struct CardDeck* pCD = (struct CardDeck*)api;
+   pCD = (struct CardDeck*)api;
    return pCD->m_nLastError;
 }
 
 void ClearCardError(CardLib api)
 {
+   struct CardDeck* pCD;
    DEBUG_FUNC_NAME;
 
-   struct CardDeck* pCD = (struct CardDeck*)api;
+   pCD = (struct CardDeck*)api;
    pCD->m_nLastError = CARDLIB_OK;
 }
 
 //CardLib related functions
 int IsCardsEmpty(CardLib api)
 {
+   struct CardDeck* pCD;
+   struct CardNode* pCurrent;
    DEBUG_FUNC_NAME;
 
-   struct CardDeck* pCD = (struct CardDeck*)api;
+   pCD = (struct CardDeck*)api;
 
-   struct CardNode* pCurrent = pCD->m_pCards;
+   pCurrent = pCD->m_pCards;
 
    return pCurrent == NULL ? CARDLIB_DECK_EMPTY : CARDLIB_DECK_HAS_CARDS;
 }
 
 int GetNumberOfCards(CardLib api)
 {
+   struct CardDeck* pCD;
+   int nRet;
+   struct CardNode* pCurrent;
+
    DEBUG_FUNC_NAME;
 
-   struct CardDeck* pCD = (struct CardDeck*)api;
+   pCD = (struct CardDeck*)api;
 
-   int nRet = 0;
-   struct CardNode* pCurrent = pCD->m_pCards;
+   nRet = 0;
+   pCurrent = pCD->m_pCards;
 
    while(pCurrent != NULL) {
       pCurrent = pCurrent->m_pNext;
@@ -123,12 +142,15 @@ int GetNumberOfCards(CardLib api)
 
 int GetCard(CardLib api, Card* pCard, int nIndex)
 {
+   struct CardDeck* pCD;
+   int n;
+   struct CardNode* pCurrent;
    DEBUG_FUNC_NAME;
 
-   struct CardDeck* pCD = (struct CardDeck*)api;
+   pCD = (struct CardDeck*)api;
 
-   int n = 0;
-   struct CardNode* pCurrent = pCD->m_pCards;
+   n = 0;
+   pCurrent = pCD->m_pCards;
 
    while(pCurrent != NULL && n != nIndex) {
       pCurrent = pCurrent->m_pNext;
@@ -148,10 +170,11 @@ int GetCard(CardLib api, Card* pCard, int nIndex)
 
 int AddStandardCards(CardLib api, int nJokers)
 {
-   DEBUG_FUNC_NAME;
-
    int nSuit;
    int nValue;
+   int n;
+   DEBUG_FUNC_NAME;
+
    for(nSuit=SUIT_START; nSuit<=SUIT_END; nSuit++) {
       for(nValue = VALUE_START; nValue<=VALUE_END; nValue++) {
          Card c;
@@ -160,7 +183,6 @@ int AddStandardCards(CardLib api, int nJokers)
       }
    }
 
-   int n;
    for(n=0; n<nJokers; n++) {
       Card c;
       CreateCard(&c, JOKER, -1);
@@ -172,13 +194,17 @@ int AddStandardCards(CardLib api, int nJokers)
 
 int AddCard(CardLib api, Card c)
 {
+   struct CardDeck* pCD;
+   struct CardNode* pNode;
+   struct CardNode* pCurrent;
+   struct CardNode* pPrevious;
    DEBUG_FUNC_NAME;
 
-   struct CardDeck* pCD = (struct CardDeck*)api;
-   struct CardNode* pNode = (struct CardNode*)c;
+   pCD = (struct CardDeck*)api;
+   pNode = (struct CardNode*)c;
 
-   struct CardNode* pCurrent = pCD->m_pCards;
-   struct CardNode* pPrevious = NULL;
+   pCurrent = pCD->m_pCards;
+   pPrevious = NULL;
 
    while(pCurrent != NULL) {
       pPrevious = pCurrent;
@@ -200,10 +226,12 @@ int AddCard(CardLib api, Card c)
 
 int AddCardToBeginning(CardLib api, Card c)
 {
+   struct CardDeck* pCD;
+   struct CardNode* pNode;
    DEBUG_FUNC_NAME;
 
-   struct CardDeck* pCD = (struct CardDeck*)api;
-   struct CardNode* pNode = (struct CardNode*)c;
+   pCD = (struct CardDeck*)api;
+   pNode = (struct CardNode*)c;
 
    pNode->m_pNext = pCD->m_pCards;
    pCD->m_pCards = pNode;
@@ -213,23 +241,29 @@ int AddCardToBeginning(CardLib api, Card c)
 
 int Shuffle(CardLib api)
 {
-   struct CardDeck* pCD = (struct CardDeck*)api;
+   struct CardDeck* pCD;
+   int nNumberOfCards;
+   int nCard;
+
+   pCD = (struct CardDeck*)api;
 
    if( pCD->m_pCards == NULL ){
       return CARDLIB_DECK_EMPTY;
    }
 
-   int nNumberOfCards = GetNumberOfCards(api);
+   nNumberOfCards = GetNumberOfCards(api);
 
-   int nCard;
    for(nCard = 0; nCard<nNumberOfCards; nCard++) {
       Card a, b;
+      int nSwapWith;
+      struct CardNode* pA;
+      struct CardNode* pB;
       GetCard(api, &a, nCard);
-      int nSwapWith = rand() % nNumberOfCards;
+      nSwapWith = rand() % nNumberOfCards;
       GetCard(api, &b, nSwapWith);
 
-      struct CardNode* pA = (struct CardNode*)a;
-      struct CardNode* pB = (struct CardNode*)b;
+      pA = (struct CardNode*)a;
+      pB = (struct CardNode*)b;
 
       SwapCardNodes(&(pCD->m_pCards), &pA, &pB);
    }
@@ -239,15 +273,18 @@ int Shuffle(CardLib api)
 
 int TakeNextCard(CardLib api, Card* pCard)
 {
+   struct CardDeck* pCD;
+   struct CardNode* pNode;
+   Card c;
    DEBUG_FUNC_NAME;
 
-   struct CardDeck* pCD = (struct CardDeck*)api;
+   pCD = (struct CardDeck*)api;
 
    if( pCD->m_pCards == NULL ){
       return CARDLIB_DECK_EMPTY;
    }
 
-   struct CardNode* pNode = pCD->m_pCards;
+   pNode = pCD->m_pCards;
 
    if( pNode == NULL ) {//Should never happen
       return CARDLIB_DECK_EMPTY;
@@ -257,7 +294,7 @@ int TakeNextCard(CardLib api, Card* pCard)
 
    pNode->m_pNext = NULL;//Just in case!
 
-   Card c = (Card)pNode;
+   c = (Card)pNode;
    *pCard = c;//Now callers responsibilty to clean it up
 
    return CARDLIB_OK;
@@ -265,15 +302,18 @@ int TakeNextCard(CardLib api, Card* pCard)
 
 int RemoveAllCards(CardLib api, int nFreeCard)
 {
+   struct CardDeck* pCD;
+   struct CardNode* pCurrent;
    DEBUG_FUNC_NAME;
 
-   struct CardDeck* pCD = (struct CardDeck*)api;
+   pCD = (struct CardDeck*)api;
 
-   struct CardNode* pCurrent = pCD->m_pCards;
+   pCurrent = pCD->m_pCards;
 
    while(pCurrent != NULL) {
+      Card card;
       pCD->m_pCards = pCurrent->m_pNext;
-      Card card = (Card*)pCurrent;
+      card = (Card*)pCurrent;
       if( nFreeCard == CARDLIB_FREE_CARD )
          DestroyCard(&card);
       pCurrent = pCD->m_pCards;
@@ -284,16 +324,21 @@ int RemoveAllCards(CardLib api, int nFreeCard)
 
 int RemoveCard(CardLib api, int nIndex, int nFreeCard)
 {
+   struct CardDeck* pCD;
+   struct CardNode* pCurrent;
+   struct CardNode* pLastNode;
+   int i;
    DEBUG_FUNC_NAME;
 
-   struct CardDeck* pCD = (struct CardDeck*)api;
+   pCD = (struct CardDeck*)api;
 
-   struct CardNode* pCurrent = pCD->m_pCards;
+   pCurrent = pCD->m_pCards;
 
-   struct CardNode* pLastNode = NULL;
-   int i=0;
+   pLastNode = NULL;
+   i=0;
    while(pCurrent != NULL) {
       if( i == nIndex ) {
+         Card card;
          if( pLastNode ) {
             pLastNode->m_pNext = pCurrent->m_pNext;
          }
@@ -302,7 +347,7 @@ int RemoveCard(CardLib api, int nIndex, int nFreeCard)
          }
 
          pCurrent->m_pNext = NULL;
-         Card card = (Card*)pCurrent;
+         card = (Card*)pCurrent;
          if( nFreeCard == CARDLIB_FREE_CARD )
             DestroyCard(&card);
          return CARDLIB_OK;
@@ -317,12 +362,14 @@ int RemoveCard(CardLib api, int nIndex, int nFreeCard)
 }
 
 struct CardNode* get_prevnd(struct CardNode* head, struct CardNode* a){
+   struct CardNode* temp;
+   struct CardNode* pre_a;
    if(head == a){
       // node[a] is first node 
       return NULL;
    }
-   struct CardNode* temp = head; // temp is current node
-   struct CardNode* pre_a = NULL; 
+   temp = head; // temp is current node
+   pre_a = NULL; 
 	
    while(temp && temp!=a){ //seach while not reach to end or 
       pre_a = temp;          // find previous node   
@@ -337,6 +384,9 @@ struct CardNode* get_prevnd(struct CardNode* head, struct CardNode* a){
 
 void SwapCardNodes(struct CardNode **head, struct CardNode **a, struct CardNode **b)
 {
+   struct CardNode* pre_a;
+   struct CardNode* pre_b;
+   struct CardNode* temp;
    if( (*head) == NULL ||               // Empty list         
       (*a) == NULL || (*b) == NULL){     // one node is null  
       // Nothing to swap, just return 
@@ -344,15 +394,15 @@ void SwapCardNodes(struct CardNode **head, struct CardNode **a, struct CardNode 
       return;
    }
 
-   struct CardNode* pre_a = get_prevnd(*head, *a);
-   struct CardNode* pre_b = get_prevnd(*head, *b);
-		
+   pre_a = get_prevnd(*head, *a);
+   pre_b = get_prevnd(*head, *b);
+
    //Now swap previous node's next
    if(pre_a) { pre_a->m_pNext = (*b); } // a's previous become b's previous, and 
    if(pre_b) { pre_b->m_pNext = (*a); } // b's previous become a's previous
  
    //Now swap next fields of candidate nodes 	
-   struct CardNode* temp = NULL;  
+   temp = NULL;  
    temp = (*a)->m_pNext;
    (*a)->m_pNext = (*b)->m_pNext;
    (*b)->m_pNext = temp;
@@ -364,17 +414,22 @@ void SwapCardNodes(struct CardNode **head, struct CardNode **a, struct CardNode 
 
 int SwapCards(CardLib api, int nIndex1, int nIndex2)
 {
+   struct CardDeck* pCD;
+   int n;
+   struct CardNode* pCurrent;
+   struct CardNode* pFirst;
+   struct CardNode* pSecond;
    DEBUG_FUNC_NAME;
 
-   struct CardDeck* pCD = (struct CardDeck*)api;
+   pCD = (struct CardDeck*)api;
 
    if( nIndex1 == nIndex2 )
       CARDLIB_OK;
 
-   int n = 0;
-   struct CardNode* pCurrent = pCD->m_pCards;
-   struct CardNode* pFirst = NULL;
-   struct CardNode* pSecond = NULL;
+   n = 0;
+   pCurrent = pCD->m_pCards;
+   pFirst = NULL;
+   pSecond = NULL;
 
    while(pCurrent != NULL ) {
       if( n == nIndex1 )
@@ -400,9 +455,10 @@ int SwapCards(CardLib api, int nIndex1, int nIndex2)
 //Card related functions
 int CreateCard(Card* pCard, int nSuit, int nValue)
 {
+   struct CardNode* pC;
    DEBUG_FUNC_NAME;
 
-   struct CardNode* pC = malloc(sizeof(struct CardNode));
+   pC = malloc(sizeof(struct CardNode));
    if( pC == NULL ){//Out of memory
       return CARDLIB_OUT_OF_MEMORY;
    }
@@ -418,11 +474,13 @@ int CreateCard(Card* pCard, int nSuit, int nValue)
 
 int CopyCard(Card* pCard, Card cOrig)
 {
+   struct CardNode* pOrig;
+   struct CardNode* pC;
    DEBUG_FUNC_NAME;
 
-   struct CardNode* pOrig = (struct CardNode*)cOrig;
+   pOrig = (struct CardNode*)cOrig;
 
-   struct CardNode* pC = malloc(sizeof(struct CardNode));
+   pC = malloc(sizeof(struct CardNode));
    if( pC == NULL ){//Out of memory
       return CARDLIB_OUT_OF_MEMORY;
    }
@@ -438,9 +496,10 @@ int CopyCard(Card* pCard, Card cOrig)
 
 int DestroyCard(Card* pCard)
 {
+   struct Card* card;
    DEBUG_FUNC_NAME;
 
-   struct Card* card = *pCard;
+   card = *pCard;
 
    free(card);
    *pCard = NULL;
@@ -449,27 +508,30 @@ int DestroyCard(Card* pCard)
 
 int GetSuit(Card c)
 {
+   struct CardNode* pNode;
    DEBUG_FUNC_NAME;
 
-   struct CardNode* pNode = (struct CardNode*)c;
+   pNode = (struct CardNode*)c;
 
    return pNode->m_nSuit;
 }
 
 int GetCardValue(Card c)
 {
+   struct CardNode* pNode;
    DEBUG_FUNC_NAME;
 
-   struct CardNode* pNode = (struct CardNode*)c;
+   pNode = (struct CardNode*)c;
 
    return pNode->m_nValue;
 }
 
 int SetCardExtraData(Card c, void* pExtraData)
 {
+   struct CardNode* pNode;
    DEBUG_FUNC_NAME;
 
-   struct CardNode* pNode = (struct CardNode*)c;
+   pNode = (struct CardNode*)c;
 
    pNode->m_pExtraData = pExtraData;
 
@@ -478,18 +540,20 @@ int SetCardExtraData(Card c, void* pExtraData)
 
 void* GetCardExtraData(Card c)
 {
+   struct CardNode* pNode;
    DEBUG_FUNC_NAME;
 
-   struct CardNode* pNode = (struct CardNode*)c;
+   pNode = (struct CardNode*)c;
 
    return pNode->m_pExtraData;
 }
 
 int SetSuit(Card c, int nSuit)
 {
+   struct CardNode* pNode;
    DEBUG_FUNC_NAME;
 
-   struct CardNode* pNode = (struct CardNode*)c;
+   pNode = (struct CardNode*)c;
 
    pNode->m_nSuit = nSuit;
 
@@ -498,9 +562,10 @@ int SetSuit(Card c, int nSuit)
 
 int SetCardValue(Card c, int nValue)
 {
+   struct CardNode* pNode;
    DEBUG_FUNC_NAME;
 
-   struct CardNode* pNode = (struct CardNode*)c;
+   pNode = (struct CardNode*)c;
 
    pNode->m_nValue = nValue;
 
@@ -509,12 +574,16 @@ int SetCardValue(Card c, int nValue)
 
 int SwapCardValues(Card c1, Card c2)
 {
-   int nSuit = GetSuit(c1);
-   int nValue = GetCardValue(c1);
-   void* ptr = GetCardExtraData(c1);
-   int nSuit2 = GetSuit(c2);
-   int nValue2 = GetCardValue(c2);
-   void* ptr2 = GetCardExtraData(c2);
+   int nSuit, nValue;
+   void* ptr;
+   int nSuit2, nValue2;
+   void* ptr2;
+   nSuit = GetSuit(c1);
+   nValue = GetCardValue(c1);
+   ptr = GetCardExtraData(c1);
+   nSuit2 = GetSuit(c2);
+   nValue2 = GetCardValue(c2);
+   ptr2 = GetCardExtraData(c2);
    DEBUG_MSG("Card 1: %d,%d; Card2: %d,%d\n", nSuit, nValue, nSuit2, nValue2);
 
    SetSuit(c1, nSuit2); SetSuit(c2, nSuit);
