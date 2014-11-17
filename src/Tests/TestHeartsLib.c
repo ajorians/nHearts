@@ -1,7 +1,10 @@
+#ifdef _TINSPIRE
 #include <nspireio.h>
+#endif
 #include "HeartsLib/HeartsLib.h"
 #include "Tests.h"
 
+#ifdef _TINSPIRE
 int StartsWith(const char* pstr, const char* pstrFind)
 {
    if( strlen(pstrFind) > strlen(pstr) )
@@ -94,3 +97,10 @@ int main(int argc, char *argv[])
 		
 	return 0;
 }
+#else
+int main()
+{
+   RunTests();
+   return 0;
+}
+#endif
