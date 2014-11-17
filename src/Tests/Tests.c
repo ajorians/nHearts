@@ -163,7 +163,7 @@ int TestGame()
 
    //PRINT("\n");
    for(i=0; i<4; i++) {
-      //PRINT("Player %d: %d\n", i, GetPlayerScore(api, i));
+      //PRINT("Player %d: %d\n", i, GetHeartsPlayerScore(api, i));
    }
 
    if( HEARTSLIB_OK != HeartsLibFree(&api) )

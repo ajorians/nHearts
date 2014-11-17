@@ -50,7 +50,6 @@ void ClearHeartsLibError(HeartsLib api);
 //////////////////////////////////////////////
 //HeartsLib related functions
 //////////////////////////////////////////////
-int GetHeartsPlayerScore(HeartsLib api, int nPlayerIndex);
 Pass_Direction_t GetHeartsPassDirection(HeartsLib api);
 int GetNumberOfCardsInHand(HeartsLib api, int nPlayerIndex);
 int GetCardInHand(HeartsLib api, Card* pCard, int nPlayerIndex, int nCard);
@@ -71,6 +70,6 @@ int DoHeartsNextHand(HeartsLib api);
 int GetMiddleCard(HeartsLib api, Card* pCard, int nCardIndex, int* pPlayerIndex);
 int ScoreOfCardsTaken(HeartsLib api, int nPlayerIndex);
 int GetPlayerShotMoon(HeartsLib api, int* pPlayerIndex);
-int GetPlayerScore(HeartsLib api, int nPlayerIndex);
+int GetHeartsPlayerScore(HeartsLib api, int nPlayerIndex);
 
 #endif

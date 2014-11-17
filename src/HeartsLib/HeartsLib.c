@@ -297,18 +297,6 @@ void ClearHeartsLibError(HeartsLib api)
 }
 
 //HeartsLib related functions
-int GetHeartsPlayerScore(HeartsLib api, int nPlayerIndex)
-{
-   struct Hearts* pH;
-   DEBUG_FUNC_NAME;
-
-   if( nPlayerIndex < 0 || nPlayerIndex >= NUMBER_OF_HEARTS_PLAYERS )
-      return HEARTSLIB_BADARGUMENT;
-
-   pH = (struct Hearts*)api;
-   return pH->m_Players[nPlayerIndex].m_nScore;
-}
-
 Pass_Direction_t GetHeartsPassDirection(HeartsLib api)
 {
    struct Hearts* pH;
@@ -963,13 +951,15 @@ int GetPlayerShotMoon(HeartsLib api, int* pPlayerIndex)
    return HEARTSLIB_DID_NOT_SHOOT;
 }
 
-int GetPlayerScore(HeartsLib api, int nPlayerIndex)
+int GetHeartsPlayerScore(HeartsLib api, int nPlayerIndex)
 {
    struct Hearts* pH;
-   DEBUG_MSG;
+   DEBUG_FUNC_NAME;
+
+   if( nPlayerIndex < 0 || nPlayerIndex >= NUMBER_OF_HEARTS_PLAYERS )
+      return HEARTSLIB_BADARGUMENT;
 
    pH = (struct Hearts*)api;
-
    return pH->m_Players[nPlayerIndex].m_nScore;
 }
 
