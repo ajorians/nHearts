@@ -747,7 +747,6 @@ int GiveTrickToPlayer(HeartsLib api)
    }
 
    //If here means all players have no cards so update score
-   printf("Updating scores!\n");
    //Update scores
    for(nPlayer = 0; nPlayer < NUMBER_OF_HEARTS_PLAYERS; nPlayer++) {
       int nScore = ScoreOfCardsTaken(api, nPlayer);

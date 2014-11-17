@@ -3,6 +3,7 @@
 #else
 #include <stdio.h>
 #include <stdlib.h>
+//#include <time.h>
 #endif
 #include "HeartsLib/HeartsLib.h"
 
@@ -13,7 +14,7 @@
 #endif
 
 #ifdef _TINSPIRE
-#define PRINT_FUNC PRINT("%s", __func__); /*printf(__func__); printf("\n");*/
+#define PRINT_FUNC PRINT("%s", __func__);
 #else
 #define PRINT_FUNC PRINT("%s", __FUNCTION__);
 #endif
@@ -74,11 +75,128 @@ int TestCopy()
    return TEST_SUCCEEDED;
 }
 
+int TestPassing()
+{
+   HeartsLib api;
+   int i;
+   Pass_Direction_t ePass;
+   PRINT_FUNC;
+   if( HEARTSLIB_OK != HeartsLibCreate(&api, 100, 0) )
+      return TEST_FAILED;
+
+   ePass = GetHeartsPassDirection(api);
+
+   if( PassLeft != ePass )
+      return TEST_FAILED;
+
+   for(i=0; i<4; i++) {
+      ToggleSelectedCard(api, i, 0);
+      ToggleSelectedCard(api, i, 1);
+      ToggleSelectedCard(api, i, 2);
+
+      if( 3 != GetNumberSelectedCards(api, i) )
+         return TEST_FAILED;
+
+      PassSelectedCards(api, i);
+   }
+
+   if( HEARTSLIB_PASSED_CARDS != HasPassedCards(api) )
+      return TEST_FAILED;
+
+   if( HEARTSLIB_OK != HeartsLibFree(&api) )
+      return TEST_FAILED;
+
+   return TEST_SUCCEEDED;
+}
+
+int TestGame()
+{
+   HeartsLib api;
+   int i;
+
+   PRINT_FUNC;
+   if( HEARTSLIB_OK != HeartsLibCreate(&api, 100, 0) )
+      return TEST_FAILED;
+
+   while( HEARTSLIB_STILL_PLAYING == GetHeartsGameOver(api) ) {
+      Pass_Direction_t ePass;
+      int nPlayersTurn;
+
+      ePass = GetHeartsPassDirection(api);
+
+      if( NoPass != ePass ) {
+         for(i=0; i<4; i++) {
+            ToggleSelectedCard(api, i, 0);
+            ToggleSelectedCard(api, i, 1);
+            ToggleSelectedCard(api, i, 2);
+
+            if( 3 != GetNumberSelectedCards(api, i) )
+               return TEST_FAILED;
+
+            PassSelectedCards(api, i);
+         }
+      }
+
+      if( HEARTSLIB_PASSED_CARDS != HasPassedCards(api) )
+         return TEST_FAILED;
+
+      while( GetNumberOfCardsInHand(api, 0)>0 && GetNumberOfCardsInHand(api, 1)>0 && GetNumberOfCardsInHand(api, 2)>0 && GetNumberOfCardsInHand(api, 3)>0 ) {
+         while( HEARTSLIB_PLAYERS_PLAYED_CARDS != HasEverybodyPlayedTheirCard(api) ) {
+            int nNumCards;
+            int nCard;
+            nPlayersTurn = GetPlayersTurn(api);
+            nNumCards = GetNumberOfCardsInHand(api, nPlayersTurn);
+            for(nCard=0; nCard<nNumCards; nCard++) {
+               if( HEARTSLIB_CAN_PLAY_CARD == CanPlayCard(api, nPlayersTurn, nCard) ) {
+                  PlayCard(api, nPlayersTurn, nCard);
+                  break;
+               }
+            }
+         }
+
+         GiveTrickToPlayer(api);
+      }
+
+      if( HEARTSLIB_STILL_PLAYING == GetHeartsGameOver(api) )
+         DoHeartsNextHand(api);
+   }
+
+   //PRINT("\n");
+   for(i=0; i<4; i++) {
+      //PRINT("Player %d: %d\n", i, GetPlayerScore(api, i));
+   }
+
+   if( HEARTSLIB_OK != HeartsLibFree(&api) )
+      return TEST_FAILED;
+
+   return TEST_SUCCEEDED;
+}
+
+//int TestManyGames()
+//{
+//   int i;
+//   int nTime;
+//   PRINT_FUNC;
+//   nTime = time(NULL);
+//   for(i=0; i<5000; i++) {
+//      int nRet;
+//      nRet = TestGame();
+//      if( TEST_SUCCEEDED != nRet )
+//         return nRet;
+//   }
+//   printf("Time taken: %d\n", time(NULL)-nTime);
+//
+//   return TEST_SUCCEEDED;
+//}
+
 typedef int (*testfunc)();
    testfunc g_Tests[] =
    {
       TestConstruction,
-      TestCopy
+      TestCopy,
+      TestPassing,
+      TestGame//,
+      //TestManyGames
    };
 
 void RunTests()
