@@ -11,7 +11,7 @@
 struct CardNode
 {
    int m_nValue;
-   int m_nSuit;
+   Suit_t m_eSuit;
    void* m_pExtraData;
    struct CardNode* m_pNext;
 };
@@ -453,7 +453,7 @@ int SwapCards(CardLib api, int nIndex1, int nIndex2)
 }
 
 //Card related functions
-int CreateCard(Card* pCard, int nSuit, int nValue)
+int CreateCard(Card* pCard, Suit_t eSuit, int nValue)
 {
    struct CardNode* pC;
    DEBUG_FUNC_NAME;
@@ -463,7 +463,7 @@ int CreateCard(Card* pCard, int nSuit, int nValue)
       return CARDLIB_OUT_OF_MEMORY;
    }
 
-   pC->m_nSuit = nSuit;
+   pC->m_eSuit = eSuit;
    pC->m_nValue = nValue;
    pC->m_pExtraData = NULL;
    pC->m_pNext = NULL;
@@ -486,7 +486,7 @@ int CopyCard(Card* pCard, Card cOrig)
    }
 
    pC->m_nValue = pOrig->m_nValue;
-   pC->m_nSuit = pOrig->m_nSuit;
+   pC->m_eSuit = pOrig->m_eSuit;
    pC->m_pExtraData = pOrig->m_pExtraData;
    pC->m_pNext = NULL;//Just copying the card; not the order
 
@@ -506,14 +506,14 @@ int DestroyCard(Card* pCard)
    return CARDLIB_OK;
 }
 
-int GetSuit(Card c)
+Suit_t GetSuit(Card c)
 {
    struct CardNode* pNode;
    DEBUG_FUNC_NAME;
 
    pNode = (struct CardNode*)c;
 
-   return pNode->m_nSuit;
+   return pNode->m_eSuit;
 }
 
 int GetCardValue(Card c)
@@ -524,6 +524,22 @@ int GetCardValue(Card c)
    pNode = (struct CardNode*)c;
 
    return pNode->m_nValue;
+}
+
+int IsTwoCardsSame(Card c1, Card c2)
+{
+   int nValue1, nValue2;
+   int nSuit1, nSuit2;
+   DEBUG_FUNC_NAME;
+
+   nSuit1 = GetSuit(c1);
+   nSuit2 = GetSuit(c2);
+   nValue1 = GetCardValue(c1);
+   nValue2 = GetCardValue(c2);
+
+   if( nSuit1 == nSuit2 && nValue1 == nValue2 )
+      return 1;
+   return 0;
 }
 
 int SetCardExtraData(Card c, void* pExtraData)
@@ -548,14 +564,14 @@ void* GetCardExtraData(Card c)
    return pNode->m_pExtraData;
 }
 
-int SetSuit(Card c, int nSuit)
+int SetSuit(Card c, Suit_t eSuit)
 {
    struct CardNode* pNode;
    DEBUG_FUNC_NAME;
 
    pNode = (struct CardNode*)c;
 
-   pNode->m_nSuit = nSuit;
+   pNode->m_eSuit = eSuit;
 
    return CARDLIB_OK;
 }

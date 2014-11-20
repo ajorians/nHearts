@@ -45,24 +45,24 @@ void SortCards(CardLib cards)
       nMadeChange = 0;
       for(i=1; i<nNumCards; i++) {
          Card c, cPrevious;
-         int nSuit, nSuitPrevious;
+         Suit_t eSuit, eSuitPrevious;
          int nSwap;
          GetCard(cards, &cPrevious, i-1);
          GetCard(cards, &c, i);
 
-         nSuit = GetSuit(c), nSuitPrevious = GetSuit(cPrevious);
-         DEBUG_MSG("Suit1: %d; Suit2: %d\n", nSuit, nSuitPrevious);
+         eSuit = GetSuit(c), eSuitPrevious = GetSuit(cPrevious);
+         DEBUG_MSG("Suit1: %d; Suit2: %d\n", eSuit, eSuitPrevious);
 
          nSwap = 0;
-         if( nSuit != nSuitPrevious ) {
+         if( eSuit != eSuitPrevious ) {
             //Order: Clubs(3) Diamonds(1) Spades(2) Hearts(0)
-            if( nSuit == CLUBS ) {
+            if( eSuit == Clubs ) {
                nSwap = 1;
             }
-            else if ( nSuit == DIAMONDS && (nSuitPrevious == SPADES || nSuitPrevious == HEARTS) ) {
+            else if ( eSuit == Diamonds && (eSuitPrevious == Spades || eSuitPrevious == Hearts) ) {
                nSwap = 1;
             }
-            else if( nSuit == SPADES && nSuitPrevious == HEARTS ){
+            else if( eSuit == Spades && eSuitPrevious == Hearts ){
                nSwap = 1;
             }
 
@@ -85,16 +85,16 @@ void SortCards(CardLib cards)
       nMadeChange = 0;
       for(i=1; i<nNumCards; i++) {
          Card c, cPrevious;
-         int nSuit, nSuitPrevious;
+         Suit_t eSuit, eSuitPrevious;
          int nSwap;
          GetCard(cards, &cPrevious, i-1);
          GetCard(cards, &c, i);
 
-         nSuit = GetSuit(c), nSuitPrevious = GetSuit(cPrevious);
-         DEBUG_MSG("Suit1: %d; Suit2: %d\n", nSuit, nSuitPrevious);
+         eSuit = GetSuit(c), eSuitPrevious = GetSuit(cPrevious);
+         DEBUG_MSG("Suit1: %d; Suit2: %d\n", eSuit, eSuitPrevious);
 
          nSwap = 0;
-         if( nSuit == nSuitPrevious ) {
+         if( eSuit == eSuitPrevious ) {
             //Order: 2-10, J,K,Q,A
             int nValue = GetCardValue(c), nPreviousValue = GetCardValue(cPrevious);
             if( nPreviousValue == ACE ) {
@@ -540,10 +540,10 @@ int GetPlayersTurn(HeartsLib api)
          int nCard;
          for(nCard = 0; nCard < nNumCards; nCard++) {
             Card c;
-            int nSuit;
+            Suit_t eSuit;
             GetCard(pH->m_Players[nPlayerIndex].m_cardsHand, &c, nCard);
-            nSuit = GetSuit(c);
-            if( nSuit == CLUBS ) {
+            eSuit = GetSuit(c);
+            if( eSuit == Clubs ) {
                int nValue = GetCardValue(c);
                if( nValue == 2 ) {
                   return nPlayerIndex;
@@ -565,7 +565,7 @@ int CanPlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
 {
    struct Hearts* pH;
    Card c;
-   int nSuit;
+   Suit_t eSuit;
    int nValue;
    DEBUG_FUNC_NAME;
 
@@ -581,12 +581,12 @@ int CanPlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
       return HEARTSLIB_BADARGUMENT;
 
    GetCard(pH->m_Players[nPlayerIndex].m_cardsHand, &c, nCardIndex);
-   nSuit = GetSuit(c);
+   eSuit = GetSuit(c);
    nValue = GetCardValue(c);
 
    if( pH->m_nLastTrumpPlayer == -1 ) {//Can only be passing the 2 of clubs
       int nValue;
-      if( nSuit != CLUBS ) {
+      if( eSuit != Clubs ) {
          return HEARTSLIB_CANNOT_PLAY_CARD;
       }
 
@@ -600,16 +600,16 @@ int CanPlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
    else {
       if( GetNumberOfCards(pH->m_cardsMiddle) == 0 ) {//Can play "any" suit
          //Can't start a heart unless that is all you have or hearts have been broken
-         if( nSuit == HEARTS && pH->m_bHeartsBroken != 1 ) {
+         if( eSuit == Hearts && pH->m_bHeartsBroken != 1 ) {
             //Check player only have Hearts
             int nNumCards = GetNumberOfCards(pH->m_Players[nPlayerIndex].m_cardsHand);
             int nCard;
             for(nCard = 0; nCard < nNumCards; nCard++) {
                Card cardInHand;
-               int nSuitInHand;
+               Suit_t eSuitInHand;
                GetCard(pH->m_Players[nPlayerIndex].m_cardsHand, &cardInHand, nCard);
-               nSuitInHand = GetSuit(cardInHand);
-               if( nSuitInHand != HEARTS ) {
+               eSuitInHand = GetSuit(cardInHand);
+               if( eSuitInHand != Hearts ) {
                   return HEARTSLIB_CANNOT_PLAY_CARD;
                }
             }
@@ -618,36 +618,36 @@ int CanPlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
       else {//Has to match suit unless don't have that suit.
          //That is unless it is the first turn; then can't play hearts/Queen of Spades
          Card cardFirst;
-         int nCurrentSuit;
+         Suit_t eCurrentSuit;
          GetCard(pH->m_cardsMiddle, &cardFirst, 0);
-         nCurrentSuit = GetSuit(cardFirst);
-         if( nSuit != nCurrentSuit ) {
-            int n2ClubsHand = (GetCardValue(cardFirst) == 2 && nCurrentSuit == CLUBS) ? 1 : 0;
+         eCurrentSuit = GetSuit(cardFirst);
+         if( eSuit != eCurrentSuit ) {
+            int n2ClubsHand = (GetCardValue(cardFirst) == 2 && eCurrentSuit == Clubs) ? 1 : 0;
             //Player can only do this if they don't have any of that suit
             int nNumCards = GetNumberOfCards(pH->m_Players[nPlayerIndex].m_cardsHand);
             int nCard;
             for(nCard = 0; nCard < nNumCards; nCard++) {
                Card cardInHand;
-               int nSuitInHand;
+               Suit_t eSuitInHand;
                GetCard(pH->m_Players[nPlayerIndex].m_cardsHand, &cardInHand, nCard);
-               nSuitInHand = GetSuit(cardInHand);
-               if( nSuitInHand == nCurrentSuit ) {
+               eSuitInHand = GetSuit(cardInHand);
+               if( eSuitInHand == eCurrentSuit ) {
                   return HEARTSLIB_CANNOT_PLAY_CARD;
                }
             }
             if( n2ClubsHand == 1 ) {
-               if( nSuit == HEARTS || (nSuit == SPADES && nValue == QUEEN) ) {
+               if( eSuit == Hearts || (eSuit == Spades && nValue == QUEEN) ) {
                   //If you have any card that is not a heart or Queen of spades then you need to play that
                   int nNumCards = GetNumberOfCards(pH->m_Players[nPlayerIndex].m_cardsHand);
                   int nCard;
                   for(nCard = 0; nCard < nNumCards; nCard++) {
                      Card cardInHand;
-                     int nSuitInHand;
+                     Suit_t eSuitInHand;
                      int nValueInHand;
                      GetCard(pH->m_Players[nPlayerIndex].m_cardsHand, &cardInHand, nCard);
-                     nSuitInHand = GetSuit(cardInHand);
+                     eSuitInHand = GetSuit(cardInHand);
                      nValueInHand = GetCardValue(cardInHand);
-                     if( nSuitInHand != HEARTS && ! (nSuitInHand != SPADES && nValueInHand != QUEEN) )
+                     if( eSuitInHand != Hearts && ! (eSuitInHand != Spades && nValueInHand != QUEEN) )
                         return HEARTSLIB_CANNOT_PLAY_CARD;
                   }
                }
@@ -816,7 +816,8 @@ int FigureOutWhoTakesTrick(HeartsLib api, int* pPlayerIndex)
 {
    struct Hearts* pH;
    Card cardFirst;
-   int nCurrentSuit, nCurrentValue;
+   Suit_t eCurrentSuit;
+   int nCurrentValue;
    int nPlayersTurn;
    int nHighest;
    int nCard;
@@ -829,7 +830,7 @@ int FigureOutWhoTakesTrick(HeartsLib api, int* pPlayerIndex)
 
    //Figure out who had the highest
    GetCard(pH->m_cardsMiddle, &cardFirst, 0);
-   nCurrentSuit = GetSuit(cardFirst);
+   eCurrentSuit = GetSuit(cardFirst);
    nCurrentValue = GetCardValue(cardFirst);
 
    //So the player who just went was the last to go lets set nPlayersTurn to the first to play
@@ -837,11 +838,11 @@ int FigureOutWhoTakesTrick(HeartsLib api, int* pPlayerIndex)
    nHighest = nPlayersTurn;
    for(nCard = 1; nCard < NUMBER_OF_HEARTS_PLAYERS; nCard++) {
       Card cardPlayed;
-      int nSuit;
+      Suit_t eSuit;
       int nValue;
       GetCard(pH->m_cardsMiddle, &cardPlayed, nCard);
-      nSuit = GetSuit(cardPlayed);
-      if( nSuit != nCurrentSuit )
+      eSuit = GetSuit(cardPlayed);
+      if( eSuit != eCurrentSuit )
          continue;
 
       nValue = GetCardValue(cardPlayed);
@@ -918,13 +919,13 @@ int ScoreOfCardsTaken(HeartsLib api, int nPlayerIndex)
    nSum = 0;
    for(i=0; i<nNumCards; i++) {
       Card c;
-      int nSuit;
+      Suit_t eSuit;
       GetCard(pH->m_Players[nPlayerIndex].m_cardsTaken, &c, i);
-      nSuit = GetSuit(c);
-      if( nSuit == HEARTS ) {
+      eSuit = GetSuit(c);
+      if( eSuit == Hearts ) {
          nSum++;
       }
-      else if( nSuit == SPADES ) {
+      else if( eSuit == Spades ) {
          int nValue = GetCardValue(c);
          if( nValue == QUEEN )
             nSum += 13;
