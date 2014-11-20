@@ -33,6 +33,14 @@ typedef void* Card;
 #define VALUE_START			ACE
 #define VALUE_END			KING
 
+typedef enum Suits
+{
+   Hearts,
+   Diamonds,
+   Spades,
+   Clubs
+} Suit_t;
+
 //////////////////////////////////////////////
 //Initalization/Error checking/Mode functions
 //////////////////////////////////////////////
@@ -61,14 +69,15 @@ int SwapCards(CardLib api, int nIndex1, int nIndex2);
 //////////////////////////////////////////////
 //Card related functions
 //////////////////////////////////////////////
-int CreateCard(Card* pCard, int nSuit, int nValue);
+int CreateCard(Card* pCard, Suit_t eSuit, int nValue);
 int CopyCard(Card* pCard, Card cOrig);
 int DestroyCard(Card* pCard);
-int GetSuit(Card c);
+Suit_t GetSuit(Card c);
 int GetCardValue(Card c);
+int IsTwoCardsSame(Card c1, Card c2);//Suit and Value
 int SetCardExtraData(Card c, void* pExtraData);
 void* GetCardExtraData(Card c);
-int SetSuit(Card c, int nSuit);
+int SetSuit(Card c, Suit_t eSuit);
 int SetCardValue(Card c, int nValue);
 int SwapCardValues(Card c1, Card c2);
 
