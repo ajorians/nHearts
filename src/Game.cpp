@@ -263,6 +263,7 @@ void Game::DoGamePlay()
             PlayCard(m_Hearts, nPlayersTurn, nIndex);
             m_uLastAction = SDL_GetTicks();
          }
+         return;//return so will check if everyone played their cards again and will give trick to player and update score
       }
    }
 

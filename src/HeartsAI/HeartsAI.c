@@ -83,10 +83,10 @@ void PrintCard(Card c)
    }
 
    if( nCardValue == 10 ) {
-      printf("10 of %c\n", chSuit);
+      //printf("10 of %c\n", chSuit);
    }
    else {
-      printf("%c of %c\n", chValue, chSuit);
+      //printf("%c of %c\n", chValue, chSuit);
    }
 }
 
@@ -856,7 +856,7 @@ int HeartsAIDesiredPlayIndex(HeartsAILib ai, int* pnIndex)
    for(i=0; i<nNumCards; i++)
       paDesirability[i] = 0.;
 
-   printf("---------------------------\n");
+   //printf("---------------------------\n");
    for(i=0; i<nNumCards; i++) {
       Card c;
 
@@ -883,7 +883,7 @@ int HeartsAIDesiredPlayIndex(HeartsAILib ai, int* pnIndex)
       }
 
       GetCardInHand(pH->m_hearts, &c, pH->m_nPlayerIndex, nHighestIndex);
-      printf("Playing card: ");
+      //printf("Playing card: ");
       PrintCard(c);
       *pnIndex = nHighestIndex;
    }
