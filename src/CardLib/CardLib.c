@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #endif
-#include "include/CardLib.h"
+#include "CardLib/CardLib.h"
 #include "Defines.h"
 
 struct CardNode

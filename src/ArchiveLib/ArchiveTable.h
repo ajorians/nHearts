@@ -1,7 +1,7 @@
 #ifndef ARCHIVETABLE_H
 #define ARCHIVETABLE_H
 
-#include "include/ArchiveLib.h"
+#include "ArchiveLib/ArchiveLib.h"
 #include "ArchiveEntry.h"
 
 struct ArchiveTable

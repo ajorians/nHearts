@@ -1,7 +1,7 @@
 //Public domain :)
 
 #include <os.h>
-#include "include/ArchiveLib.h"
+#include "ArchiveLib/ArchiveLib.h"
 #include "ArchiveTable.h"
 #include "Defines.h"
 

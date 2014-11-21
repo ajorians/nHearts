@@ -1,7 +1,7 @@
 #ifndef ARCHIVEENTRY_H
 #define ARCHIVEENTRY_H
 
-#include "include/ArchiveLib.h"
+#include "ArchiveLib/ArchiveLib.h"
 
 struct ArchiveEntry
 {

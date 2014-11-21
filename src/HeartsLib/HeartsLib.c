@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #endif
-#include "include/HeartsLib.h"
+#include "HeartsLib/HeartsLib.h"
 #include "Defines.h"
 
 #define NUMBER_OF_HEARTS_PLAYERS	4

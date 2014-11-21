@@ -1,4 +1,4 @@
-#include "HeartsAI.h"
+#include "HeartsAI/HeartsAI.h"
 
 #ifdef _TINSPIRE
 #include <os.h>
