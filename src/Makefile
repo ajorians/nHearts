@@ -26,6 +26,10 @@ $(EXE): $(OBJS)
 	$(OBJCOPY) -O binary $(@:.tns=.elf) $@
 
 clean:
+	cd ArchiveLib; make clean
+	cd CardLib; make clean
+	cd HeartsLib; make clean
+	cd HeartsAI; make clean
 	rm -rf lib
 	rm -f *.o *.elf
 	rm -f $(EXE)
