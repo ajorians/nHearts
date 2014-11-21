@@ -5,7 +5,7 @@
 #include <stdlib.h>
 //#include <time.h>
 #endif
-#include "HeartsAI.h"
+#include "HeartsAI/HeartsAI.h"
 
 #ifdef _TINSPIRE
 #define PRINT  nio_printf
