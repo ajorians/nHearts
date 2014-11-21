@@ -10,7 +10,13 @@ EXE = nHearts-sdl.tns
 OBJS = $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 vpath %.tns $(DISTDIR)
 
-all:	$(EXE)
+all:	prepare $(EXE)
+
+prepare:        
+	cd ArchiveLib; make; cd ..
+	cd CardLib; make; cd ..
+	cd HeartsLib; make; cd ..
+	cd HeartsAI; make; cd ..
 
 %.o: %.cpp
 	$(GCC) $(GCCFLAGS) -c $<
@@ -20,7 +26,6 @@ $(EXE): $(OBJS)
 	$(OBJCOPY) -O binary $(@:.tns=.elf) $@
 
 clean:
-	rm -rf include
 	rm -rf lib
 	rm -f *.o *.elf
 	rm -f $(EXE)
