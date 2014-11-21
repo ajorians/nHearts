@@ -6,6 +6,7 @@ extern "C"
 	#include <os.h>
 	#include "SDL/SDL.h"
 	#include "HeartsLib/HeartsLib.h"
+	#include "HeartsAI/HeartsAI.h"
 }
 
 #include "Defines.h"
@@ -13,7 +14,6 @@ extern "C"
 #include "Metrics.h"
 #include "Piece.h"
 #include "Message.h"
-#include "HeartsAI.h"
 #include "Direction.h"
 
 class Config;
@@ -44,7 +44,7 @@ protected:
 	HeartsLib m_Hearts;
 	PieceControl	m_Pieces;
 	Metrics		m_Metrics;
-	HeartsAI	m_aAIs[3];
+	HeartsAILib	m_aAIs[3];
 	//Message		m_ShotMoonMessage;
 	int		m_nCurrentCard;
 	Uint32		m_uLastAction;

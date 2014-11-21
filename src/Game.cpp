@@ -24,6 +24,8 @@ Game::Game(SDL_Surface* pScreen, Config* pConfig, CardImages* pCardImages)
 
 Game::~Game()
 {
+	for(int i=0; i<3; i++)
+		HeartsAIFree(&m_aAIs[i]);
 	nSDL_FreeFont(m_pFont);
 }
 
@@ -221,7 +223,13 @@ void Game::SelectCard()
          PassSelectedCards(m_Hearts, 0);
 
          for(int i=1; i<4; i++) {
-            m_aAIs[i-1].PassCards();
+            int nIndex1, nIndex2, nIndex3;
+            HeartsAIDesiredPassIndexes(m_aAIs[i-1], &nIndex1, &nIndex2, &nIndex3);
+            ToggleSelectedCard(m_Hearts, i, nIndex1);
+            ToggleSelectedCard(m_Hearts, i, nIndex2);
+            ToggleSelectedCard(m_Hearts, i, nIndex3);
+
+            PassSelectedCards(m_Hearts, i);
          }
       }
    }
@@ -250,7 +258,9 @@ void Game::DoGamePlay()
       else {
         int nPlayersTurn = GetPlayersTurn(m_Hearts);
          if( nPlayersTurn != 0 ) {
-            m_aAIs[nPlayersTurn-1].PlayACard();
+            int nIndex;
+            HeartsAIDesiredPlayIndex(m_aAIs[nPlayersTurn-1], &nIndex);
+            PlayCard(m_Hearts, nPlayersTurn, nIndex);
             m_uLastAction = SDL_GetTicks();
          }
       }
@@ -294,6 +304,6 @@ void Game::RebuildPieces()
 void Game::ConstructAIs()
 {
    for(int i=0; i<3; i++) {
-      m_aAIs[i].SetHeartsLib(&m_Hearts, i+1);
+      HeartsAICreate(&m_aAIs[i], m_Hearts, i+1);
    }
 }

@@ -98,10 +98,10 @@ Player 1: %d\n\
 Player 2: %d\n\
 Player 3: %d\n\
 Player 4: %d",
-GetPlayerScore(*m_pHeartsLib, 0),
-GetPlayerScore(*m_pHeartsLib, 1),
-GetPlayerScore(*m_pHeartsLib, 2),
-GetPlayerScore(*m_pHeartsLib, 3));
+GetHeartsPlayerScore(*m_pHeartsLib, 0),
+GetHeartsPlayerScore(*m_pHeartsLib, 1),
+GetHeartsPlayerScore(*m_pHeartsLib, 2),
+GetHeartsPlayerScore(*m_pHeartsLib, 3));
 
 	int nTop = 90;
 	int nPlayerShotMoon = -1;

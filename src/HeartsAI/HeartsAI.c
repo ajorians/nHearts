@@ -132,7 +132,7 @@ int IsCardHigher(Card c1, Card c2)
    nValue2 = GetCardValue(c2);
 
    if( eSuit1 != eSuit2 ) {
-      assert(0);//Wasn't expecting that
+      //assert(0);//Wasn't expecting that
       return 0;
    }
 
@@ -559,7 +559,7 @@ int HighestValueInMiddle(HeartsLib api)
    int i;
 
    nCardsInMiddle = GetNumberOfCardsInMiddle(api);
-   assert(nCardsInMiddle>0);
+   //assert(nCardsInMiddle>0);
 
    GetMiddleCard(api, &cardMiddle, 0, NULL);
    eSuit = GetSuit(cardMiddle);
@@ -628,7 +628,7 @@ int DoIHaveAHigherCardOfPlayedSuit(HeartsAILib ai, Card c)
    nCardValue = GetCardValue(c);
 
    nCardsInMiddle = GetNumberOfCardsInMiddle(pH->m_hearts);
-   assert(nCardsInMiddle>0);
+   //assert(nCardsInMiddle>0);
 
    GetMiddleCard(pH->m_hearts, &cardMiddle, 0, NULL);
    eSuitMiddle = GetSuit(cardMiddle);
@@ -651,7 +651,7 @@ int DoIHaveAHigherCardThatWillNotTakeTrick(HeartsAILib ai, Card c)
    nCardValue = GetCardValue(c);
 
    nCardsInMiddle = GetNumberOfCardsInMiddle(pH->m_hearts);
-   assert(nCardsInMiddle>0);
+   //assert(nCardsInMiddle>0);
 
    GetMiddleCard(pH->m_hearts, &cardMiddle, 0, NULL);
    eSuitMiddle = GetSuit(cardMiddle);
