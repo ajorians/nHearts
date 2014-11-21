@@ -70,6 +70,8 @@ int DoHeartsNextHand(HeartsLib api);
 int GetMiddleCard(HeartsLib api, Card* pCard, int nCardIndex, int* pPlayerIndex);
 int ScoreOfCardsTaken(HeartsLib api, int nPlayerIndex);
 int GetPlayerShotMoon(HeartsLib api, int* pPlayerIndex);
+int GetNumberOfRounds(HeartsLib api);
+int GetHeartsRoundScore(HeartsLib api, int nPlayerIndex, int nRoundIndex);
 int GetHeartsPlayerScore(HeartsLib api, int nPlayerIndex);
 
 #endif
