@@ -701,6 +701,10 @@ int PlayCard(HeartsLib api, int nPlayerIndex, int nCardIndex)
       return nRet;
    }
 
+   //This is added here in PlayCard instead of CanPlayCard because it would gray out cards when not necessary
+   if( GetNumberOfCardsInMiddle(api) >= NUMBER_OF_HEARTS_PLAYERS )
+      return HEARTSLIB_CANNOT_PLAY_CARD;
+
    nPlayersTurn = GetPlayersTurn(api);
    if( nPlayerIndex != nPlayersTurn )
       return HEARTSLIB_BADARGUMENT;//Not your turn

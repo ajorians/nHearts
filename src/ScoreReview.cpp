@@ -89,31 +89,77 @@ bool ScoreReview::PollEvents()
 	return true;
 }
 
+int GetScoreXPos(int nScore, int nPlayerIndex)
+{
+   int nOffset;
+   switch(nPlayerIndex)
+   {
+      default:
+      case 0:
+         nOffset = 58;
+         break;
+      case 1:
+         nOffset = 109;
+         break;
+      case 2:
+         nOffset = 159;
+         break;
+      case 3:
+         nOffset = 211;
+         break;
+   }
+
+   int nNumberOffset = (nScore>9 ? 8 : 10);
+   return 35 + nOffset + nNumberOffset;
+}
+
 void ScoreReview::UpdateDisplay()
 {
-	boxRGBA(m_pScreen, 35/*Left*/, 35/*Top*/, 35 + (SCREEN_WIDTH-35*2)/*Right*/, 35 + (SCREEN_HEIGHT-35*2)/*Bottom*/, 100, 149, 237, 70);
+	boxRGBA(m_pScreen, 35/*Left*/, 25/*Top*/, 35 + (SCREEN_WIDTH-35*2)/*Right*/, 25 + (SCREEN_HEIGHT-25*2)/*Bottom*/, 100, 149, 237, 70);
 
-	nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, 35 + 10, "Score Review:\n\
-Player 1: %d\n\
-Player 2: %d\n\
-Player 3: %d\n\
-Player 4: %d",
-GetHeartsPlayerScore(*m_pHeartsLib, 0),
-GetHeartsPlayerScore(*m_pHeartsLib, 1),
-GetHeartsPlayerScore(*m_pHeartsLib, 2),
-GetHeartsPlayerScore(*m_pHeartsLib, 3));
+	int nTop = 25 + 10;
+	nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "Score Review:");
+	nTop += 15;
 
-	int nTop = 90;
+	nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "     --1-- | --2-- | --3-- | --4--");
+	nTop += 10;
+
+	int nRounds = GetNumberOfRounds(*m_pHeartsLib);
+	for(int i=0; i<nRounds; i++) {
+		int n1,n2,n3,n4;
+		n1 = GetHeartsRoundScore(*m_pHeartsLib, 0, i);
+		n2 = GetHeartsRoundScore(*m_pHeartsLib, 1, i);
+		n3 = GetHeartsRoundScore(*m_pHeartsLib, 2, i);
+		n4 = GetHeartsRoundScore(*m_pHeartsLib, 3, i);
+		nSDL_DrawString(m_pScreen, m_pFont, 35 + 15 + (i>9 ? 8 : 10), nTop, "%d", i+1);
+		nSDL_DrawString(m_pScreen, m_pFont, GetScoreXPos(n1, 0), nTop, "%d", n1);
+		nSDL_DrawString(m_pScreen, m_pFont, GetScoreXPos(n2, 1), nTop, "%d", n2);
+		nSDL_DrawString(m_pScreen, m_pFont, GetScoreXPos(n3, 2), nTop, "%d", n3);
+		nSDL_DrawString(m_pScreen, m_pFont, GetScoreXPos(n4, 3), nTop, "%d", n4);
+		nTop += 10;
+	}
+
+	nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "--------------------------------------");
+	nTop += 10;
+
+	nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "Total:     |      |      |");
+	int n1 = GetHeartsPlayerScore(*m_pHeartsLib, 0);
+	int n2 = GetHeartsPlayerScore(*m_pHeartsLib, 1);
+	int n3 = GetHeartsPlayerScore(*m_pHeartsLib, 2);
+	int n4 = GetHeartsPlayerScore(*m_pHeartsLib, 3);
+        nSDL_DrawString(m_pScreen, m_pFont, GetScoreXPos(n1, 0), nTop, "%d", n1);
+        nSDL_DrawString(m_pScreen, m_pFont, GetScoreXPos(n2, 1), nTop, "%d", n2);
+        nSDL_DrawString(m_pScreen, m_pFont, GetScoreXPos(n3, 2), nTop, "%d", n3);
+        nSDL_DrawString(m_pScreen, m_pFont, GetScoreXPos(n4, 3), nTop, "%d", n4);
+	nTop += 15;
+
 	int nPlayerShotMoon = -1;
-        if( HEARTSLIB_SHOT_THE_MOON == GetPlayerShotMoon(*m_pHeartsLib, &nPlayerShotMoon) ) {
-                nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "Player %d shot the moon!", nPlayerShotMoon+1/*index to human readable*/);
-		nTop += 25;
+	if( GetHeartsGameOver(*m_pHeartsLib) == 1 ) {
+                nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "Score limit reached!");
+                nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "Game over!");
         }
-
-        if( GetHeartsGameOver(*m_pHeartsLib) == 1 ) {
-		nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "Score limit reached!");
-		nTop += 15;
-		nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "Game over!"); 
+        else if( HEARTSLIB_SHOT_THE_MOON == GetPlayerShotMoon(*m_pHeartsLib, &nPlayerShotMoon) ) {
+                nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "Player %d shot the moon!", nPlayerShotMoon+1/*index to human readable*/);
         }
 
 	SDL_UpdateRect(m_pScreen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
