@@ -10,10 +10,12 @@ extern "C"
 #include "Background.h"
 #include "Config.h"
 
+class AchieveConfig;
+
 class MainMenu
 {
 public:
-	MainMenu(SDL_Surface* pScreen, Config* pConfig);
+	MainMenu(SDL_Surface* pScreen, Config* pConfig, AchieveConfig* pAchieveConfig);
 	~MainMenu();
 
 	bool Loop();
@@ -21,6 +23,7 @@ public:
 	bool ShouldQuit() const;
 	bool ShowShowOptions() const;
 	bool ShouldShowHelp() const;
+	bool ShouldShowAchievements() const;
 	
 protected:
 	bool PollEvents();
@@ -33,9 +36,10 @@ protected:
 	SDL_Surface	*m_pPlayGraphic;
 	SDL_Surface	*m_pOptionsGraphic;
 	nSDL_Font 	*m_pFont;
-	enum MenuChoice{Play, Options, Help, Quit};
+	enum MenuChoice{Play, Options, Help, Achieve, Quit};
 	MenuChoice 	m_eChoice;
 	Config		*m_pConfig;
+	AchieveConfig	*m_pAchieve;
 };
 
 #endif

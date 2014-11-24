@@ -2,10 +2,11 @@
 #include "HeartsGraphic.h"
 #include "PlayGraphic.h"
 #include "OptionsHelpGraphic.h"
+#include "AchieveConfig.h"
 #include "Defines.h"
 
-MainMenu::MainMenu(SDL_Surface* pScreen, Config* pConfig)
-: m_pScreen(pScreen), m_Background(pScreen, pConfig), m_eChoice(Play), m_pConfig(pConfig)
+MainMenu::MainMenu(SDL_Surface* pScreen, Config* pConfig, AchieveConfig* pAchieve)
+: m_pScreen(pScreen), m_Background(pScreen, pConfig), m_eChoice(Play), m_pConfig(pConfig), m_pAchieve(pAchieve)
 {
 	m_pTitleGraphic 	= nSDL_LoadImage(image_nHeartsText);
 	m_pPlayGraphic		= nSDL_LoadImage(image_Play);
@@ -55,6 +56,11 @@ bool MainMenu::ShouldShowHelp() const
 	return m_eChoice == Help;
 }
 
+bool MainMenu::ShouldShowAchievements() const
+{
+	return m_eChoice == Achieve;
+}
+
 bool MainMenu::PollEvents()
 {
 	SDL_Event event;
@@ -80,16 +86,16 @@ bool MainMenu::PollEvents()
 					case SDLK_UP:
 					case SDLK_8:
 						if( m_eChoice == Help )
-							m_eChoice = Options;
-						else if( m_eChoice == Options )
+							m_eChoice = Achieve;//Options;
+						else if( m_eChoice == Achieve )//Options )
 							m_eChoice = Play;
 						break;
 					
 					case SDLK_DOWN:
 					case SDLK_2:
 						if( m_eChoice == Play )
-							m_eChoice = Options;
-						else if( m_eChoice == Options )
+							m_eChoice = Achieve;//Options;
+						else if( m_eChoice == Achieve )//Options )
 							m_eChoice = Help;
 						break;
 

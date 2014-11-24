@@ -1,14 +1,15 @@
 #include "Game.h"
 #include "ScoreReview.h"
 #include "Config.h"
+#include "AchieveConfig.h"
 
 extern "C"
 {
 #include "SDL/SDL_gfxPrimitives.h"
 }
 
-Game::Game(SDL_Surface* pScreen, Config* pConfig, CardImages* pCardImages)
-: m_pScreen(pScreen), m_pConfig(pConfig), m_pCardImages(pCardImages), m_Pieces(pScreen, &m_Metrics, m_pCardImages)/*, m_ShotMoonMessage(pScreen)*/, m_nCurrentCard(-1)
+Game::Game(SDL_Surface* pScreen, Config* pConfig, AchieveConfig* pAchieve, CardImages* pCardImages)
+: m_pScreen(pScreen), m_pConfig(pConfig), m_pAchieve(pAchieve), m_pCardImages(pCardImages), m_Pieces(pScreen, &m_Metrics, m_pCardImages)/*, m_ShotMoonMessage(pScreen)*/, m_nCurrentCard(-1)
 {
 	HeartsLibCreate(&m_Hearts, m_pConfig->GetScoreLimit(), m_pConfig->GetJackDiamondsAmount());
 
@@ -41,8 +42,10 @@ bool Game::Loop()
 	DoGamePlay();
 	
 	SDL_Delay(30);
-	if( GetHeartsGameOver(m_Hearts) == 1 )
+	if( GetHeartsGameOver(m_Hearts) == 1 ) {
+		m_pAchieve->JustPlayedAGame();
 		return false;
+	}
 	
 	return true;
 }
@@ -271,6 +274,7 @@ void Game::DoGamePlay()
       if( GetNumberOfCardsInHand(m_Hearts, 0) == 0 && GetNumberOfCardsInHand(m_Hearts, 1) == 0 && GetNumberOfCardsInHand(m_Hearts, 2) == 0 && GetNumberOfCardsInHand(m_Hearts, 3) == 0  ) {
          ScoreReview r(m_pScreen, &m_Hearts);
          while( r.Loop() ){}
+         //m_pAchieve->LookForAchievements(m_Hearts);
          DoHeartsNextHand(m_Hearts);
          RebuildPieces();
       }

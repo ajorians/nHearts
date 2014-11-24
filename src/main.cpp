@@ -6,10 +6,12 @@ extern "C"
 }
 
 #include "Menu.h"
+#include "Achievements.h"
 #include "Game.h"
 #include "CardImages.h"
 #include "Config.h"
 #include "Options.h"
+#include "AchieveConfig.h"
 #include "Help.h"
 
 #define SCREEN_BIT_DEPTH        (16)
@@ -34,6 +36,7 @@ int main(int argc, char *argv[])
 
 	ArchiveSetCurrentDirectory(argv[0]);
 	Config config;
+	AchieveConfig ac(&config);
 
 	if( pScreen == NULL )
 	{
@@ -49,17 +52,18 @@ int main(int argc, char *argv[])
 
 		while(true)
 		{
-			bool bShowHelp = false, bShowOptions = false;
+			bool bShowHelp = false, bShowOptions = false, bShowAchievements = false;
 			SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
 			if( argc != 2 )
 			{
-				MainMenu menu(pScreen, &config);
+				MainMenu menu(pScreen, &config, &ac);
 				while(menu.Loop()){}
 				if( menu.ShouldQuit() )
 					break;
 				bShowHelp = menu.ShouldShowHelp();
 				bShowOptions = menu.ShowShowOptions();
+				bShowAchievements = menu.ShouldShowAchievements();
 			}
 			
 			if( bShowOptions ) {
@@ -67,6 +71,11 @@ int main(int argc, char *argv[])
 				while(ops.Loop()){}
 				continue;
 			}
+			else if( bShowAchievements ) {
+                                Achievements ach(pScreen, &ac);
+                                while(ach.Loop()){}
+                                continue;
+                        }
 			else if( bShowHelp )
 			{
 				HeartsHelp help(pScreen);
@@ -77,7 +86,7 @@ int main(int argc, char *argv[])
 			{
 				bool bPlay = true;
 				while( bPlay ) {
-					Game game(pScreen, &config, &cardImages);
+					Game game(pScreen, &config, &ac, &cardImages);
 					while(game.Loop()){}
 
 					bPlay = false;

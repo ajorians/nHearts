@@ -17,11 +17,12 @@ extern "C"
 #include "Direction.h"
 
 class Config;
+class AchieveConfig;
 
 class Game
 {
 public:
-	Game(SDL_Surface* pScreen, Config* pConfig, CardImages* pCardImages);
+	Game(SDL_Surface* pScreen, Config* pConfig, AchieveConfig* pArchieve, CardImages* pCardImages);
 	~Game();
 
 	bool Loop();
@@ -39,6 +40,7 @@ protected:
 protected:
 	SDL_Surface	*m_pScreen;//Does not own
 	Config		*m_pConfig;//Does not own
+	AchieveConfig	*m_pAchieve;
 	nSDL_Font *m_pFont;
 	CardImages* m_pCardImages;
 	HeartsLib m_Hearts;

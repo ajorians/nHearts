@@ -23,6 +23,12 @@ public:
    MAKE_CONFIG_ITEM(int, ScoreLimit);
    MAKE_CONFIG_ITEM(int, JackDiamondsAmount);
 
+//Achievements
+   MAKE_CONFIG_ITEM(int, GamesPlayed);
+   MAKE_CONFIG_ITEM(int, GamesWon);
+   MAKE_CONFIG_ITEM(int, TimesShotMoon);
+   MAKE_CONFIG_ITEM(int, WonWith0Points);
+
 public:
 
 protected:
