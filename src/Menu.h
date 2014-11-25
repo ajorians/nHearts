@@ -35,6 +35,7 @@ protected:
 	SDL_Surface	*m_pTitleGraphic;
 	SDL_Surface	*m_pPlayGraphic;
 	SDL_Surface	*m_pOptionsGraphic;
+	SDL_Surface	*m_pAchievementGraphic;
 	nSDL_Font 	*m_pFont;
 	enum MenuChoice{Play, Options, Help, Achieve, Quit};
 	MenuChoice 	m_eChoice;

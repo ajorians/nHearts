@@ -653,7 +653,7 @@ int DoIHaveAHigherCardThatWillNotTakeTrick(HeartsAILib ai, Card c)
    eSuit = GetSuit(c);
 
    nCardsInMiddle = GetNumberOfCardsInMiddle(pH->m_hearts);
-   assert(nCardsInMiddle>0);
+   //assert(nCardsInMiddle>0);
 
    GetMiddleCard(pH->m_hearts, &cardMiddle, 0, NULL);
    eSuitMiddle = GetSuit(cardMiddle);
