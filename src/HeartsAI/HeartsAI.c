@@ -83,10 +83,10 @@ void PrintCard(Card c)
    }
 
    if( nCardValue == 10 ) {
-      //printf("10 of %c\n", chSuit);
+      printf("10 of %c\n", chSuit);
    }
    else {
-      //printf("%c of %c\n", chValue, chSuit);
+      printf("%c of %c\n", chValue, chSuit);
    }
 }
 
@@ -639,6 +639,7 @@ int DoIHaveAHigherCardOfPlayedSuit(HeartsAILib ai, Card c)
 int DoIHaveAHigherCardThatWillNotTakeTrick(HeartsAILib ai, Card c)
 {
    struct HeartsAI* pH;
+   Suit_t eSuit;
    int nCardValue;
    Card cardMiddle;
    Suit_t eSuitMiddle;
@@ -649,9 +650,10 @@ int DoIHaveAHigherCardThatWillNotTakeTrick(HeartsAILib ai, Card c)
    pH = ai;
 
    nCardValue = GetCardValue(c);
+   eSuit = GetSuit(c);
 
    nCardsInMiddle = GetNumberOfCardsInMiddle(pH->m_hearts);
-   //assert(nCardsInMiddle>0);
+   assert(nCardsInMiddle>0);
 
    GetMiddleCard(pH->m_hearts, &cardMiddle, 0, NULL);
    eSuitMiddle = GetSuit(cardMiddle);
@@ -668,11 +670,16 @@ int DoIHaveAHigherCardThatWillNotTakeTrick(HeartsAILib ai, Card c)
       eSuitHand = GetSuit(cardHand);
       nValueHand = GetCardValue(cardHand);
 
-      if( eSuitHand != eSuitMiddle )
+	  if (eSuitHand != eSuit)
          continue;
 
-      if( IsCardValueHigher(nValueHand, nCardValue) && IsCardValueHigher(nHighestValue, nValueHand) )
-         return 1;
+	  if (IsCardValueHigher(nValueHand, nCardValue)) {
+        if(eSuit != eSuitMiddle)
+           return 1;
+
+        if(IsCardValueHigher(nHighestValue, nValueHand))
+           return 1;
+	  }
    }
 
    return 0;
@@ -770,14 +777,9 @@ double GetPlayDesirability(HeartsAILib ai, int nCardIndex)
    nNumCardsBeats = GetNumberUnplayedCardsBeats(ai, c);
 
    dSomeOneElseTakesTrick = nRemainingOfSuit!=0 ? nNumCardsBeatenBy/(double)nRemainingOfSuit : 0.;
-   dTakeTrickWithCard = nRemainingOfSuit!=0 ? nNumCardsBeats/(double)nRemainingOfSuit : 0.;
+   dTakeTrickWithCard = nRemainingOfSuit!=0 ? nNumCardsBeats/(double)nRemainingOfSuit : 1.;
 
    dDesirability = dSomeOneElseTakesTrick;
-
-   if( nNumCards == 13 ) {
-      //First turn and cannot play hearts/Queen of spades so probably play highest card
-      dDesirability = dTakeTrickWithCard;
-   }
 
    //If somebody has to take the Queen of Spades then give it!
    if( nNumCards != 13 && HaveQueenOfSpades(ai) ) {
@@ -794,8 +796,31 @@ double GetPlayDesirability(HeartsAILib ai, int nCardIndex)
          if( GetLeadSuit(pH->m_hearts) != Spades && HowManyOfSuit(pH->m_hearts, pH->m_nPlayerIndex, GetLeadSuit(pH->m_hearts)) == 0 ) {
             return (eSuit == Spades && nCardValue == QUEEN) ? 1. : 0.;
          }
+
+         for( int i = 0; i < nCardsInMiddle; i++ ) {
+            Card cMiddle;
+            Suit_t eSuitMiddle;
+            int nValueMiddle;
+            GetMiddleCard(pH->m_hearts, &cMiddle, i, NULL);
+            eSuitMiddle = GetSuit(cMiddle);
+            nValueMiddle = GetCardValue(cMiddle);
+            if( eSuitMiddle == Spades && (nValueMiddle == KING || nValueMiddle == ACE) ) {
+               //Somebody played the Ace or King of spades and I have the Queen; give it
+               return(eSuit == Spades && nCardValue == QUEEN) ? 1. : 0.;
+            }
+         }
       }
 
+   }
+
+   if( nNumCards == 13 ) {
+      if( eSuit == Spades && HaveQueenOfSpades(ai) ) {
+
+      }
+      else {
+         //Because I cannot take any hearts on first turn lets play the least desirable
+         dDesirability = dTakeTrickWithCard;
+      }
    }
 
    //If I don't have the Queen,King,Ace of Spades and it isn't found and I just have 1 Spade it might makes sence to look for it?
@@ -819,22 +844,21 @@ double GetPlayDesirability(HeartsAILib ai, int nCardIndex)
       dDesirability = 0.;
    }
 
-   else if( dEstRemaingSuitPerPlayer >= 2. ) {
-   }
-
    else if( nCardsInMiddle == 3 && GetPointsOfCardsInMiddle(pH->m_hearts) == 0 && DoIHaveAHigherCardOfPlayedSuit(ai, c) ) {
       //Why don't I take it?
       dDesirability = 0.;
    }
 
-   else if( nCardsInMiddle == 3 && GetPointsOfCardsInMiddle(pH->m_hearts) == 0 && !DoIHaveAHigherCardOfPlayedSuit(ai, c) ) {
+   else if( nNumCards != 13 && nCardsInMiddle == 3 && GetPointsOfCardsInMiddle(pH->m_hearts) == 0 && !DoIHaveAHigherCardOfPlayedSuit(ai, c) ) {
       //Take it with the highest
       dDesirability = 1.;
    }
 
-   //If you don't have to follow suit the desirability is the opposite right?
-   if( nCardsInMiddle != 0 && eSuit != GetLeadSuit(pH->m_hearts) ) {
+   else if( nNumCards != 13 && nCardsInMiddle > 0 && GetLeadSuit(pH->m_hearts) != eSuit ) {
       dDesirability = 1. - dDesirability;
+   }
+
+   else if( dEstRemaingSuitPerPlayer >= 2. ) {
    }
 
    if( dDesirability <= 0. )
@@ -883,7 +907,7 @@ int HeartsAIDesiredPlayIndex(HeartsAILib ai, int* pnIndex)
       }
 
       GetCardInHand(pH->m_hearts, &c, pH->m_nPlayerIndex, nHighestIndex);
-      //printf("Playing card: ");
+      printf("Playing card: ");
       PrintCard(c);
       *pnIndex = nHighestIndex;
    }

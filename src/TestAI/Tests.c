@@ -110,6 +110,8 @@ int TestPlaying()
          return TEST_FAILED;
 
       while( GetNumberOfCardsInHand(api, 0)>0 && GetNumberOfCardsInHand(api, 1)>0 && GetNumberOfCardsInHand(api, 2)>0 && GetNumberOfCardsInHand(api, 3)>0 ) {
+         printf("--------------------------------------\n");
+
          while( HEARTSLIB_PLAYERS_PLAYED_CARDS != HasEverybodyPlayedTheirCard(api) ) {
             int nIndex;
             nPlayersTurn = GetPlayersTurn(api);
