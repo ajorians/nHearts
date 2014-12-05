@@ -4,21 +4,26 @@
 #include "OptionsHelpGraphic.h"
 #include "AchievementGraphic.h"
 #include "AchieveConfig.h"
+#include "StarGraphic.h"
 #include "Defines.h"
 
 MainMenu::MainMenu(SDL_Surface* pScreen, Config* pConfig, AchieveConfig* pAchieve)
-: m_pScreen(pScreen), m_Background(pScreen, pConfig), m_eChoice(Play), m_pConfig(pConfig), m_pAchieve(pAchieve)
+: m_pScreen(pScreen), m_Background(pScreen, pConfig), m_eChoice(Play), m_pConfig(pConfig), m_pAchieve(pAchieve), m_nFlashAchievement(0)
 {
 	m_pTitleGraphic 	= nSDL_LoadImage(image_nHeartsText);
 	m_pPlayGraphic		= nSDL_LoadImage(image_Play);
 	m_pOptionsGraphic	= nSDL_LoadImage(image_OptionsAndHelp);
 	m_pAchievementGraphic	= nSDL_LoadImage(image_AchievementGraphic);
+	m_pStar			= nSDL_LoadImage(image_Star);
 	SDL_SetColorKey(m_pTitleGraphic, SDL_SRCCOLORKEY, SDL_MapRGB(m_pTitleGraphic->format, 255, 255, 255));
 	SDL_SetColorKey(m_pPlayGraphic, SDL_SRCCOLORKEY, SDL_MapRGB(m_pPlayGraphic->format, 255, 255, 255));
 	SDL_SetColorKey(m_pOptionsGraphic, SDL_SRCCOLORKEY, SDL_MapRGB(m_pOptionsGraphic->format, 255, 255, 255));
 	SDL_SetColorKey(m_pAchievementGraphic, SDL_SRCCOLORKEY, SDL_MapRGB(m_pAchievementGraphic->format, 255, 255, 255));
+	SDL_SetColorKey(m_pStar, SDL_SRCCOLORKEY, SDL_MapRGB(m_pStar->format, 0, 0, 0));
 
 	m_pFont = nSDL_LoadFont(NSDL_FONT_THIN, 0/*R*/, 0/*G*/, 0/*B*/);
+
+	m_bNewAchievement = pAchieve->GetNewAchievements();
 }
 
 MainMenu::~MainMenu()
@@ -27,6 +32,7 @@ MainMenu::~MainMenu()
 	SDL_FreeSurface(m_pPlayGraphic);
 	SDL_FreeSurface(m_pOptionsGraphic);
 	SDL_FreeSurface(m_pAchievementGraphic);
+	SDL_FreeSurface(m_pStar);
 	nSDL_FreeFont(m_pFont);
 }
 
@@ -178,11 +184,21 @@ void MainMenu::UpdateDisplay()
 		draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), SCREEN_WIDTH/2-60, 70, 120, 65
 	, 1);
 	else if( m_eChoice == Achieve )
-		draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 90, 152, 142, 24, 1);
+		draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 80, 152, 162, 24, 1);
 	else if( m_eChoice == Options )
 		draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 114, 172, 96, 24, 1);
 	if( m_eChoice == Help )
 		draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 130, 195, 60, 25, 1);
+
+	m_nFlashAchievement = (m_nFlashAchievement+1)%100;
+        if( m_bNewAchievement && (m_nFlashAchievement<50) ) {
+                SDL_Rect rectStar;
+                rectStar.x = (SCREEN_WIDTH - m_pAchievementGraphic->w)/2 - 16;
+                rectStar.y = 155;
+                rectStar.w = 16;
+                rectStar.h = 16;
+                SDL_BlitSurface(m_pStar, NULL, m_pScreen, &rectStar);
+        }
 	
 	SDL_UpdateRect(m_pScreen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 }

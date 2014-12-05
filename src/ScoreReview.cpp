@@ -154,12 +154,15 @@ void ScoreReview::UpdateDisplay()
 	nTop += 15;
 
 	int nPlayerShotMoon = -1;
+	if( HEARTSLIB_SHOT_THE_MOON == GetPlayerShotMoon(*m_pHeartsLib, &nPlayerShotMoon) ) {
+                nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "Player %d shot the moon!", nPlayerShotMoon+1/*index to human readable*/);
+		nTop += 10;
+        }
 	if( GetHeartsGameOver(*m_pHeartsLib) == 1 ) {
                 nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "Score limit reached!");
+		nTop += 10;
                 nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "Game over!");
-        }
-        else if( HEARTSLIB_SHOT_THE_MOON == GetPlayerShotMoon(*m_pHeartsLib, &nPlayerShotMoon) ) {
-                nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "Player %d shot the moon!", nPlayerShotMoon+1/*index to human readable*/);
+		nTop += 10;
         }
 
 	SDL_UpdateRect(m_pScreen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);

@@ -59,37 +59,51 @@ SDL_Surface* LoadImage(Uint16 *data)
 }
 
 Achievements::Achievements(SDL_Surface* pScreen, AchieveConfig* pAchieveConfig/*, MouseHandling* pMouse*/)
-: m_pScreen(pScreen), m_eChoice(WonAGame), m_pAchieveConfig(pAchieveConfig), /*m_pMouse(pMouse),*/ m_Progress(pScreen, 40, 190, SCREEN_WIDTH-40-40, 15)
+: m_pScreen(pScreen), m_eChoice(PlayedAGame), m_pAchieveConfig(pAchieveConfig), /*m_pMouse(pMouse),*/ m_Progress(pScreen, 40, 190, SCREEN_WIDTH-40-40, 15)
 {
+	m_pAchieveConfig->ResetNewAchievements();
+
 	m_pFont = nSDL_LoadFont(NSDL_FONT_THIN, 0, 0, 0);
 	nSDL_SetFontSpacing(m_pFont, 0, 3);
 
 	m_pFontRed = nSDL_LoadFont(NSDL_FONT_THIN, 255, 0, 0);
 
+	m_imgPlayedAGame = LoadImage(image_Deal);
+	m_imgPlayed10Games = LoadImage(image_Deal);
 	m_imgWonAGame = LoadImage(image_Deal);
 	m_imgWon5Games = LoadImage(image_Playing);
 	m_imgShotTheMoon = LoadImage(image_Playing2);
 	m_imgWonWith0Points = LoadImage(image_Money);
 
+	m_imgDkPlayedAGame = LoadImage(image_Deal);
+	m_imgDkPlayed10Games = LoadImage(image_Deal);
 	m_imgDkWonAGame = LoadImage(image_Deal);
         m_imgDkWon5Games = LoadImage(image_Playing);
         m_imgDkShotTheMoon = LoadImage(image_Playing2);
         m_imgDkWonWith0Points = LoadImage(image_Money);
+	AdjustAchievementImage(m_imgDkPlayedAGame, false);
+	AdjustAchievementImage(m_imgDkPlayed10Games, false);
 	AdjustAchievementImage(m_imgDkWonAGame, false);
 	AdjustAchievementImage(m_imgDkWon5Games, false);
 	AdjustAchievementImage(m_imgDkShotTheMoon, false);
 	AdjustAchievementImage(m_imgDkWonWith0Points, false);
+
+	UpdateDoneAmounts();
 }
 
 Achievements::~Achievements()
 {
 	nSDL_FreeFont(m_pFont);
 
+	SDL_FreeSurface(m_imgPlayedAGame);
+	SDL_FreeSurface(m_imgPlayed10Games);
 	SDL_FreeSurface(m_imgWonAGame);
 	SDL_FreeSurface(m_imgWon5Games);
 	SDL_FreeSurface(m_imgShotTheMoon);
 	SDL_FreeSurface(m_imgWonWith0Points);
 
+	SDL_FreeSurface(m_imgDkPlayedAGame);
+	SDL_FreeSurface(m_imgDkPlayed10Games);
 	SDL_FreeSurface(m_imgDkWonAGame);
         SDL_FreeSurface(m_imgDkWon5Games);
         SDL_FreeSurface(m_imgDkShotTheMoon);
@@ -189,27 +203,33 @@ bool Achievements::PollEvents()
 void Achievements::Move(Achievement_Direction eDirection)
 {
 	if( m_eChoice == None ) {
-		m_eChoice = WonAGame;
+		m_eChoice = PlayedAGame;
 		goto Exit;
 	}
 	if( eDirection == A_Up ) {
-		/*if( m_eChoice == HadCloseCall ) {
+		if( m_eChoice == ShotTheMoon ) {
+			m_eChoice = PlayedAGame;
+		}
+		else if( m_eChoice == WonWith0Points ) {
 			m_eChoice = Played10Games;
 		}
-		else if( m_eChoice == Accepted10Deals ) {
-			m_eChoice = Won1Million;
-		}*/
 	}
 	else if( eDirection == A_Down ) {
-		/*if( m_eChoice == Won1Million ) {
-			m_eChoice = Accepted10Deals;
+		if( m_eChoice == PlayedAGame ) {
+			m_eChoice = ShotTheMoon;
 		}
 		else {
-			m_eChoice = HadCloseCall;
-		}*/
+			m_eChoice = WonWith0Points;
+		}
 	}
 	else if( eDirection == A_Left ) {
-		if( m_eChoice == Won5Games ) {
+		if( m_eChoice == Played10Games ) {
+			m_eChoice = PlayedAGame;
+		}
+		else if( m_eChoice == WonAGame ) {
+			m_eChoice = Played10Games;
+		}
+		else if( m_eChoice == Won5Games ) {
 			m_eChoice = WonAGame;
 		}
 		else if( m_eChoice == ShotTheMoon ) {
@@ -220,7 +240,13 @@ void Achievements::Move(Achievement_Direction eDirection)
 		}
 	}
 	else if( eDirection == A_Right ) {
-		if( m_eChoice == WonAGame ) {
+		if( m_eChoice == PlayedAGame ) {
+			m_eChoice = Played10Games;
+		}
+		else if( m_eChoice == Played10Games ) {
+			m_eChoice = WonAGame;
+		}
+		else if( m_eChoice == WonAGame ) {
 			m_eChoice = Won5Games;
 		}
 		else if( m_eChoice == Won5Games ) {
@@ -232,11 +258,23 @@ void Achievements::Move(Achievement_Direction eDirection)
 	}
 
 Exit:
+	UpdateDoneAmounts();
+}
+
+void Achievements::UpdateDoneAmounts()
+{
 	Config* pConfig = m_pAchieveConfig->GetConfig();
 	switch(m_eChoice) {
 	default:
 	case None:
+		printf("None\n");
 		m_Progress.SetDoneAmount(0,0);
+		break;
+	case PlayedAGame:
+		m_Progress.SetDoneAmount(Puz_Min(1, pConfig->GetGamesPlayed()), 1);
+		break;
+	case Played10Games:
+		m_Progress.SetDoneAmount(Puz_Min(10, pConfig->GetGamesPlayed()), 10);
 		break;
 	case WonAGame:
 		m_Progress.SetDoneAmount(Puz_Min(1, pConfig->GetGamesWon()), 1);
@@ -265,18 +303,26 @@ void Achievements::UpdateDisplay()
 
 	rect.x = 30;
         rect.y = 30;
-	SDL_BlitSurface(m_pAchieveConfig->WonAGame() ? m_imgWonAGame : m_imgDkWonAGame, NULL, m_pScreen, &rect);
+        SDL_BlitSurface(m_pAchieveConfig->PlayedAGame() ? m_imgPlayedAGame : m_imgDkPlayedAGame, NULL, m_pScreen, &rect);
 
-	rect.x = 80;
+        rect.x = 80;
         rect.y = 30;
-	SDL_BlitSurface(m_pAchieveConfig->Won5Games() ? m_imgWon5Games : m_imgDkWon5Games, NULL, m_pScreen, &rect);
+        SDL_BlitSurface(m_pAchieveConfig->Played10Games() ? m_imgPlayed10Games : m_imgDkPlayed10Games, NULL, m_pScreen, &rect);
 
 	rect.x = 130;
         rect.y = 30;
-        SDL_BlitSurface(m_pAchieveConfig->ShotTheMoon() ? m_imgShotTheMoon : m_imgDkShotTheMoon, NULL, m_pScreen, &rect);
+	SDL_BlitSurface(m_pAchieveConfig->WonAGame() ? m_imgWonAGame : m_imgDkWonAGame, NULL, m_pScreen, &rect);
 
 	rect.x = 180;
         rect.y = 30;
+	SDL_BlitSurface(m_pAchieveConfig->Won5Games() ? m_imgWon5Games : m_imgDkWon5Games, NULL, m_pScreen, &rect);
+
+	rect.x = 30;
+        rect.y = 80;
+        SDL_BlitSurface(m_pAchieveConfig->ShotTheMoon() ? m_imgShotTheMoon : m_imgDkShotTheMoon, NULL, m_pScreen, &rect);
+
+	rect.x = 80;
+        rect.y = 80;
         SDL_BlitSurface(m_pAchieveConfig->WonWith0Points() ? m_imgWonWith0Points : m_imgDkWonWith0Points, NULL, m_pScreen, &rect);
 
 	char buffer[256];
@@ -286,30 +332,42 @@ void Achievements::UpdateDisplay()
 	nSDL_DrawString(m_pScreen, m_pFont, nLeft, nTop, "Description:");
 
 	bool bAchieved = false;
-	if( m_eChoice == WonAGame ) {
+	if( m_eChoice == PlayedAGame ) {
+		strcpy(buffer, "Play a game:\n\
+Simply play 1 game!");
+                draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 30, 30, 32, 32, 1);
+                bAchieved = m_pAchieveConfig->PlayedAGame();
+        }
+	else if( m_eChoice == Played10Games ) {
+                strcpy(buffer, "Play 10 games:\n\
+Play at least 10 games!");
+                draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 80, 30, 32, 32, 1);
+                bAchieved = m_pAchieveConfig->Played10Games();
+        }
+	else if( m_eChoice == WonAGame ) {
 		strcpy(buffer, "Win a game:\n\
 Simply win 1 game!");
-		draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 30, 30, 32, 32, 1);
+		draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 130, 30, 32, 32, 1);
 		bAchieved = m_pAchieveConfig->WonAGame();
 	}
 	else if( m_eChoice == Won5Games ) {
 		strcpy(buffer, "Win 5 games:\n\
 Win at least 5 games!");
-		draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 80, 30, 32, 32, 1);
+		draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 180, 30, 32, 32, 1);
 		bAchieved = m_pAchieveConfig->Won5Games();
 	}
 	else if( m_eChoice == ShotTheMoon ) {
                 strcpy(buffer, "Shoot the Moon:\n\
 Take all Hearts and the Queen of Spades\n\
 in one hand and you shoot the moon!");
-		draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 130, 30, 32, 32, 1);
+		draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 30, 80, 32, 32, 1);
 		bAchieved = m_pAchieveConfig->ShotTheMoon();
 	}
 	else if( m_eChoice == WonWith0Points ) {
                 strcpy(buffer, "Win with 0 points:\n\
 Win a game where you don't have a single\n\
 point!  (Shooting the moon is ok)");
-		draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 30, 80, 32, 32, 1);
+		draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 80, 80, 32, 32, 1);
 		bAchieved = m_pAchieveConfig->WonWith0Points();
 	}
         nSDL_DrawString(m_pScreen, m_pFont, nLeft, nTop + 20, buffer);

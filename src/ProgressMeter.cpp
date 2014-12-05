@@ -18,8 +18,10 @@ void ProgressMeter::SetDoneAmount(int nNumerator, int nDemoniator)
 
 void ProgressMeter::UpdateDisplay()
 {
-   if( m_nDemoniator <= 0 )
+   if( m_nDemoniator <= 0 ) {
+      printf("No denominator\n");
       return;
+   }
 
    boxRGBA(m_pScreen, m_nX, m_nY, m_nX+m_nWidth, m_nY+m_nHeight, 100, 149, 237, 70);
 

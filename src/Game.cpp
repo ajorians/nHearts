@@ -11,7 +11,7 @@ extern "C"
 Game::Game(SDL_Surface* pScreen, Config* pConfig, AchieveConfig* pAchieve, CardImages* pCardImages)
 : m_pScreen(pScreen), m_pConfig(pConfig), m_pAchieve(pAchieve), m_pCardImages(pCardImages), m_Pieces(pScreen, &m_Metrics, m_pCardImages)/*, m_ShotMoonMessage(pScreen)*/, m_nCurrentCard(-1)
 {
-	HeartsLibCreate(&m_Hearts, m_pConfig->GetScoreLimit(), m_pConfig->GetJackDiamondsAmount());
+	HeartsLibCreate(&m_Hearts, 13/*m_pConfig->GetScoreLimit()*/, m_pConfig->GetJackDiamondsAmount());
 
 	m_pFont = nSDL_LoadFont(NSDL_FONT_THIN, 0/*R*/, 0/*G*/, 0/*B*/);
 
@@ -43,7 +43,6 @@ bool Game::Loop()
 	
 	SDL_Delay(30);
 	if( GetHeartsGameOver(m_Hearts) == 1 ) {
-		m_pAchieve->JustPlayedAGame();
 		return false;
 	}
 	
@@ -274,7 +273,7 @@ void Game::DoGamePlay()
       if( GetNumberOfCardsInHand(m_Hearts, 0) == 0 && GetNumberOfCardsInHand(m_Hearts, 1) == 0 && GetNumberOfCardsInHand(m_Hearts, 2) == 0 && GetNumberOfCardsInHand(m_Hearts, 3) == 0  ) {
          ScoreReview r(m_pScreen, &m_Hearts);
          while( r.Loop() ){}
-         //m_pAchieve->LookForAchievements(m_Hearts);
+         m_pAchieve->LookForAchievements(m_Hearts);
          DoHeartsNextHand(m_Hearts);
          RebuildPieces();
       }

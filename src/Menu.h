@@ -36,11 +36,14 @@ protected:
 	SDL_Surface	*m_pPlayGraphic;
 	SDL_Surface	*m_pOptionsGraphic;
 	SDL_Surface	*m_pAchievementGraphic;
+	SDL_Surface	*m_pStar;
 	nSDL_Font 	*m_pFont;
 	enum MenuChoice{Play, Options, Help, Achieve, Quit};
 	MenuChoice 	m_eChoice;
 	Config		*m_pConfig;
 	AchieveConfig	*m_pAchieve;
+	bool		m_bNewAchievement;
+	int		m_nFlashAchievement;
 };
 
 #endif
