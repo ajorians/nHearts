@@ -2,10 +2,12 @@
 #include "AchieveConfig.h"
 #include "Config.h"
 //#include "MouseHandling.h"
-#include "DealGraphic.h"
-#include "PlayingGraphic.h"
-#include "PlayingGraphic2.h"
-#include "MoneyGraphic.h"
+#include "PlayOneGraphic.h"
+#include "PlayTenGraphic.h"
+#include "WinGraphic.h"
+#include "Win5Graphic.h"
+#include "ShootGraphic.h"
+#include "NoPointsGraphic.h"
 #include "Defines.h"
 
 #define ACHIEVEMENT_ADJUST_AMOUNT      (75)
@@ -51,10 +53,13 @@ void AdjustAchievementImage(SDL_Surface* pSurface, bool bAchieved)
    }
 }
 
-SDL_Surface* LoadImage(Uint16 *data)
+SDL_Surface* LoadImage(Uint16 *data, bool bColorBlack = true)
 {
    SDL_Surface* pSurface = nSDL_LoadImage(data);
-   SDL_SetColorKey(pSurface, SDL_SRCCOLORKEY, SDL_MapRGB(pSurface->format, 0, 0, 0));
+   if( bColorBlack )
+      SDL_SetColorKey(pSurface, SDL_SRCCOLORKEY, SDL_MapRGB(pSurface->format, 0, 0, 0));
+   else
+      SDL_SetColorKey(pSurface, SDL_SRCCOLORKEY, SDL_MapRGB(pSurface->format, 255, 255, 255));
    return pSurface;
 }
 
@@ -68,25 +73,25 @@ Achievements::Achievements(SDL_Surface* pScreen, AchieveConfig* pAchieveConfig/*
 
 	m_pFontRed = nSDL_LoadFont(NSDL_FONT_THIN, 255, 0, 0);
 
-	m_imgPlayedAGame = LoadImage(image_Deal);
-	m_imgPlayed10Games = LoadImage(image_Deal);
-	m_imgWonAGame = LoadImage(image_Deal);
-	m_imgWon5Games = LoadImage(image_Playing);
-	m_imgShotTheMoon = LoadImage(image_Playing2);
-	m_imgWonWith0Points = LoadImage(image_Money);
+	m_imgPlayedAGame = LoadImage(image_Play1);
+	m_imgPlayed10Games = LoadImage(image_Play10);
+	m_imgWonAGame = LoadImage(image_Win);
+	m_imgWon5Games = LoadImage(image_Win5_2);
+	m_imgShotTheMoon = LoadImage(image_shoot, false);
+	m_imgWonWith0Points = LoadImage(image_Zero);
 
-	m_imgDkPlayedAGame = LoadImage(image_Deal);
-	m_imgDkPlayed10Games = LoadImage(image_Deal);
-	m_imgDkWonAGame = LoadImage(image_Deal);
-        m_imgDkWon5Games = LoadImage(image_Playing);
-        m_imgDkShotTheMoon = LoadImage(image_Playing2);
-        m_imgDkWonWith0Points = LoadImage(image_Money);
-	AdjustAchievementImage(m_imgDkPlayedAGame, false);
+	m_imgDkPlayedAGame = LoadImage(image_Play1);
+	m_imgDkPlayed10Games = LoadImage(image_Play10);
+	m_imgDkWonAGame = LoadImage(image_Win);
+        m_imgDkWon5Games = LoadImage(image_Win5_2);
+        m_imgDkShotTheMoon = LoadImage(image_shoot, false);
+        m_imgDkWonWith0Points = LoadImage(image_Zero);
+	/*AdjustAchievementImage(m_imgDkPlayedAGame, false);
 	AdjustAchievementImage(m_imgDkPlayed10Games, false);
 	AdjustAchievementImage(m_imgDkWonAGame, false);
 	AdjustAchievementImage(m_imgDkWon5Games, false);
 	AdjustAchievementImage(m_imgDkShotTheMoon, false);
-	AdjustAchievementImage(m_imgDkWonWith0Points, false);
+	AdjustAchievementImage(m_imgDkWonWith0Points, false);*/
 
 	UpdateDoneAmounts();
 }

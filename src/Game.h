@@ -40,6 +40,7 @@ protected:
 protected:
 	SDL_Surface	*m_pScreen;//Does not own
 	Config		*m_pConfig;//Does not own
+	SDL_Surface	*m_pBackground;
 	AchieveConfig	*m_pAchieve;
 	nSDL_Font *m_pFont;
 	CardImages* m_pCardImages;

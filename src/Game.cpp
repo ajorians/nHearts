@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "BoardBackground.h"
 #include "ScoreReview.h"
 #include "Config.h"
 #include "AchieveConfig.h"
@@ -15,6 +16,8 @@ Game::Game(SDL_Surface* pScreen, Config* pConfig, AchieveConfig* pAchieve, CardI
 
 	m_pFont = nSDL_LoadFont(NSDL_FONT_THIN, 0/*R*/, 0/*G*/, 0/*B*/);
 
+	m_pBackground = nSDL_LoadImage(image_cardbackground);
+
 	m_Metrics.SetCardDimensions(DISPCARD_WIDTH, DISPCARD_HEIGHT);
 
 	m_uLastAction = SDL_GetTicks();
@@ -28,6 +31,7 @@ Game::~Game()
 	for(int i=0; i<3; i++)
 		HeartsAIFree(&m_aAIs[i]);
 	nSDL_FreeFont(m_pFont);
+	SDL_FreeSurface(m_pBackground);
 }
 
 bool Game::Loop()
@@ -172,7 +176,10 @@ void Game::UpdateDisplay()
 
 
 	//Draw background
+#if 0
 	SDL_FillRect(m_pScreen, NULL, SDL_MapRGB(m_pScreen->format, GAME_BACKGROUND_R, GAME_BACKGROUND_G, GAME_BACKGROUND_B));
+#endif
+	SDL_BlitSurface(m_pBackground, NULL, m_pScreen, NULL);
 	
 	//Display scores
 	/*nSDL_DrawString(m_pScreen, m_pFont, SCREEN_WIDTH-30, SCREEN_HEIGHT-20, "%d|%d", ScoreOfCardsTaken(m_Hearts, 0), GetPlayerScore(m_Hearts, 0) );
