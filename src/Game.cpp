@@ -3,16 +3,17 @@
 #include "ScoreReview.h"
 #include "Config.h"
 #include "AchieveConfig.h"
+#include "MouseHandling.h"
 
 extern "C"
 {
 #include "SDL/SDL_gfxPrimitives.h"
 }
 
-Game::Game(SDL_Surface* pScreen, Config* pConfig, AchieveConfig* pAchieve, CardImages* pCardImages)
-: m_pScreen(pScreen), m_pConfig(pConfig), m_pAchieve(pAchieve), m_pCardImages(pCardImages), m_Pieces(pScreen, &m_Metrics, m_pCardImages)/*, m_ShotMoonMessage(pScreen)*/, m_nCurrentCard(-1)
+Game::Game(SDL_Surface* pScreen, MouseHandling* pMouse, Config* pConfig, AchieveConfig* pAchieve, CardImages* pCardImages)
+: m_pScreen(pScreen), m_pMouse(pMouse), m_pConfig(pConfig), m_pAchieve(pAchieve), m_pCardImages(pCardImages), m_Pieces(pScreen, &m_Metrics, m_pCardImages, pConfig)/*, m_ShotMoonMessage(pScreen)*/, m_nCurrentCard(-1)
 {
-	HeartsLibCreate(&m_Hearts, 13/*m_pConfig->GetScoreLimit()*/, m_pConfig->GetJackDiamondsAmount());
+	HeartsLibCreate(&m_Hearts, m_pConfig->GetScoreLimit(), m_pConfig->GetJackDiamondsAmount());
 
 	m_pFont = nSDL_LoadFont(NSDL_FONT_THIN, 0/*R*/, 0/*G*/, 0/*B*/);
 
@@ -110,6 +111,15 @@ bool Game::PollEvents()
 				break;
 		}
 	}
+
+	int nMX = -1, nMY = -1;
+        if( m_pMouse->PollMouse(nMX, nMY) ) {
+                MouseButton eMouseButton = m_pMouse->GetMouseButton();
+                if( eMouseButton == CenterButton ) {
+			SelectCard();
+		}
+	}
+
 	return true;
 }
 
@@ -244,12 +254,16 @@ void Game::SelectCard()
    }
    else {
       PlayCard(m_Hearts, 0, m_nCurrentCard);
+
+      if( GetNumberOfCardsInHand(m_Hearts, 0) == 1 )//If only one card select it
+         m_nCurrentCard = 0;
    }
 }
 
 void Game::DoGamePlay()
 {
-   if( SDL_GetTicks() - m_uLastAction < 1000 )
+   unsigned int nDelay = (m_pConfig->GetPieceMovePerStep() > 8) ? 400 : (m_pConfig->GetPieceMovePerStep() < 5) ? 1500 : 1000;
+   if( (SDL_GetTicks() - m_uLastAction) < nDelay )
       return;
 
    if( HasPassedCards(m_Hearts) == HEARTSLIB_PASSED_CARDS ) {
@@ -278,7 +292,7 @@ void Game::DoGamePlay()
 
    if( HasPassedCards(m_Hearts) == HEARTSLIB_PASSED_CARDS ) {
       if( GetNumberOfCardsInHand(m_Hearts, 0) == 0 && GetNumberOfCardsInHand(m_Hearts, 1) == 0 && GetNumberOfCardsInHand(m_Hearts, 2) == 0 && GetNumberOfCardsInHand(m_Hearts, 3) == 0  ) {
-         ScoreReview r(m_pScreen, &m_Hearts);
+         ScoreReview r(m_pScreen, &m_Hearts, m_pMouse);
          while( r.Loop() ){}
          m_pAchieve->LookForAchievements(m_Hearts);
          DoHeartsNextHand(m_Hearts);

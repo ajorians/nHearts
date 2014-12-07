@@ -8,12 +8,12 @@ extern "C"
 	#include "HeartsLib/HeartsLib.h"
 }
 
-//class MouseHandling;
+class MouseHandling;
 
 class ScoreReview
 {
 public:
-	ScoreReview(SDL_Surface* pScreen, HeartsLib* pHeartsLib);
+	ScoreReview(SDL_Surface* pScreen, HeartsLib* pHeartsLib, MouseHandling* pMouse);
 	~ScoreReview();
 
 	bool Loop();
@@ -24,7 +24,7 @@ protected:
 
 protected:
 	SDL_Surface	*m_pScreen;//Does not own
-//	MouseHandling	*m_pMouse;//Does not own
+	MouseHandling	*m_pMouse;//Does not own
 	nSDL_Font *m_pFont;
 	HeartsLib	*m_pHeartsLib;
 	int m_nOffer;

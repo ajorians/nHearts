@@ -43,12 +43,14 @@ protected:
 	SDL_Surface	*m_imgShotTheMoon;
 	SDL_Surface	*m_imgWonWith0Points;
 
-	SDL_Surface	*m_imgDkPlayedAGame;
+	/*SDL_Surface	*m_imgDkPlayedAGame;
 	SDL_Surface	*m_imgDkPlayed10Games;
 	SDL_Surface     *m_imgDkWonAGame;
 	SDL_Surface     *m_imgDkWon5Games;
         SDL_Surface     *m_imgDkShotTheMoon;
-        SDL_Surface     *m_imgDkWonWith0Points;
+        SDL_Surface     *m_imgDkWonWith0Points;*/
+
+	SDL_Surface	*m_imgStar;
 
 	ProgressMeter	m_Progress;
 };

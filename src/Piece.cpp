@@ -2,8 +2,8 @@
 #include "CardImages.h"
 #include "Defines.h"
 
-PieceControl::PieceControl(SDL_Surface* pScreen, Metrics* pMetrics, CardImages* pCardImages)
-: m_pScreen(pScreen), m_pMetrics(pMetrics), m_pCardImages(pCardImages), m_pRoot(NULL)
+PieceControl::PieceControl(SDL_Surface* pScreen, Metrics* pMetrics, CardImages* pCardImages, Config* pConfig)
+: m_pScreen(pScreen), m_pMetrics(pMetrics), m_pConfig(pConfig), m_pCardImages(pCardImages), m_pRoot(NULL)
 {
    m_pCardImageNormal = SDL_CreateRGBSurface(SDL_SWSURFACE, DISPCARD_WIDTH, DISPCARD_HEIGHT, 16, 0, 0, 0, 0);
    m_pCardImages->GetImageForDeckStyle(m_pCardImageNormal, false);
@@ -60,7 +60,7 @@ bool PieceControl::CreateCard(Card c, int nPlayerIndex, int nCardIndex, bool bHo
    pPiece->img = SDL_CreateRGBSurface(SDL_SWSURFACE, nCardWidth, nCardHeight, 16, 0, 0, 0, 0);
    pPiece->imgDisabled = SDL_CreateRGBSurface(SDL_SWSURFACE, nCardWidth, nCardHeight, 16, 0, 0, 0, 0);
 
-   if( nPlayerIndex != 0 ) {
+   if( nPlayerIndex != 0 && m_pConfig->GetShowAllCards() != 1 ) {
       pPiece->visible = false;
    }
    else {
@@ -95,7 +95,7 @@ bool PieceControl::MakeVisible(Card c, bool bVisible, bool bEnabled)
          if( bVisible && !pCurrent->visible ) {
             pCurrent->visible = bVisible;
          }
-         else if( !bVisible && pCurrent->visible ) {
+         else if( !bVisible && pCurrent->visible && m_pConfig->GetShowAllCards() != 1) {
             pCurrent->visible = bVisible;
          }
          pCurrent->enabled = bEnabled;
@@ -211,7 +211,7 @@ bool PieceControl::Animate()
    PieceSprite* pCurrent = m_pRoot;
 
    while(pCurrent != NULL) {
-      MovePiece(m_pScreen, pCurrent, m_pMetrics, 5/*m_pConfig->GetPieceMovePerStep()*/);
+      MovePiece(m_pScreen, pCurrent, m_pMetrics, m_pConfig->GetPieceMovePerStep());
       pCurrent = pCurrent->next;
    }
 

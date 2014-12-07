@@ -11,8 +11,8 @@ extern "C"
 #define DEBUG_MSG//     printf
 #endif
 
-#define CARD_WIDTH      (42)
-#define CARD_HEIGHT     (62)
+#define CARD_WIDTH      (21)
+#define CARD_HEIGHT     (31)
 
 #define DISPCARD_WIDTH	(21)
 #define DISPCARD_HEIGHT	(31)

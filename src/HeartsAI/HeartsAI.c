@@ -886,7 +886,7 @@ int HeartsAIDesiredPlayIndex(HeartsAILib ai, int* pnIndex)
 
       GetCardInHand(pH->m_hearts, &c, pH->m_nPlayerIndex, i);
 
-      PrintCard(c);
+      //PrintCard(c);
    }
 
    for(i=0; i<nNumCards; i++) {
@@ -907,8 +907,8 @@ int HeartsAIDesiredPlayIndex(HeartsAILib ai, int* pnIndex)
       }
 
       GetCardInHand(pH->m_hearts, &c, pH->m_nPlayerIndex, nHighestIndex);
-      printf("Playing card: ");
-      PrintCard(c);
+      //printf("Playing card: ");
+      //PrintCard(c);
       *pnIndex = nHighestIndex;
    }
 

@@ -18,11 +18,12 @@ extern "C"
 
 class Config;
 class AchieveConfig;
+class MouseHandling;
 
 class Game
 {
 public:
-	Game(SDL_Surface* pScreen, Config* pConfig, AchieveConfig* pArchieve, CardImages* pCardImages);
+	Game(SDL_Surface* pScreen, MouseHandling* pMouse, Config* pConfig, AchieveConfig* pArchieve, CardImages* pCardImages);
 	~Game();
 
 	bool Loop();
@@ -39,6 +40,7 @@ protected:
 
 protected:
 	SDL_Surface	*m_pScreen;//Does not own
+	MouseHandling	*m_pMouse;//Does not own
 	Config		*m_pConfig;//Does not own
 	SDL_Surface	*m_pBackground;
 	AchieveConfig	*m_pAchieve;

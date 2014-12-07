@@ -11,11 +11,12 @@ extern "C"
 #include "Config.h"
 
 class AchieveConfig;
+class MouseHandling;
 
 class MainMenu
 {
 public:
-	MainMenu(SDL_Surface* pScreen, Config* pConfig, AchieveConfig* pAchieveConfig);
+	MainMenu(SDL_Surface* pScreen, Config* pConfig, AchieveConfig* pAchieveConfig, MouseHandling* pMouseHandling);
 	~MainMenu();
 
 	bool Loop();
@@ -31,6 +32,7 @@ protected:
 
 protected:
 	SDL_Surface	*m_pScreen;//Does not own
+	MouseHandling	*m_pMouseHandling;//Does not own
 	Background	m_Background;
 	SDL_Surface	*m_pTitleGraphic;
 	SDL_Surface	*m_pPlayGraphic;

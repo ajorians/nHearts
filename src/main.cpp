@@ -12,6 +12,7 @@ extern "C"
 #include "Config.h"
 #include "Options.h"
 #include "AchieveConfig.h"
+#include "MouseHandling.h"
 #include "Help.h"
 
 #define SCREEN_BIT_DEPTH        (16)
@@ -36,6 +37,7 @@ int main(int argc, char *argv[])
 
 	ArchiveSetCurrentDirectory(argv[0]);
 	Config config;
+	MouseHandling mouse(&config);
 	AchieveConfig ac(&config);
 
 	if( pScreen == NULL )
@@ -57,7 +59,7 @@ int main(int argc, char *argv[])
 
 			if( argc != 2 )
 			{
-				MainMenu menu(pScreen, &config, &ac);
+				MainMenu menu(pScreen, &config, &ac, &mouse);
 				while(menu.Loop()){}
 				if( menu.ShouldQuit() )
 					break;
@@ -67,7 +69,7 @@ int main(int argc, char *argv[])
 			}
 			
 			if( bShowOptions ) {
-				Options ops(pScreen, &config);
+				Options ops(pScreen, &mouse, &config);
 				while(ops.Loop()){}
 				continue;
 			}
@@ -86,7 +88,7 @@ int main(int argc, char *argv[])
 			{
 				bool bPlay = true;
 				while( bPlay ) {
-					Game game(pScreen, &config, &ac, &cardImages);
+					Game game(pScreen, &mouse, &config, &ac, &cardImages);
 					while(game.Loop()){}
 
 					bPlay = false;

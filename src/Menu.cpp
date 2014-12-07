@@ -1,4 +1,5 @@
 #include "Menu.h"
+#include "MouseHandling.h"
 #include "HeartsGraphic.h"
 #include "PlayGraphic.h"
 #include "OptionsHelpGraphic.h"
@@ -7,8 +8,8 @@
 #include "StarGraphic.h"
 #include "Defines.h"
 
-MainMenu::MainMenu(SDL_Surface* pScreen, Config* pConfig, AchieveConfig* pAchieve)
-: m_pScreen(pScreen), m_Background(pScreen, pConfig), m_eChoice(Play), m_pConfig(pConfig), m_pAchieve(pAchieve), m_nFlashAchievement(0)
+MainMenu::MainMenu(SDL_Surface* pScreen, Config* pConfig, AchieveConfig* pAchieve, MouseHandling* pMouseHandling)
+: m_pScreen(pScreen), m_pMouseHandling(pMouseHandling), m_Background(pScreen, pConfig), m_eChoice(Play), m_pConfig(pConfig), m_pAchieve(pAchieve), m_nFlashAchievement(0)
 {
 	m_pTitleGraphic 	= nSDL_LoadImage(image_nHeartsText);
 	m_pPlayGraphic		= nSDL_LoadImage(image_Play);
@@ -136,6 +137,15 @@ bool MainMenu::PollEvents()
 				break;
 		}
 	}
+
+	int nMX = -1, nMY = -1;
+	if( m_pMouseHandling->PollMouse(nMX, nMY) ) {
+		MouseButton eMouseButton = m_pMouseHandling->GetMouseButton();
+		if( eMouseButton == CenterButton ) {
+			return false;
+		}
+	}
+
 	return true;
 }
 

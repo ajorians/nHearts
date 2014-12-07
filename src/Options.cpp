@@ -1,8 +1,9 @@
 #include "Options.h"
+#include "MouseHandling.h"
 #include "Defines.h"
 
-Options::Options(SDL_Surface* pScreen, Config* pConfig)
-: m_pScreen(pScreen), m_nOptionsIndex(0), m_pConfig(pConfig)
+Options::Options(SDL_Surface* pScreen, MouseHandling* pMouse, Config* pConfig)
+: m_pScreen(pScreen), m_pMouse(pMouse), m_nOptionsIndex(0), m_pConfig(pConfig)
 {
 	m_pFont = nSDL_LoadFont(NSDL_FONT_TINYTYPE, 0, 0, 0);
 	nSDL_SetFontSpacing(m_pFont, 0, 2);
@@ -76,6 +77,15 @@ bool Options::PollEvents()
 				break;
 		}
 	}
+
+	int nMX = -1, nMY = -1;
+        if( m_pMouse->PollMouse(nMX, nMY) ) {
+                MouseButton eMouseButton = m_pMouse->GetMouseButton();
+                if( eMouseButton == CenterButton ) {
+			ToggleCurrentOption();
+                }
+	}
+
 	return true;
 }
 
@@ -84,12 +94,51 @@ void Options::ToggleCurrentOption()
 	if( m_nOptionsIndex == 0 ) {
 		m_pConfig->SetJackDiamondsAmount(m_pConfig->GetJackDiamondsAmount() == 0 ? -10 : 0);
 	} else if( m_nOptionsIndex == 1 ) {
-        }
+		int nPointLimit = m_pConfig->GetScoreLimit();
+		//25, 50, 100, 200, 500
+		int nNewPoints = 100;
+		switch(nPointLimit)
+		{
+			default:
+			case 100:
+				nNewPoints = 200;
+				break;
+			case 25:
+				nNewPoints = 50;
+				break;
+			case 50:
+				nNewPoints = 100;
+				break;
+			case 200:
+				nNewPoints = 500;
+				break;
+			case 500:
+				nNewPoints = 25;
+				break;
+		}
+		m_pConfig->SetScoreLimit(nNewPoints);
+        } else if( m_nOptionsIndex == 2 ) {
+		int nStep = m_pConfig->GetPieceMovePerStep();
+		int nNewStep = 7;
+		switch(nStep) {
+			default:
+			case 7:
+				nNewStep = 11;
+				break;
+			case 11:
+				nNewStep = 4;
+				break;
+			case 4:
+				nNewStep = 7;
+				break;
+		}
+		m_pConfig->SetPieceMovePerStep(nNewStep);
+	}
 }
 
 void Options::Move(Option_Direction eDirection)
 {
-	if( eDirection == OP_Down && m_nOptionsIndex < 0 ) {
+	if( eDirection == OP_Down && m_nOptionsIndex < 2 ) {
 		m_nOptionsIndex++;
 	} else if( eDirection == OP_Up && m_nOptionsIndex > 0 ) {
 		m_nOptionsIndex--;
@@ -97,6 +146,8 @@ void Options::Move(Option_Direction eDirection)
 }
 
 #define JACK_DIAMONDS_Y      (45)
+#define POINT_LIMIT_Y	     (75)
+#define GAME_SPEED_Y	     (105)
 void Options::UpdateDisplay()
 {
 	//Draw background
@@ -113,13 +164,41 @@ void Options::UpdateDisplay()
 
         if( m_nOptionsIndex == 0 ) {
                 if( is_classic ) {
-                        draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 255, 255), 7, JACK_DIAMONDS_Y-5, 312, 35, 1);
+                        draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 255, 255), 7, JACK_DIAMONDS_Y-5, 312, 25, 1);
                 } else {
-                        draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 7, JACK_DIAMONDS_Y-5, 312, 35, 1);
+                        draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 7, JACK_DIAMONDS_Y-5, 312, 25, 1);
                 }
         }
 
 	nSDL_DrawString(m_pScreen, m_pFont, 12, JACK_DIAMONDS_Y, buffer);
+
+	nSDL_DrawString(m_pScreen, m_pFont, 12, POINT_LIMIT_Y, "Game point limit: %d", m_pConfig->GetScoreLimit());
+
+	if( m_nOptionsIndex == 1 ) {
+		if( is_classic ) {
+                        draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 255, 255), 7, POINT_LIMIT_Y-5, 312, 25, 1);
+                } else {
+                        draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 7, POINT_LIMIT_Y-5, 312, 25, 1);
+                }
+	}
+
+	if( m_pConfig->GetPieceMovePerStep() < 5 ) {	
+		nSDL_DrawString(m_pScreen, m_pFont, 12, GAME_SPEED_Y, "Game speed: Slow");
+	}
+	else if( m_pConfig->GetPieceMovePerStep() >=5 && m_pConfig->GetPieceMovePerStep() < 8 ) {
+		nSDL_DrawString(m_pScreen, m_pFont, 12, GAME_SPEED_Y, "Game speed: Normal");
+	}
+	else {
+		nSDL_DrawString(m_pScreen, m_pFont, 12, GAME_SPEED_Y, "Game speed: Fast");
+	}
+
+	if( m_nOptionsIndex == 2 ) {
+                if( is_classic ) {
+                        draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 255, 255), 7, GAME_SPEED_Y-5, 312, 25, 1);
+                } else {
+                        draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 7, GAME_SPEED_Y-5, 312, 25, 1);
+                }
+        }
 
 	SDL_UpdateRect(m_pScreen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 

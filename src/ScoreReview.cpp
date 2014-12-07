@@ -1,5 +1,5 @@
 #include "ScoreReview.h"
-//#include "MouseHandling.h"
+#include "MouseHandling.h"
 #include "Defines.h"
 
 extern "C"
@@ -7,8 +7,8 @@ extern "C"
 #include "SDL/SDL_gfxPrimitives.h"
 }
 
-ScoreReview::ScoreReview(SDL_Surface* pScreen, HeartsLib* pHeartsLib)
-: m_pScreen(pScreen), m_pHeartsLib(pHeartsLib)
+ScoreReview::ScoreReview(SDL_Surface* pScreen, HeartsLib* pHeartsLib, MouseHandling* pMouse)
+: m_pScreen(pScreen), m_pHeartsLib(pHeartsLib), m_pMouse(pMouse)
 {
 	m_pFont = nSDL_LoadFont(NSDL_FONT_VGA, 0, 0, 0);
 }
@@ -77,14 +77,13 @@ bool ScoreReview::PollEvents()
 		}
 	}
 
-	/*
 	int nMX = -1, nMY = -1;
         if( m_pMouse->PollMouse(nMX, nMY) ) {
                 MouseButton eMouseButton = m_pMouse->GetMouseButton();
                 if( eMouseButton == CenterButton ) {
                     return false;
                 }
-        }*/
+        }
 
 	return true;
 }
@@ -125,7 +124,8 @@ void ScoreReview::UpdateDisplay()
 	nTop += 10;
 
 	int nRounds = GetNumberOfRounds(*m_pHeartsLib);
-	for(int i=0; i<nRounds; i++) {
+        int nStartRound = nRounds > 12 ? nRounds - 12 : 0;
+	for(int i=nStartRound; i<nRounds; i++) {
 		int n1,n2,n3,n4;
 		n1 = GetHeartsRoundScore(*m_pHeartsLib, 0, i);
 		n2 = GetHeartsRoundScore(*m_pHeartsLib, 1, i);

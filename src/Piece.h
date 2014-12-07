@@ -9,7 +9,7 @@ extern "C"
 }
 
 #include "Metrics.h"
-//#include "Config.h"
+#include "Config.h"
 
 class CardImages;
 
@@ -31,7 +31,7 @@ struct PieceSprite
 class PieceControl
 {
 public:
-   PieceControl(SDL_Surface* pScreen, Metrics* pBoardMetrics, CardImages* pCardImages);
+   PieceControl(SDL_Surface* pScreen, Metrics* pBoardMetrics, CardImages* pCardImages, Config* pConfig);
    ~PieceControl();
 
    void ClearPieces();
@@ -47,7 +47,7 @@ protected:
 protected:
    SDL_Surface* m_pScreen;//Does NOT own
    Metrics* m_pMetrics;//Does NOT own
-//   Config* m_pConfig;//Does NOT own
+   Config* m_pConfig;//Does NOT own
    CardImages* m_pCardImages;//Does NOT own
    PieceSprite* m_pRoot;
    SDL_Surface* m_pCardImageNormal;

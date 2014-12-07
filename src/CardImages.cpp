@@ -54,10 +54,10 @@ bool CardImages::GetImageForCard(SDL_Surface* pSurface, Card c, bool bEnabled, i
    }
 
    SDL_Rect rectSrc;
-   rectSrc.x = nImgPos * 42;
-   rectSrc.y = nSuitPos * 62;
-   rectSrc.w = 42;
-   rectSrc.h = 62;
+   rectSrc.x = nImgPos * 21;
+   rectSrc.y = nSuitPos * 31;
+   rectSrc.w = 21;
+   rectSrc.h = 31;
 
    SDL_Rect rectDst;
    rectDst.x = 0;
@@ -125,10 +125,10 @@ bool CardImages::GetImageForDeckStyle(SDL_Surface* pSurface, bool bHorizontal)
    int nSuitPos = 0;
 
    SDL_Rect rectSrc;
-   rectSrc.x = nImgPos * 42;
-   rectSrc.y = nSuitPos * 62;
-   rectSrc.w = 42;
-   rectSrc.h = 62;
+   rectSrc.x = nImgPos * 21;
+   rectSrc.y = nSuitPos * 31;
+   rectSrc.w = 21;
+   rectSrc.h = 31;
 
    SDL_Rect rectDst;
    rectDst.x = 0;

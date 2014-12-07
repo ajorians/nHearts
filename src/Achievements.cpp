@@ -8,6 +8,7 @@
 #include "Win5Graphic.h"
 #include "ShootGraphic.h"
 #include "NoPointsGraphic.h"
+#include "StarGraphic.h"
 #include "Defines.h"
 
 #define ACHIEVEMENT_ADJUST_AMOUNT      (75)
@@ -80,18 +81,20 @@ Achievements::Achievements(SDL_Surface* pScreen, AchieveConfig* pAchieveConfig/*
 	m_imgShotTheMoon = LoadImage(image_shoot, false);
 	m_imgWonWith0Points = LoadImage(image_Zero);
 
-	m_imgDkPlayedAGame = LoadImage(image_Play1);
+	/*m_imgDkPlayedAGame = LoadImage(image_Play1);
 	m_imgDkPlayed10Games = LoadImage(image_Play10);
 	m_imgDkWonAGame = LoadImage(image_Win);
         m_imgDkWon5Games = LoadImage(image_Win5_2);
         m_imgDkShotTheMoon = LoadImage(image_shoot, false);
-        m_imgDkWonWith0Points = LoadImage(image_Zero);
+        m_imgDkWonWith0Points = LoadImage(image_Zero);*/
 	/*AdjustAchievementImage(m_imgDkPlayedAGame, false);
 	AdjustAchievementImage(m_imgDkPlayed10Games, false);
 	AdjustAchievementImage(m_imgDkWonAGame, false);
 	AdjustAchievementImage(m_imgDkWon5Games, false);
 	AdjustAchievementImage(m_imgDkShotTheMoon, false);
 	AdjustAchievementImage(m_imgDkWonWith0Points, false);*/
+
+	m_imgStar                 = LoadImage(image_Star);
 
 	UpdateDoneAmounts();
 }
@@ -107,12 +110,14 @@ Achievements::~Achievements()
 	SDL_FreeSurface(m_imgShotTheMoon);
 	SDL_FreeSurface(m_imgWonWith0Points);
 
-	SDL_FreeSurface(m_imgDkPlayedAGame);
+	/*SDL_FreeSurface(m_imgDkPlayedAGame);
 	SDL_FreeSurface(m_imgDkPlayed10Games);
 	SDL_FreeSurface(m_imgDkWonAGame);
         SDL_FreeSurface(m_imgDkWon5Games);
         SDL_FreeSurface(m_imgDkShotTheMoon);
-        SDL_FreeSurface(m_imgDkWonWith0Points);
+        SDL_FreeSurface(m_imgDkWonWith0Points);*/
+
+	SDL_FreeSurface(m_imgStar);
 }
 
 bool Achievements::Loop()
@@ -296,13 +301,38 @@ void Achievements::UpdateDoneAmounts()
 	}
 }
 
+void DrawAchievement(bool bAchieved, SDL_Surface* pImg, SDL_Surface* pScreen, int nX, int nY, SDL_Surface* pStar)
+{
+   SDL_Rect rect;
+   rect.w = 32;
+   rect.h = 32;
+   rect.x = nX;
+   rect.y = nY;
+
+   SDL_BlitSurface(pImg, NULL, pScreen, &rect);
+
+   if( bAchieved ) {
+      rect.w = 16;
+      rect.h = 16;
+      rect.x = nX + 16;
+      rect.y = nY + 16;
+      SDL_BlitSurface(pStar, NULL, pScreen, &rect);
+   }
+}
+
 void Achievements::UpdateDisplay()
 {
 	//Draw background
 	SDL_FillRect(m_pScreen, NULL, SDL_MapRGB(m_pScreen->format, 153, 153, 255/*I don't know a better color :( */));
 	nSDL_DrawString(m_pScreen, m_pFont, (SCREEN_WIDTH-nSDL_GetStringWidth(m_pFont, "Achievements:"))/2, 15, "Achievements:");
 
-	SDL_Rect rect;
+        DrawAchievement(m_pAchieveConfig->PlayedAGame(), m_imgPlayedAGame, m_pScreen, 30, 30, m_imgStar);
+        DrawAchievement(m_pAchieveConfig->Played10Games(), m_imgPlayed10Games, m_pScreen, 80, 30, m_imgStar);
+        DrawAchievement(m_pAchieveConfig->WonAGame(), m_imgWonAGame, m_pScreen, 130, 30, m_imgStar);
+        DrawAchievement(m_pAchieveConfig->Won5Games(), m_imgWon5Games, m_pScreen, 180, 30, m_imgStar);
+        DrawAchievement(m_pAchieveConfig->ShotTheMoon(), m_imgShotTheMoon, m_pScreen, 30, 80, m_imgStar);
+        DrawAchievement(m_pAchieveConfig->WonWith0Points(), m_imgWonWith0Points, m_pScreen, 80, 80, m_imgStar);
+	/*SDL_Rect rect;
 	rect.w = 32;
 	rect.h = 32;
 
@@ -328,7 +358,7 @@ void Achievements::UpdateDisplay()
 
 	rect.x = 80;
         rect.y = 80;
-        SDL_BlitSurface(m_pAchieveConfig->WonWith0Points() ? m_imgWonWith0Points : m_imgDkWonWith0Points, NULL, m_pScreen, &rect);
+        SDL_BlitSurface(m_pAchieveConfig->WonWith0Points() ? m_imgWonWith0Points : m_imgDkWonWith0Points, NULL, m_pScreen, &rect);*/
 
 	char buffer[256];
 
