@@ -87,6 +87,8 @@ The 2 of Clubs starts each round.  On that\n\
 first trick you cannot play any Hearts or\n\
 Queen of Spades.\n\
 \n\
+You are player 1!\n\
+\n\
 Good luck!");
 
 	//int nLeft = 55;

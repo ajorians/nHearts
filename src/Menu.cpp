@@ -191,7 +191,7 @@ void MainMenu::UpdateDisplay()
 	}
 
 	if( m_eChoice == Play )
-		draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), SCREEN_WIDTH/2-60, 70, 120, 65
+		draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), SCREEN_WIDTH/2-60, 70, 120, 30
 	, 1);
 	else if( m_eChoice == Achieve )
 		draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 80, 152, 162, 24, 1);
