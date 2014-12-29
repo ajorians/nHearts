@@ -92,8 +92,10 @@ bool Options::PollEvents()
 void Options::ToggleCurrentOption()
 {
 	if( m_nOptionsIndex == 0 ) {
-		m_pConfig->SetJackDiamondsAmount(m_pConfig->GetJackDiamondsAmount() == 0 ? -10 : 0);
+		m_pConfig->SetGameMode(!m_pConfig->GetGameMode());
 	} else if( m_nOptionsIndex == 1 ) {
+		m_pConfig->SetJackDiamondsAmount(m_pConfig->GetJackDiamondsAmount() == 0 ? -10 : 0);
+	} else if( m_nOptionsIndex == 2 ) {
 		int nPointLimit = m_pConfig->GetScoreLimit();
 		//25, 50, 100, 200, 500
 		int nNewPoints = 100;
@@ -117,7 +119,7 @@ void Options::ToggleCurrentOption()
 				break;
 		}
 		m_pConfig->SetScoreLimit(nNewPoints);
-        } else if( m_nOptionsIndex == 2 ) {
+        } else if( m_nOptionsIndex == 3 ) {
 		int nStep = m_pConfig->GetPieceMovePerStep();
 		int nNewStep = 7;
 		switch(nStep) {
@@ -138,21 +140,44 @@ void Options::ToggleCurrentOption()
 
 void Options::Move(Option_Direction eDirection)
 {
-	if( eDirection == OP_Down && m_nOptionsIndex < 2 ) {
+	if( eDirection == OP_Down && m_nOptionsIndex < 3 ) {
 		m_nOptionsIndex++;
 	} else if( eDirection == OP_Up && m_nOptionsIndex > 0 ) {
 		m_nOptionsIndex--;
 	}
 }
 
-#define JACK_DIAMONDS_Y      (45)
-#define POINT_LIMIT_Y	     (75)
-#define GAME_SPEED_Y	     (105)
+#define GAME_MODE_Y	     (45)
+#define JACK_DIAMONDS_Y      (105)
+#define POINT_LIMIT_Y	     (125)
+#define GAME_SPEED_Y	     (155)
 void Options::UpdateDisplay()
 {
 	//Draw background
 	SDL_FillRect(m_pScreen, NULL, SDL_MapRGB(m_pScreen->format, 153, 153, 255));
 	nSDL_DrawString(m_pScreen, m_pFont, (SCREEN_WIDTH-nSDL_GetStringWidth(m_pFont, "Options:"))/2, 15, "Options:");
+
+	if( m_pConfig->GetGameMode() == 1 ) {
+		nSDL_DrawString(m_pScreen, m_pFont, 12, GAME_MODE_Y, "Game mode: 3 Player");
+                nSDL_DrawString(m_pScreen, m_pFont, 12, GAME_MODE_Y+12, 
+"3 player mode where each player gets 17\n\
+cards.  There is a mystery card in that the\n\
+first player to take a trick gets.  It won't\n\
+break hearts though.");
+	} else {
+		nSDL_DrawString(m_pScreen, m_pFont, 12, GAME_MODE_Y, "Game mode: Normal");
+                nSDL_DrawString(m_pScreen, m_pFont, 12, GAME_MODE_Y+12, 
+"Normal 4 player game where each player\n\
+starts with 13 cards.");
+	}
+
+	if( m_nOptionsIndex == 0 ) {
+                if( is_classic ) {
+                        draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 255, 255), 7, GAME_MODE_Y-5, 312, 59, 1);
+                } else {
+                        draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 0, 0), 7, GAME_MODE_Y-5, 312, 59, 1);
+                }
+        }
 
 	char buffer[256] = "Jack of Diamonds is -10 points: ";
 
@@ -162,7 +187,7 @@ void Options::UpdateDisplay()
 		strcat(buffer, "No");
 	}
 
-        if( m_nOptionsIndex == 0 ) {
+        if( m_nOptionsIndex == 1 ) {
                 if( is_classic ) {
                         draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 255, 255), 7, JACK_DIAMONDS_Y-5, 312, 25, 1);
                 } else {
@@ -174,7 +199,7 @@ void Options::UpdateDisplay()
 
 	nSDL_DrawString(m_pScreen, m_pFont, 12, POINT_LIMIT_Y, "Game point limit: %d", m_pConfig->GetScoreLimit());
 
-	if( m_nOptionsIndex == 1 ) {
+	if( m_nOptionsIndex == 2 ) {
 		if( is_classic ) {
                         draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 255, 255), 7, POINT_LIMIT_Y-5, 312, 25, 1);
                 } else {
@@ -192,7 +217,7 @@ void Options::UpdateDisplay()
 		nSDL_DrawString(m_pScreen, m_pFont, 12, GAME_SPEED_Y, "Game speed: Fast");
 	}
 
-	if( m_nOptionsIndex == 2 ) {
+	if( m_nOptionsIndex == 3 ) {
                 if( is_classic ) {
                         draw_rectangle(m_pScreen, SDL_MapRGB(m_pScreen->format, 255, 255, 255), 7, GAME_SPEED_Y-5, 312, 25, 1);
                 } else {

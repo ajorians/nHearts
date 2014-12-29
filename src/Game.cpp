@@ -13,7 +13,7 @@ extern "C"
 Game::Game(SDL_Surface* pScreen, MouseHandling* pMouse, Config* pConfig, AchieveConfig* pAchieve, CardImages* pCardImages)
 : m_pScreen(pScreen), m_pMouse(pMouse), m_pConfig(pConfig), m_pAchieve(pAchieve), m_pCardImages(pCardImages), m_Pieces(pScreen, &m_Metrics, m_pCardImages, pConfig)/*, m_ShotMoonMessage(pScreen)*/, m_nCurrentCard(-1)
 {
-	HeartsLibCreate(&m_Hearts, m_pConfig->GetScoreLimit(), m_pConfig->GetJackDiamondsAmount(), /*m_pConfig->GetGameMode() == 1 ?*/ Reduced3Players /*: Normal4Players*/);
+	HeartsLibCreate(&m_Hearts, m_pConfig->GetScoreLimit(), m_pConfig->GetJackDiamondsAmount(), m_pConfig->GetGameMode() == 1 ? Reduced3Players : Normal4Players);
 
 	m_pFont = nSDL_LoadFont(NSDL_FONT_THIN, 0/*R*/, 0/*G*/, 0/*B*/);
 
@@ -336,7 +336,7 @@ void Game::RebuildPieces()
       }
    }
 
-   int nNumInitialCards = 1;
+   int nNumInitialCards = GetNumHeartsPlayers(m_Hearts)==3 ? 1 : 0;
    for(int i=0; i<nNumInitialCards; i++) {
       Card c;
       GetInitialCard(m_Hearts, &c, i);
