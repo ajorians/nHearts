@@ -22,6 +22,7 @@ protected:
 	bool PollEvents();
 	void UpdateDisplay();
 	void Scroll(bool bDown);
+	int GetScoreXPos(int nScore, int nPlayerIndex) const;
 	nSDL_Font* GetClrFont(int n1, int n2, int n3, int n4);
 
 protected:

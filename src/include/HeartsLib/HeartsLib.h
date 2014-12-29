@@ -37,10 +37,16 @@ typedef enum
    NoPass
 } Pass_Direction_t;
 
+typedef enum
+{
+   Normal4Players,
+   Reduced3Players
+} GameMode_t;
+
 //////////////////////////////////////////////
 //Initalization/Error checking/Mode functions
 //////////////////////////////////////////////
-int HeartsLibCreate(HeartsLib* api, int nScoreLimit, int nJackDiamonds);
+int HeartsLibCreate(HeartsLib* api, int nScoreLimit, int nJackDiamonds, GameMode_t eMode);
 int HeartsLibCopy(HeartsLib* copyapi, HeartsLib orig);
 int HeartsLibFree(HeartsLib* api);
 
@@ -50,6 +56,7 @@ void ClearHeartsLibError(HeartsLib api);
 //////////////////////////////////////////////
 //HeartsLib related functions
 //////////////////////////////////////////////
+int GetNumHeartsPlayers(HeartsLib api);
 Pass_Direction_t GetHeartsPassDirection(HeartsLib api);
 int GetNumberOfCardsInHand(HeartsLib api, int nPlayerIndex);
 int GetCardInHand(HeartsLib api, Card* pCard, int nPlayerIndex, int nCard);
@@ -68,6 +75,7 @@ int GetNumberOfCardsInMiddle(HeartsLib api);
 int FigureOutWhoTakesTrick(HeartsLib api, int* pPlayerIndex);
 int DoHeartsNextHand(HeartsLib api);
 int GetMiddleCard(HeartsLib api, Card* pCard, int nCardIndex, int* pPlayerIndex);
+int GetInitialCard(HeartsLib api, Card* pCard, int nCardIndex);
 int ScoreOfCardsTaken(HeartsLib api, int nPlayerIndex);
 int GetPlayerShotMoon(HeartsLib api, int* pPlayerIndex);
 int GetNumberOfRounds(HeartsLib api);

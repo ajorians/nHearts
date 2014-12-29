@@ -13,6 +13,11 @@ extern "C"
 
 class CardImages;
 
+typedef enum {
+  SpeedNormal,
+  SpeedSlower
+} SpeedCard;
+
 struct PieceSprite
 {
    SDL_Surface* img;
@@ -24,6 +29,7 @@ struct PieceSprite
    bool enabled;
    int x,y;
    int toX, toY;
+   SpeedCard m_eSpeed;
    bool toFade;
    struct PieceSprite* next;
 };
@@ -35,7 +41,8 @@ public:
    ~PieceControl();
 
    void ClearPieces();
-   bool CreateCard(Card c, int nPlayerIndex, int nCardIndex, bool bHorizontal);
+   bool CreateCard(Card c, CardLocation eLocation, int nCardIndex, bool bHorizontal);
+   bool CreateInitialCard(Card c, int nX, int nY);
    bool MoveCard(Card c, int nX, int nY);
    bool MakeVisible(Card c, bool bVisible, bool bEnabled);
    bool IsAnimating() const;

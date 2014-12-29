@@ -38,6 +38,8 @@ protected:
 	void RebuildPieces();
 	void ConstructAIs();
 
+	CardLocation GetCardLocation(int nPlayerIndex) const;
+
 protected:
 	SDL_Surface	*m_pScreen;//Does not own
 	MouseHandling	*m_pMouse;//Does not own

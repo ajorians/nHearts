@@ -104,9 +104,10 @@ bool ScoreReview::PollEvents()
 	return true;
 }
 
-int GetScoreXPos(int nScore, int nPlayerIndex)
+int ScoreReview::GetScoreXPos(int nScore, int nPlayerIndex) const
 {
    int nOffset;
+   //int nNumPlayers = GetNumHeartsPlayers(*m_pHeartsLib);
    switch(nPlayerIndex)
    {
       default:
@@ -130,9 +131,9 @@ int GetScoreXPos(int nScore, int nPlayerIndex)
 
 nSDL_Font* ScoreReview::GetClrFont(int n1, int n2, int n3, int n4)
 {
-   if( n1 <= n2 && n1 <= n3 && n1 <= n4 )
+   if( n1 <= n2 && n1 <= n3 && (GetNumHeartsPlayers(*m_pHeartsLib)==3 ? true : n1 <= n4) )
       return m_pFontGood;
-   if( n1 >= n2 && n1 >= n3 && n1 >= n4 )
+   if( n1 >= n2 && n1 >= n3 && (GetNumHeartsPlayers(*m_pHeartsLib)==3 ? true : n1 >= n4) )
       return m_pFontBad;
    return m_pFont;
 }
@@ -145,7 +146,12 @@ void ScoreReview::UpdateDisplay()
 	nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "Score Review:");
 	nTop += 15;
 
-	nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "     --1-- | --2-- | --3-- | --4--");
+	int nNumPlayers = GetNumHeartsPlayers(*m_pHeartsLib);
+	if( nNumPlayers == 3 ) {
+		nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "     --1-- | --2-- | --3--");
+	} else {
+		nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "     --1-- | --2-- | --3-- | --4--");
+	}
 	nTop += 10;
 
 	int nRounds = GetNumberOfRounds(*m_pHeartsLib);
@@ -158,7 +164,8 @@ void ScoreReview::UpdateDisplay()
                 nSDL_DrawString(m_pScreen, m_pFont, GetScoreXPos(10, 0), nTop, "...");
                 nSDL_DrawString(m_pScreen, m_pFont, GetScoreXPos(10, 1), nTop, "...");
                 nSDL_DrawString(m_pScreen, m_pFont, GetScoreXPos(10, 2), nTop, "...");
-                nSDL_DrawString(m_pScreen, m_pFont, GetScoreXPos(10, 3), nTop, "...");
+		if( nNumPlayers > 3 )
+	                nSDL_DrawString(m_pScreen, m_pFont, GetScoreXPos(10, 3), nTop, "...");
                 nTop += 10;
 	}
 	for(int i=nStartRoundIndex; i<=nEndRoundIndex; i++) {
@@ -166,12 +173,13 @@ void ScoreReview::UpdateDisplay()
 		n1 = GetHeartsRoundScore(*m_pHeartsLib, 0, i);
 		n2 = GetHeartsRoundScore(*m_pHeartsLib, 1, i);
 		n3 = GetHeartsRoundScore(*m_pHeartsLib, 2, i);
-		n4 = GetHeartsRoundScore(*m_pHeartsLib, 3, i);
+		n4 = nNumPlayers > 3 ? GetHeartsRoundScore(*m_pHeartsLib, 3, i) : 0;
 		nSDL_DrawString(m_pScreen, m_pFont, 35 + 15 + (i>9 ? 8 : 10), nTop, "%d", i+1);
 		nSDL_DrawString(m_pScreen, GetClrFont(n1,n2,n3,n4), GetScoreXPos(n1, 0), nTop, "%d", n1);
 		nSDL_DrawString(m_pScreen, GetClrFont(n2,n1,n3,n4), GetScoreXPos(n2, 1), nTop, "%d", n2);
 		nSDL_DrawString(m_pScreen, GetClrFont(n3,n2,n1,n4), GetScoreXPos(n3, 2), nTop, "%d", n3);
-		nSDL_DrawString(m_pScreen, GetClrFont(n4,n2,n3,n1), GetScoreXPos(n4, 3), nTop, "%d", n4);
+		if( nNumPlayers > 3 )
+			nSDL_DrawString(m_pScreen, GetClrFont(n4,n2,n3,n1), GetScoreXPos(n4, 3), nTop, "%d", n4);
 		nTop += 10;
 	}
 	if( nEndRoundIndex != (nRounds-1) ) {
@@ -179,14 +187,19 @@ void ScoreReview::UpdateDisplay()
                 nSDL_DrawString(m_pScreen, m_pFont, GetScoreXPos(10, 0), nTop, "...");
                 nSDL_DrawString(m_pScreen, m_pFont, GetScoreXPos(10, 1), nTop, "...");
                 nSDL_DrawString(m_pScreen, m_pFont, GetScoreXPos(10, 2), nTop, "...");
-                nSDL_DrawString(m_pScreen, m_pFont, GetScoreXPos(10, 3), nTop, "...");
+		if( nNumPlayers > 3 )
+	                nSDL_DrawString(m_pScreen, m_pFont, GetScoreXPos(10, 3), nTop, "...");
                 nTop += 10;
         }
 
 	nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "--------------------------------------");
 	nTop += 10;
 
-	nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "Total:     |      |      |");
+	if( nNumPlayers > 3 ) {
+		nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "Total:     |      |      |");
+	} else {
+		 nSDL_DrawString(m_pScreen, m_pFont, 35 + 15, nTop, "Total:     |      |");
+	}
 	int n1 = GetHeartsPlayerScore(*m_pHeartsLib, 0);
 	int n2 = GetHeartsPlayerScore(*m_pHeartsLib, 1);
 	int n3 = GetHeartsPlayerScore(*m_pHeartsLib, 2);
@@ -194,7 +207,8 @@ void ScoreReview::UpdateDisplay()
         nSDL_DrawString(m_pScreen, GetClrFont(n1,n2,n3,n4), GetScoreXPos(n1, 0), nTop, "%d", n1);
         nSDL_DrawString(m_pScreen, GetClrFont(n2,n1,n3,n4), GetScoreXPos(n2, 1), nTop, "%d", n2);
         nSDL_DrawString(m_pScreen, GetClrFont(n3,n2,n1,n4), GetScoreXPos(n3, 2), nTop, "%d", n3);
-        nSDL_DrawString(m_pScreen, GetClrFont(n4,n2,n3,n1), GetScoreXPos(n4, 3), nTop, "%d", n4);
+	if( nNumPlayers > 3 )
+	        nSDL_DrawString(m_pScreen, GetClrFont(n4,n2,n3,n1), GetScoreXPos(n4, 3), nTop, "%d", n4);
 	nTop += 15;
 
 	int nPlayerShotMoon = -1;

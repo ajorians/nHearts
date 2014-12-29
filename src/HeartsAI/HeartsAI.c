@@ -226,7 +226,7 @@ int GetNumberUnplayedBeatenBy(HeartsAILib ai, Suit_t eSuit, int nCardValue)
    int nCardsBeatenBy = 0;
    pH = ai;
 
-   for(nPlayerIndex=0; nPlayerIndex<4; nPlayerIndex++) {
+   for(nPlayerIndex=0; nPlayerIndex<GetNumHeartsPlayers(pH->m_hearts); nPlayerIndex++) {
       int i;
       if( pH->m_nPlayerIndex == nPlayerIndex )
          continue;
@@ -275,7 +275,7 @@ int GetNumberUnplayedBeats(HeartsAILib ai, Suit_t eSuit, int nCardValue)
    int nCardsBeats = 0;
    pH = ai;
 
-   for(nPlayerIndex=0; nPlayerIndex<4; nPlayerIndex++) {
+   for(nPlayerIndex=0; nPlayerIndex<GetNumHeartsPlayers(pH->m_hearts); nPlayerIndex++) {
       int i;
       if( pH->m_nPlayerIndex == nPlayerIndex )
          continue;
@@ -971,7 +971,7 @@ int HeartsAIGetCountOfSuitsNotPlayed(HeartsAILib ai, int* pnClubs, int* pnDiamon
 
    pH = ai;
 
-   for(nPlayerIndex=0; nPlayerIndex<4; nPlayerIndex++) {
+   for(nPlayerIndex=0; nPlayerIndex<GetNumHeartsPlayers(pH->m_hearts); nPlayerIndex++) {
       int nClubs, nDiamonds, nSpades, nHearts;
       nClubs = nDiamonds = nSpades = nHearts = 0;
 

@@ -24,6 +24,7 @@ public:
    MAKE_CONFIG_ITEM(int, JackDiamondsAmount);
    MAKE_CONFIG_ITEM(int, PieceMovePerStep);
    MAKE_CONFIG_ITEM(int, ShowAllCards);
+   MAKE_CONFIG_ITEM(int, GameMode);
 
 //Achievements
    MAKE_CONFIG_ITEM(int, GamesPlayed);

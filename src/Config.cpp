@@ -5,6 +5,7 @@
 #define JACK_DIAMONDS_DEFAULT      (0)
 #define PIECE_STEP_DEFAULT	   (7)
 #define SHOW_ALL_CARDS_DEFAULT	   (0)
+#define GAME_MODE_DEFAULT	   (0)
 
 #define GAMES_PLAYED_DEFAULT		(0)
 #define GAMES_WON_DEFAULT		(0)
@@ -31,7 +32,16 @@
    UpdateArchiveEntry(m_Archive, "Settings", STRINGIFY_CONFIG_ITEM(Use##identifier), buffer, NULL);
 
 Config::Config()
-: m_ScoreLimit(SCORE_LIMIT_DEFAULT), m_JackDiamondsAmount(JACK_DIAMONDS_DEFAULT), m_PieceMovePerStep(PIECE_STEP_DEFAULT), m_ShowAllCards(SHOW_ALL_CARDS_DEFAULT), m_GamesPlayed(GAMES_PLAYED_DEFAULT), m_GamesWon(GAMES_WON_DEFAULT), m_TimesShotMoon(TIMES_SHOT_MOON_DEFAULT), m_WonWith0Points(WON_WITH_0_POINTS_DEFAULT)
+: 
+m_ScoreLimit(SCORE_LIMIT_DEFAULT), 
+m_JackDiamondsAmount(JACK_DIAMONDS_DEFAULT), 
+m_PieceMovePerStep(PIECE_STEP_DEFAULT), 
+m_ShowAllCards(SHOW_ALL_CARDS_DEFAULT), 
+m_GameMode(GAME_MODE_DEFAULT),
+m_GamesPlayed(GAMES_PLAYED_DEFAULT), 
+m_GamesWon(GAMES_WON_DEFAULT), 
+m_TimesShotMoon(TIMES_SHOT_MOON_DEFAULT), 
+m_WonWith0Points(WON_WITH_0_POINTS_DEFAULT)
 {
    ArchiveCreate(&m_Archive);
 
@@ -46,6 +56,7 @@ Config::Config()
       READ_INT_CONFIG_VAR(JackDiamondsAmount);
       READ_INT_CONFIG_VAR(PieceMovePerStep);
       READ_INT_CONFIG_VAR(ShowAllCards);
+      READ_INT_CONFIG_VAR(GameMode);
 
 //Achievements
       READ_INT_CONFIG_VAR(GamesPlayed);
@@ -63,6 +74,7 @@ Config::~Config()
    WRITE_INT_CONFIG_VAR(JackDiamondsAmount);
    WRITE_INT_CONFIG_VAR(PieceMovePerStep);
    WRITE_INT_CONFIG_VAR(ShowAllCards);
+   WRITE_INT_CONFIG_VAR(GameMode);
 
 //Achievements
    WRITE_INT_CONFIG_VAR(GamesPlayed);

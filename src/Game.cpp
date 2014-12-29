@@ -13,7 +13,7 @@ extern "C"
 Game::Game(SDL_Surface* pScreen, MouseHandling* pMouse, Config* pConfig, AchieveConfig* pAchieve, CardImages* pCardImages)
 : m_pScreen(pScreen), m_pMouse(pMouse), m_pConfig(pConfig), m_pAchieve(pAchieve), m_pCardImages(pCardImages), m_Pieces(pScreen, &m_Metrics, m_pCardImages, pConfig)/*, m_ShotMoonMessage(pScreen)*/, m_nCurrentCard(-1)
 {
-	HeartsLibCreate(&m_Hearts, m_pConfig->GetScoreLimit(), m_pConfig->GetJackDiamondsAmount());
+	HeartsLibCreate(&m_Hearts, m_pConfig->GetScoreLimit(), m_pConfig->GetJackDiamondsAmount(), /*m_pConfig->GetGameMode() == 1 ?*/ Reduced3Players /*: Normal4Players*/);
 
 	m_pFont = nSDL_LoadFont(NSDL_FONT_THIN, 0/*R*/, 0/*G*/, 0/*B*/);
 
@@ -29,7 +29,7 @@ Game::Game(SDL_Surface* pScreen, MouseHandling* pMouse, Config* pConfig, Achieve
 
 Game::~Game()
 {
-	for(int i=0; i<3; i++)
+	for(int i=0; i<GetNumHeartsPlayers(m_Hearts); i++)
 		HeartsAIFree(&m_aAIs[i]);
 	nSDL_FreeFont(m_pFont);
 	SDL_FreeSurface(m_pBackground);
@@ -137,7 +137,7 @@ void Game::UpdateDisplay()
 
 	//Update cards in hand
 	bool bHasPassedCards = HasPassedCards(m_Hearts) == HEARTSLIB_PASSED_CARDS;
-	for(int nPlayerIndex = 0; nPlayerIndex<4; nPlayerIndex++) {
+	for(int nPlayerIndex = 0; nPlayerIndex<GetNumHeartsPlayers(m_Hearts); nPlayerIndex++) {
 		int nNumCards = GetNumberOfCardsInHand(m_Hearts, nPlayerIndex);
 		int nNumSelected = GetNumberSelectedCards(m_Hearts, nPlayerIndex);
 		if( !bHasPassedCards ) {
@@ -154,8 +154,8 @@ void Game::UpdateDisplay()
 				m_Pieces.MoveCard(c, m_Metrics.GetSelectedXPos(nSelectedCard++), m_Metrics.GetSelectedTop());
 			 }
 			else {
-				int nX = m_Metrics.GetXPos(nPlayerIndex, nNonSelectedCard);
-				int nY = m_Metrics.GetYPos(nPlayerIndex, nNonSelectedCard);
+				int nX = m_Metrics.GetXPos(GetCardLocation(nPlayerIndex), nNonSelectedCard);
+				int nY = m_Metrics.GetYPos(GetCardLocation(nPlayerIndex), nNonSelectedCard);
 				if( nPlayerIndex == 0 && m_nCurrentCard == i )
 					nY-=10;
 				m_Pieces.MoveCard(c, nX, nY);
@@ -180,10 +180,9 @@ void Game::UpdateDisplay()
 		Card c;
 		int nPlayerIndex;
 		GetMiddleCard(m_Hearts, &c, i, &nPlayerIndex);
-		m_Pieces.MoveCard(c, m_Metrics.GetMiddleCardX(nPlayerIndex), m_Metrics.GetMiddleCardY(nPlayerIndex));
+		m_Pieces.MoveCard(c, m_Metrics.GetMiddleCardX(GetCardLocation(nPlayerIndex)), m_Metrics.GetMiddleCardY(GetCardLocation(nPlayerIndex)));
 		m_Pieces.MakeVisible(c, true, true);
 	}
-
 
 	//Draw background
 #if 0
@@ -241,7 +240,7 @@ void Game::SelectCard()
       if( GetNumberSelectedCards(m_Hearts, 0) == 3 ) {
          PassSelectedCards(m_Hearts, 0);
 
-         for(int i=1; i<4; i++) {
+         for(int i=1; i<GetNumHeartsPlayers(m_Hearts); i++) {
             int nIndex1, nIndex2, nIndex3;
             HeartsAIDesiredPassIndexes(m_aAIs[i-1], &nIndex1, &nIndex2, &nIndex3);
             ToggleSelectedCard(m_Hearts, i, nIndex1);
@@ -274,7 +273,14 @@ void Game::DoGamePlay()
          for(int nCard = 0; nCard < nNumCardsInMiddle; nCard++) {
             Card c;
             GetMiddleCard(m_Hearts, &c, nCard, NULL);
-            m_Pieces.MoveCard(c, m_Metrics.GetPlayerSideX(nPlayerIndex), m_Metrics.GetPlayerSideY(nPlayerIndex));
+            m_Pieces.MoveCard(c, m_Metrics.GetPlayerSideX(GetCardLocation(nPlayerIndex)), m_Metrics.GetPlayerSideY(GetCardLocation(nPlayerIndex)));
+         }
+         int nNumInitialCards = 1;
+         for(int i=0; i<nNumInitialCards; i++) {
+            Card c;
+            GetInitialCard(m_Hearts, &c, i);
+            m_Pieces.MakeVisible(c, true, true);
+            m_Pieces.MoveCard(c, m_Metrics.GetPlayerSideX(GetCardLocation(nPlayerIndex)), m_Metrics.GetPlayerSideY(GetCardLocation(nPlayerIndex)));
          }
          GiveTrickToPlayer(m_Hearts);
       }
@@ -291,13 +297,15 @@ void Game::DoGamePlay()
    }
 
    if( HasPassedCards(m_Hearts) == HEARTSLIB_PASSED_CARDS ) {
-      if( GetNumberOfCardsInHand(m_Hearts, 0) == 0 && GetNumberOfCardsInHand(m_Hearts, 1) == 0 && GetNumberOfCardsInHand(m_Hearts, 2) == 0 && GetNumberOfCardsInHand(m_Hearts, 3) == 0  ) {
-         ScoreReview r(m_pScreen, &m_Hearts, m_pMouse);
-         while( r.Loop() ){}
-         m_pAchieve->LookForAchievements(m_Hearts);
-         DoHeartsNextHand(m_Hearts);
-         RebuildPieces();
-      }
+      for(int i=0; i<GetNumHeartsPlayers(m_Hearts); i++)
+         if( GetNumberOfCardsInHand(m_Hearts, i) != 0 )
+            return;
+
+      ScoreReview r(m_pScreen, &m_Hearts, m_pMouse);
+      while( r.Loop() ){}
+      m_pAchieve->LookForAchievements(m_Hearts);
+      DoHeartsNextHand(m_Hearts);
+      RebuildPieces();
    }
 }
 
@@ -315,20 +323,43 @@ void Game::RemovedSelectedPieces()
 void Game::RebuildPieces()
 {
    m_Pieces.ClearPieces();
-   for(int nPlayerIndex=0; nPlayerIndex<4; nPlayerIndex++) {
+   for(int nPlayerIndex=0; nPlayerIndex<GetNumHeartsPlayers(m_Hearts); nPlayerIndex++) {
       int nNumCards = GetNumberOfCardsInHand(m_Hearts, nPlayerIndex);
       m_Metrics.SetNumCards(nNumCards);
       for(int i=0; i<nNumCards; i++) {
          Card c;
          GetCardInHand(m_Hearts, &c, nPlayerIndex, i);
-         m_Pieces.CreateCard(c, nPlayerIndex, i, nPlayerIndex == 1 || nPlayerIndex == 3);
+         bool bHorizontal = nPlayerIndex == 1 || nPlayerIndex == 3;
+         if( GetNumHeartsPlayers(m_Hearts) == 3 && nPlayerIndex == 2 )
+            bHorizontal = true;
+         m_Pieces.CreateCard(c, GetCardLocation(nPlayerIndex), i, bHorizontal);
       }
+   }
+
+   int nNumInitialCards = 1;
+   for(int i=0; i<nNumInitialCards; i++) {
+      Card c;
+      GetInitialCard(m_Hearts, &c, i);
+      m_Pieces.CreateInitialCard(c, m_Metrics.GetInitialCardX(), m_Metrics.GetInitialCardY());
    }
 }
 
 void Game::ConstructAIs()
 {
-   for(int i=0; i<3; i++) {
+   for(int i=0; i<GetNumHeartsPlayers(m_Hearts); i++) {
       HeartsAICreate(&m_aAIs[i], m_Hearts, i+1);
    }
+}
+
+CardLocation Game::GetCardLocation(int nPlayerIndex) const
+{
+   if( nPlayerIndex == 1 )
+      return LocLeft;
+   if( nPlayerIndex == 2 && GetNumHeartsPlayers(m_Hearts) == 4 )
+      return LocTop;
+   if( nPlayerIndex == 2 && GetNumHeartsPlayers(m_Hearts) == 3 )
+      return LocRight;
+   if( nPlayerIndex == 3 )
+      return LocRight;
+   return LocBottom;
 }

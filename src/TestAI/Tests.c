@@ -33,7 +33,7 @@ int TestConstruction()
    HeartsLib api;
    HeartsAILib ai;
    PRINT_FUNC;
-   if( HEARTSLIB_OK != HeartsLibCreate(&api, 100, 0) )
+   if( HEARTSLIB_OK != HeartsLibCreate(&api, 100, 0, Normal4Players) )
       return TEST_FAILED;
 
    HeartsAICreate(&ai, api, 0);
@@ -52,7 +52,7 @@ int TestPassing()
    int i;
    PRINT_FUNC;
    printf("\n");
-   if( HEARTSLIB_OK != HeartsLibCreate(&api, 100, 0) )
+   if( HEARTSLIB_OK != HeartsLibCreate(&api, 100, 0, Normal4Players) )
       return TEST_FAILED;
 
    for(i=0; i<4; i++) {
@@ -78,7 +78,7 @@ int TestPlaying()
    HeartsAILib ai[4];
    PRINT_FUNC;
    printf("\n");
-   if( HEARTSLIB_OK != HeartsLibCreate(&api, 100, 0) )
+   if( HEARTSLIB_OK != HeartsLibCreate(&api, 100, 0, Normal4Players) )
       return TEST_FAILED;
 
    for(i=0; i<4; i++) {

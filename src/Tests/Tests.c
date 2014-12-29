@@ -33,7 +33,7 @@ int TestConstruction()
    HeartsLib api;
    int i;
    PRINT_FUNC;
-   if( HEARTSLIB_OK != HeartsLibCreate(&api, 100, 0) )
+   if( HEARTSLIB_OK != HeartsLibCreate(&api, 100, 0, Normal4Players) )
       return TEST_FAILED;
 
    for(i=0; i<4; i++)
@@ -52,7 +52,7 @@ int TestCopy()
    int i;
    HeartsLib copy;
    PRINT_FUNC;
-   if( HEARTSLIB_OK != HeartsLibCreate(&api, 100, 0) )
+   if( HEARTSLIB_OK != HeartsLibCreate(&api, 100, 0, Normal4Players) )
       return TEST_FAILED;
 
    for(i=0; i<4; i++)
@@ -81,7 +81,7 @@ int TestPassing()
    int i;
    Pass_Direction_t ePass;
    PRINT_FUNC;
-   if( HEARTSLIB_OK != HeartsLibCreate(&api, 100, 0) )
+   if( HEARTSLIB_OK != HeartsLibCreate(&api, 100, 0, Normal4Players) )
       return TEST_FAILED;
 
    ePass = GetHeartsPassDirection(api);
@@ -115,7 +115,7 @@ int TestGame()
    int i;
 
    PRINT_FUNC;
-   if( HEARTSLIB_OK != HeartsLibCreate(&api, 100, 0) )
+   if( HEARTSLIB_OK != HeartsLibCreate(&api, 100, 0, Normal4Players) )
       return TEST_FAILED;
 
    while( HEARTSLIB_STILL_PLAYING == GetHeartsGameOver(api) ) {

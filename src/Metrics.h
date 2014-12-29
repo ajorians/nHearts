@@ -6,6 +6,13 @@ extern "C"
         #include <os.h>
 }
 
+typedef enum {
+   LocLeft,
+   LocTop,
+   LocRight,
+   LocBottom
+} CardLocation;
+
 class Metrics
 {
 public:
@@ -13,20 +20,25 @@ public:
    bool SetCardDimensions(int nWidth, int nHeight);
    void SetNumCards(int nNumCards);
    int GetNumCards() const;
-   int GetXPos(int nPlayerIndex, int nCardIndex) const;
-   int GetYPos(int nPlayerIndex, int nCardIndex) const;
+   int GetXPos(CardLocation eLocation, int nCardIndex) const;
+   int GetYPos(CardLocation eLocation, int nCardIndex) const;
    int GetSelectedXPos(int nSelectedIndex) const;
    int GetSelectedTop() const;
-   int GetPlayerSideX(int nPlayerIndex) const;
-   int GetPlayerSideY(int nPlayerIndex) const;
+   int GetPlayerSideX(CardLocation eLocation) const;
+   int GetPlayerSideY(CardLocation eLocation) const;
 
-   int GetMiddleCardX(int nPlayerIndex) const;
-   int GetMiddleCardY(int nPlayerIndex) const;
+   int GetMiddleCardX(CardLocation eLocation) const;
+   int GetMiddleCardY(CardLocation eLocation) const;
+
+   int GetInitialCardX() const;
+   int GetInitialCardY() const;
 
    int GetCardWidth() const;
    int GetCardHeight() const;
    int GetLeft() const;
    int GetTop() const;
+
+   int GetCardOffsetX() const;
 
 protected:
    int m_nNumCards;
